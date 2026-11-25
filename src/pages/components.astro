@@ -36,6 +36,11 @@ import ChartFrame from '../components/ChartFrame.astro';
 import FeatureList from '../components/FeatureList.astro';
 import ArticleHeader from '../components/ArticleHeader.astro';
 import Sidenote from '../components/Sidenote.astro';
+import Testimonial from '../components/Testimonial.astro';
+import TestimonialGroup from '../components/TestimonialGroup.astro';
+import StatRow from '../components/StatRow.astro';
+import CaseStudyCard from '../components/CaseStudyCard.astro';
+import BookingEmbed from '../components/BookingEmbed.astro';
 import Spec from './_components/Spec.astro';
 import { getAllPosts } from '../lib/posts';
 
@@ -145,6 +150,16 @@ const explorer = [
       { id: 'component-blogcard', label: 'BlogCard' },
       { id: 'component-relatedposts', label: 'RelatedPosts' },
       { id: 'component-authorbox', label: 'AuthorBox' },
+    ],
+  },
+  {
+    folder: 'proof',
+    files: [
+      { id: 'component-testimonial', label: 'Testimonial' },
+      { id: 'component-testimonialgroup', label: 'TestimonialGroup' },
+      { id: 'component-statrow', label: 'StatRow' },
+      { id: 'component-casestudycard', label: 'CaseStudyCard' },
+      { id: 'component-bookingembed', label: 'BookingEmbed' },
     ],
   },
   {
@@ -498,6 +513,54 @@ const sampleMatrixRows = [
 
           <Spec name="AuthorBox" id="component-authorbox" what="Author photo, bio, and the SEO Helpline link. The bio wraps above the button on narrow screens." props="none (reads src/data/author.ts)">
             <AuthorBox />
+          </Spec>
+        </div>
+
+        <div class="folder" id="folder-proof">
+          <p class="folder__name">proof</p>
+          <p class="folder__note">Evidence and booking. Real quotes and numbers only: these demos use bracketed placeholders, and the live testimonial sections stay hidden until <code>src/data/testimonials.ts</code> has entries.</p>
+
+          <Spec name="Testimonial" id="component-testimonial" what="One client quote with name, role, and photo or initials." props="quote, name, role, photo, class">
+            <div class="demo-narrow">
+              <Testimonial quote="[The client's words, exactly as they said them, with permission.]" name="[Client Name]" role="[Role, Company]" />
+            </div>
+          </Spec>
+
+          <Spec name="TestimonialGroup" id="component-testimonialgroup" what="A section of quotes that renders nothing until there are quotes to show." props="items, title, eyebrow, tone" flush>
+            <TestimonialGroup
+              items={[
+                { quote: '[First quote.]', name: '[Client Name]', role: '[Role, Company]' },
+                { quote: '[Second quote.]', name: '[Client Name]', role: '[Role, Company]' },
+              ]}
+            />
+          </Spec>
+
+          <Spec name="StatRow" id="component-statrow" what="Proof-point numbers in a row. Unknown numbers stay bracketed until they're confirmed." props="items, class">
+            <StatRow
+              items={[
+                { value: '[N]', unit: '%', label: '[What the number counts]', note: '[Source and period]' },
+                { value: '[N]', label: '[What the number counts]', note: '[Source and period]' },
+                { value: '[N]', unit: 'x', label: '[What the number counts]' },
+              ]}
+            />
+          </Spec>
+
+          <Spec name="CaseStudyCard" id="component-casestudycard" what="Problem, what I did, and the result, with one headline number. The whole card links to the write-up." props="title, client, problem, approach, result, metric, glyph, href, headingLevel, class">
+            <div class="demo-narrow">
+              <CaseStudyCard
+                glyph="trend"
+                client="[Client or context]"
+                title="[Outcome-first title]"
+                metric={{ value: '[N]%', label: '[what changed]' }}
+                problem="[What was going wrong, in one sentence.]"
+                approach="[What you did about it.]"
+                result="[What happened, with the number and the period.]"
+              />
+            </div>
+          </Spec>
+
+          <Spec name="BookingEmbed" id="component-bookingembed" what="TidyCal calendar with a calendar-shaped placeholder while it loads, a direct link if it stalls, and a no-JavaScript fallback." props="path, linkLabel, demo">
+            <BookingEmbed path="jdegbau/seo-helpline-consultation" demo />
           </Spec>
         </div>
 

@@ -10,6 +10,8 @@ import BlogCard from '../components/BlogCard.astro';
 import Steps from '../components/Steps.astro';
 import FAQAccordion from '../components/FAQAccordion.astro';
 import CallToAction from '../components/CallToAction.astro';
+import TestimonialGroup from '../components/TestimonialGroup.astro';
+import { testimonials } from '../data/testimonials';
 import { getAllPosts } from '../lib/posts';
 import { author } from '../data/author';
 
@@ -156,6 +158,8 @@ const pageSchema = {
   >
     <FeatureList items={services} columns={2} />
   </Section>
+
+  <TestimonialGroup items={testimonials} />
 
   <Section
     tone="band"

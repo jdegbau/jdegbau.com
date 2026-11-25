@@ -897,27 +897,12 @@ hr { border: 0; border-top: 1px solid var(--jdb-line); margin: var(--jdb-s-7) 0;
 .jdb-timeline__item p { margin: 0; font-size: var(--jdb-fs-sm); max-width: 60ch; }
 
 /* --------------------------------------------------------------------------
-   13. STAT / METRIC HIGHLIGHT  (new — proof-point numbers)
+   13. STAT / METRIC HIGHLIGHT — styled in src/components/StatRow.astro
    -------------------------------------------------------------------------- */
-.jdb-stats { display: grid; gap: 1px; background: var(--jdb-line); border: 1px solid var(--jdb-line); border-radius: var(--jdb-r-lg); overflow: hidden; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); }
-.jdb-stat { background: var(--jdb-surface); padding: var(--jdb-s-6); }
-.jdb-stat__value { font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-2xl); font-weight: var(--jdb-fw-bold); color: var(--jdb-fg); line-height: 1; }
-.jdb-stat__value .jdb-stat__unit { font-size: .55em; color: var(--jdb-orange-400); margin-left: .15em; }
-.jdb-stat__label { font-size: var(--jdb-fs-sm); color: var(--jdb-fg-muted); margin-top: var(--jdb-s-2); }
 
 /* --------------------------------------------------------------------------
-   14. TESTIMONIAL CARD + GROUP  (new — social proof, none on site yet)
+   14. TESTIMONIAL — styled in src/components/Testimonial.astro
    -------------------------------------------------------------------------- */
-.jdb-quote {
-  background: var(--jdb-surface); border: 1px solid var(--jdb-line); border-radius: var(--jdb-r-lg);
-  padding: var(--jdb-s-6); height: 100%; display: flex; flex-direction: column;
-}
-.jdb-quote__mark { font-family: var(--jdb-font-sans); font-size: 2rem; line-height: 1; color: var(--jdb-orange-500); margin-bottom: var(--jdb-s-2); }
-.jdb-quote p { flex: 1; color: var(--jdb-fg-dim); font-size: var(--jdb-fs-base); }
-.jdb-quote__by { display: flex; align-items: center; gap: var(--jdb-s-3); margin-top: var(--jdb-s-5); }
-.jdb-quote__avatar { width: 2.5rem; height: 2.5rem; border-radius: 50%; background: var(--jdb-navy-700); flex: 0 0 auto; }
-.jdb-quote__name { font-weight: var(--jdb-fw-semibold); color: var(--jdb-fg); font-size: var(--jdb-fs-sm); }
-.jdb-quote__role { font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted); }
 
 /* --------------------------------------------------------------------------
    15. BLOG POST CARD + GRID

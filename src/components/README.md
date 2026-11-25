@@ -211,6 +211,36 @@ Notes:
 - Items sit on a hairline, not in boxes (they aren't clickable unless given `href`). Each gets its `ChartGlyph`, or a two-digit number when there's no glyph.
 - Services use the same glyph as their blog topic: content `hierarchy`, data visualization `compare`, measurement `trend`, SEO `search`.
 
+### Testimonial + TestimonialGroup
+Purpose: Client quotes.
+Location: `src/components/Testimonial.astro`, `src/components/TestimonialGroup.astro`, data in `src/data/testimonials.ts`
+Notes:
+- `Testimonial` props: `quote`, `name`, `role?`, `photo?` (square; initials are shown without one), `class?`.
+- `TestimonialGroup` props: `items`, `title?`, `eyebrow?`, `tone?`. It renders nothing while `items` is empty, so the home page and SEO Helpline page already include it and it appears as soon as `src/data/testimonials.ts` has entries.
+- Real quotes only, with permission, worded as the person said them. Never invent or paraphrase one.
+
+### StatRow
+Purpose: A row of proof-point numbers.
+Location: `src/components/StatRow.astro`
+Notes:
+- Props: `items: { value, unit?, label, note? }[]`, `class?`. `note` is the source or period.
+- Only confirmed numbers. An unknown value stays visibly unknown (`[N]`) until it's confirmed; don't ship a placeholder to a live page.
+
+### CaseStudyCard
+Purpose: A short case study: problem, what was done, result, and one headline number.
+Location: `src/components/CaseStudyCard.astro`
+Notes:
+- Props: `title`, `client?`, `problem`, `approach`, `result`, `metric?: { value, label }`, `glyph?`, `href?`, `headingLevel?`, `class?`.
+- With `href`, the whole card links to the full write-up (stretched title link) and lifts on hover.
+- Real engagements only. Describe the client generically ("B2B manufacturer") unless you have permission to name them.
+
+### BookingEmbed
+Purpose: The TidyCal booking calendar, with graceful loading.
+Location: `src/components/BookingEmbed.astro`
+Notes:
+- Props: `path` (TidyCal path, e.g. `jdegbau/seo-helpline-consultation`), `linkLabel?`, `demo?` (placeholder only, no TidyCal script).
+- A calendar-shaped placeholder holds the space until the calendar appears. If it hasn't after 8 seconds, the message says so and the direct booking link is emphasized. The direct link is always shown below, and a no-JavaScript fallback links to TidyCal.
+
 ### ChartGlyph
 Purpose: Small chart symbols used as the icon set for topics and services.
 Location: `src/components/ChartGlyph.astro`

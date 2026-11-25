@@ -1,0 +1,85 @@
+---
+/**
+ * A row of proof-point numbers. Only real, sourced numbers: an unknown value
+ * stays visibly unknown ("[Number]") until it's confirmed.
+ */
+interface Stat {
+  /** The number as it should read, e.g. "3.2" or "40". */
+  value: string;
+  /** Small suffix after the number, e.g. "%", "x", "hrs". */
+  unit?: string;
+  /** What the number counts, in a few words. */
+  label: string;
+  /** Where it comes from or over what period. */
+  note?: string;
+}
+
+interface Props {
+  items: Stat[];
+  class?: string;
+}
+
+const { items, class: className } = Astro.props;
+---
+
+<dl class:list={['jdb-stats', className]}>
+  {items.map((item) => (
+    <div class="jdb-stat">
+      <dt class="jdb-stat__label">{item.label}</dt>
+      <dd class="jdb-stat__value">
+        {item.value}{item.unit && <span class="jdb-stat__unit">{item.unit}</span>}
+      </dd>
+      {item.note && <dd class="jdb-stat__note">{item.note}</dd>}
+    </div>
+  ))}
+</dl>
+
+<style>
+  .jdb-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+    gap: 1px;
+    margin: 0;
+    overflow: hidden;
+    background: var(--jdb-line);
+    border: 1px solid var(--jdb-line);
+    border-radius: var(--jdb-r-lg);
+  }
+
+  .jdb-stat {
+    display: flex;
+    flex-direction: column;
+    padding: var(--jdb-s-6);
+    background: var(--jdb-surface-card);
+  }
+
+  /* The number reads first visually; the label stays first for screen readers. */
+  .jdb-stat__value {
+    order: -1;
+    margin: 0;
+    font-size: var(--jdb-fs-3xl);
+    font-weight: var(--jdb-fw-black);
+    line-height: 1;
+    letter-spacing: var(--jdb-track-display);
+    color: var(--jdb-fg);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .jdb-stat__unit {
+    margin-left: .08em;
+    font-size: .55em;
+    color: var(--jdb-orange-400);
+  }
+
+  .jdb-stat__label {
+    margin-top: var(--jdb-s-3);
+    font-size: var(--jdb-fs-sm);
+    color: var(--jdb-fg-dim);
+  }
+
+  .jdb-stat__note {
+    margin: var(--jdb-s-2) 0 0;
+    font-size: var(--jdb-fs-xs);
+    color: var(--jdb-fg-muted);
+  }
+</style>
