@@ -91,6 +91,39 @@ const sankeyDataset = (flows: typeof sankeyFlows, colors: Record<string, string>
 const calmColors = { colorFrom: 'var(--jdb-navy-600)', colorTo: 'var(--jdb-navy-600)', colorMode: 'from', alpha: 0.45 };
 const loudColors = { colorFrom: 'var(--jdb-orange-500)', colorTo: 'var(--jdb-good)', colorMode: 'gradient', alpha: 0.6 };
 
+// Jump links for the page index, in page order.
+const componentIndex = [
+  { id: 'component-blogcard', label: 'BlogCard' },
+  { id: 'component-authorbox', label: 'AuthorBox' },
+  { id: 'component-hero', label: 'Hero' },
+  { id: 'component-hero-intro', label: 'Hero (intro)' },
+  { id: 'component-hero-split', label: 'Hero (split)' },
+  { id: 'component-calltoaction', label: 'CallToAction' },
+  { id: 'component-contactform', label: 'ContactForm' },
+  { id: 'component-logotype', label: 'Logotype' },
+  { id: 'component-logos', label: 'Logos' },
+  { id: 'component-charttypeassessment', label: 'ChartTypeAssessment' },
+  { id: 'component-chartpickerquiz', label: 'ChartPickerQuiz' },
+  { id: 'component-datastorybestpractices', label: 'DataStoryBestPractices' },
+  { id: 'component-faqaccordion', label: 'FAQAccordion' },
+  { id: 'component-tableofcontents', label: 'TableOfContents' },
+  { id: 'component-quickcomparematrix', label: 'QuickCompareMatrix' },
+  { id: 'component-icon', label: 'Icon' },
+  { id: 'component-image', label: 'Image' },
+  { id: 'component-summarycard', label: 'SummaryCard' },
+  { id: 'component-callout', label: 'Callout' },
+  { id: 'component-steps', label: 'Steps' },
+  { id: 'component-tabs', label: 'Tabs + TabPanel' },
+  { id: 'component-downloadcard', label: 'DownloadCard' },
+  { id: 'component-postseriesnav', label: 'PostSeriesNav' },
+  { id: 'component-beforeafter', label: 'BeforeAfter' },
+  { id: 'component-beforeafter-slider', label: 'BeforeAfter (slider)' },
+  { id: 'component-annotatedfigure', label: 'AnnotatedFigure' },
+  { id: 'component-videoembed', label: 'VideoEmbed' },
+  { id: 'component-chartplayground', label: 'ChartPlayground' },
+  { id: 'component-relatedposts', label: 'RelatedPosts' },
+];
+
 const sampleMatrixRows = [
   { chartType: 'Line', trends: 'Ideal', compare: 'Capable', composition: 'Poor', distribution: 'Poor', bestFor: 'Traffic over time, ranking trends' },
   { chartType: 'Bar', trends: 'Capable', compare: 'Ideal', composition: 'Poor', distribution: 'Capable', bestFor: 'Channel comparison, page performance' },
@@ -111,6 +144,13 @@ const sampleMatrixRows = [
         <p class="jdb-section__sub">
           A living gallery of the shared building blocks used across this site so new patterns stay consistent, reusable, and easy to extend.
         </p>
+        <nav class="component-index" aria-label="Components on this page">
+          <ul>
+            {componentIndex.map((item) => (
+              <li><a href={`#${item.id}`}>{item.label}</a></li>
+            ))}
+          </ul>
+        </nav>
       </div>
     </header>
 
@@ -128,7 +168,7 @@ const sampleMatrixRows = [
           <div class="component-card">
             <div class="component-card__head">
               <span class="jdb-eyebrow">component</span>
-              <h2>AuthorBox</h2>
+              <h2 id="component-authorbox">AuthorBox</h2>
             </div>
             <AuthorBox />
           </div>
@@ -144,8 +184,8 @@ const sampleMatrixRows = [
               <span class="jdb-eyebrow">component</span>
               <h2 id="component-hero">Hero</h2>
             </div>
-            <Hero variant="full" backgroundImage="/assets/img/default-blog-hero.gif">
-              <span class="jdb-hero__eyebrow">component</span>
+            <Hero variant="full" backgroundImage="/assets/img/seo-data-viz.png">
+              <span class="jdb-hero__eyebrow">guide</span>
               <h2>Full-width hero with optional background image</h2>
               <p class="jdb-hero__lede">
                 This version is ideal for narrative introductions, feature launches, and post headers where the image should stretch edge-to-edge.
@@ -156,10 +196,10 @@ const sampleMatrixRows = [
             </Hero>
           </div>
 
-          <div class="component-card">
+          <div class="component-card component-card--span">
             <div class="component-card__head">
               <span class="jdb-eyebrow">component</span>
-              <h2>Hero (intro)</h2>
+              <h2 id="component-hero-intro">Hero (intro)</h2>
             </div>
             <Hero variant="intro" containerWidth="narrow">
               <span class="jdb-eyebrow">about</span>
@@ -168,13 +208,13 @@ const sampleMatrixRows = [
             </Hero>
           </div>
 
-          <div class="component-card">
+          <div class="component-card component-card--full">
             <div class="component-card__head">
               <span class="jdb-eyebrow">component</span>
-              <h2>Hero (split)</h2>
+              <h2 id="component-hero-split">Hero (split)</h2>
             </div>
-            <Hero variant="split" imageSrc="/assets/img/default-blog-hero.gif" imageAlt="Example split hero image">
-              <span class="jdb-hero__eyebrow">component</span>
+            <Hero variant="split" imageSrc="/assets/img/seo-data-viz.png" imageAlt="A dog at a desk surrounded by SEO dashboards">
+              <span class="jdb-hero__eyebrow">about</span>
               <h2>Text on the left, image on the right</h2>
               <p class="jdb-hero__lede">
                 Use this when the headline needs more emphasis while the visual acts as a supporting anchor on the opposite side.
@@ -195,7 +235,8 @@ const sampleMatrixRows = [
             <span class="jdb-eyebrow">component</span>
             <h2 id="component-calltoaction">CallToAction</h2>
           </div>
-          <CallToAction
+          <div class="playground-demo">
+<CallToAction
             title="Stuck on a content or measurement question?"
             text="Book a focused one-hour call and leave with practical next steps."
             primary={{ href: '/seo-helpline/', label: 'Book a call' }}
@@ -203,6 +244,7 @@ const sampleMatrixRows = [
             price={{ amount: '$100', unit: 'per 60-minute call' }}
             headingLevel="h3"
           />
+          </div>
         </div>
       </div>
     </section>
@@ -214,7 +256,9 @@ const sampleMatrixRows = [
             <span class="jdb-eyebrow">component</span>
             <h2 id="component-contactform">ContactForm</h2>
           </div>
-          <ContactForm demo />
+          <div class="playground-demo">
+            <ContactForm demo />
+          </div>
         </div>
       </div>
     </section>
@@ -226,7 +270,7 @@ const sampleMatrixRows = [
             <span class="jdb-eyebrow">component</span>
             <h2 id="component-logotype">Logotype</h2>
           </div>
-          <div class="component-logotype">
+          <div class="component-logotype playground-demo">
             <Logotype href={null} size="sm" />
             <Logotype href={null} />
             <Logotype href={null} size="lg" />
@@ -257,7 +301,7 @@ const sampleMatrixRows = [
         <div class="component-card component-card--full">
           <div class="component-card__head">
             <span class="jdb-eyebrow">component</span>
-            <h2>ChartTypeAssessment</h2>
+            <h2 id="component-charttypeassessment">ChartTypeAssessment</h2>
           </div>
           <ChartTypeAssessment />
         </div>
@@ -269,7 +313,7 @@ const sampleMatrixRows = [
         <div class="component-card component-card--full">
           <div class="component-card__head">
             <span class="jdb-eyebrow">component</span>
-            <h2>ChartPickerQuiz</h2>
+            <h2 id="component-chartpickerquiz">ChartPickerQuiz</h2>
           </div>
           <ChartPickerQuiz />
         </div>
@@ -281,7 +325,7 @@ const sampleMatrixRows = [
         <div class="component-card component-card--full">
           <div class="component-card__head">
             <span class="jdb-eyebrow">component</span>
-            <h2>DataStoryBestPractices</h2>
+            <h2 id="component-datastorybestpractices">DataStoryBestPractices</h2>
           </div>
           <DataStoryBestPractices />
         </div>
@@ -293,7 +337,7 @@ const sampleMatrixRows = [
         <div class="component-card component-card--full">
           <div class="component-card__head">
             <span class="jdb-eyebrow">component</span>
-            <h2>FAQAccordion</h2>
+            <h2 id="component-faqaccordion">FAQAccordion</h2>
           </div>
           <FAQAccordion items={sampleFaqs} />
         </div>
@@ -307,7 +351,9 @@ const sampleMatrixRows = [
             <span class="jdb-eyebrow">component</span>
             <h2 id="component-tableofcontents">TableOfContents</h2>
           </div>
-          <TableOfContents items={sampleTocItems} />
+          <div class="playground-demo">
+            <TableOfContents items={sampleTocItems} />
+          </div>
         </div>
       </div>
     </section>
@@ -317,7 +363,7 @@ const sampleMatrixRows = [
         <div class="component-card component-card--full">
           <div class="component-card__head">
             <span class="jdb-eyebrow">component</span>
-            <h2>QuickCompareMatrix</h2>
+            <h2 id="component-quickcomparematrix">QuickCompareMatrix</h2>
           </div>
           <QuickCompareMatrix rows={sampleMatrixRows} />
         </div>
@@ -329,7 +375,7 @@ const sampleMatrixRows = [
         <div class="component-card">
           <div class="component-card__head">
             <span class="jdb-eyebrow">component</span>
-            <h2>Icon</h2>
+            <h2 id="component-icon">Icon</h2>
           </div>
           <p class="icon-demo">
             <Icon name="linkedin-in" label="LinkedIn" />
@@ -351,7 +397,7 @@ const sampleMatrixRows = [
         <div class="component-card">
           <div class="component-card__head">
             <span class="jdb-eyebrow">component</span>
-            <h2>Image</h2>
+            <h2 id="component-image">Image</h2>
           </div>
           <div class="image-demo">
             <Image
@@ -477,7 +523,7 @@ const sampleMatrixRows = [
           <div class="component-card">
             <div class="component-card__head">
               <span class="jdb-eyebrow">component</span>
-              <h2>BeforeAfter (slider)</h2>
+              <h2 id="component-beforeafter-slider">BeforeAfter (slider)</h2>
             </div>
             <BeforeAfter
               layout="slider"
@@ -603,27 +649,29 @@ const sampleMatrixRows = [
     gap: var(--jdb-s-5);
   }
 
+  /* Showcase frames are static, so they don't react to hover: on this site
+     only clickable things lift (see "Interaction guidelines" in the README). */
   .component-card {
     display: flex;
     flex-direction: column;
     gap: var(--jdb-s-4);
+    min-width: 0;
     padding: var(--jdb-s-5);
     border: 1px solid var(--jdb-line-strong);
     border-radius: var(--jdb-r-xl);
     background: linear-gradient(180deg, rgba(15,31,56,0.92), rgba(17,30,52,0.88));
     box-shadow: var(--jdb-sh-sm);
-    transition: border-color var(--jdb-t-fast), box-shadow var(--jdb-t-fast), transform var(--jdb-t-fast);
-  }
-
-  .component-card:hover {
-    border-color: var(--jdb-orange-500);
-    box-shadow: var(--jdb-sh-md);
-    transform: translateY(-1px);
   }
 
   .component-card--full {
     padding: 0;
     overflow: hidden;
+  }
+
+  /* Hero demos need the full row to show their real layouts. */
+  .component-grid > .component-card--full,
+  .component-grid > .component-card--span {
+    grid-column: 1 / -1;
   }
 
   .component-card--full .component-card__head {
@@ -636,8 +684,46 @@ const sampleMatrixRows = [
     gap: var(--jdb-s-2);
   }
 
-  .component-card h2 {
+  /* Scoped to the card head so headings inside demos keep their own spacing. */
+  .component-card__head h2 {
     margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  [id^="component-"] {
+    scroll-margin-top: calc(var(--jdb-header-h) + var(--jdb-s-5));
+  }
+
+  .component-index {
+    margin-top: var(--jdb-s-6);
+  }
+
+  .component-index ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--jdb-s-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .component-index a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--jdb-target);
+    padding: 0 var(--jdb-s-3);
+    border: 1px solid var(--jdb-line-strong);
+    border-radius: var(--jdb-r-md);
+    font-family: var(--jdb-font-mono);
+    font-size: var(--jdb-fs-xs);
+    color: var(--jdb-fg-dim);
+    text-decoration: none;
+    transition: color var(--jdb-t-fast), border-color var(--jdb-t-fast);
+  }
+
+  .component-index a:hover {
+    color: var(--jdb-fg);
+    border-color: var(--jdb-orange-400);
   }
 
   .playground-demo {

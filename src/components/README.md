@@ -33,6 +33,7 @@ Location: `src/components/AuthorBox.astro`
 Notes:
 - Accepts no props.
 - Uses author data from `src/data/author.ts`.
+- The bio takes the free width; on narrow cards the button wraps below it. The photo has empty alt text because the name is printed beside it.
 
 ### BlogCard
 Purpose: Compact blog post teaser card.
@@ -48,6 +49,7 @@ Location: `src/components/ChartTypeAssessment.astro`
 Notes:
 - Reusable as a visual library component.
 - Designed to be embedded in content or showcased on the components page.
+- Rendered on the SEO data visualization guide by the post template.
 
 ### ChartPickerQuiz
 Purpose: Interactive chart-selection quiz for content-driven posts.
@@ -122,9 +124,9 @@ Purpose: Reusable hero section with intro, full-width, and split variants.
 Location: `src/components/Hero.astro`
 Notes:
 - Supports an intro variant for compact page headings, with `containerWidth="narrow"` or `containerWidth="wide"`.
-- Supports a full-width variant with optional `backgroundImage`.
-- Supports a split hero variant with text on the left and an image on the right via `variant="split"` and `imageSrc`.
-- Use `jdb-hero__lede` and `jdb-hero__actions` within the default slot for consistent content styling.
+- Supports a full-width variant with optional `backgroundImage` (works on any variant). The overlay darkens the left side, so pick a darker image or one with a quiet left edge; text on a bright image won't meet contrast.
+- Supports a split hero variant with text on the left and an image on the right via `variant="split"` and `imageSrc`. It stacks (text, then image) until the hero is at least 48rem wide; this is a container query, so it also stacks inside narrow wrappers.
+- Use `jdb-hero__eyebrow` (renders as a `// comment` label like `.jdb-eyebrow`), `jdb-hero__lede`, and `jdb-hero__actions` within the default slot for consistent content styling.
 
 ### Icon
 Purpose: Inline SVG icons (social brands, calendar, clock, envelope) without a third-party icon script.
@@ -329,6 +331,6 @@ The site follows Andy Crestodina and Orbit Media's approach to content and conve
 When adding a new component:
 1. Create the component in `src/components/`.
 2. Add it to this README.
-3. Add an example to `src/pages/components.astro`.
+3. Add an example to `src/pages/components.astro`. Give its heading an `id="component-…"` and add it to `componentIndex` at the top of that file so it appears in the page's jump links.
 4. Reuse existing design tokens and class conventions.
 5. Keep props explicit and minimal.

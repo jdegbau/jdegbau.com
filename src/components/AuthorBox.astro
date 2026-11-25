@@ -2,8 +2,9 @@
 import { author } from '../data/author';
 ---
 <div class="jdb-authorcard">
-  <img src={author.profilePhoto} alt={author.name} loading="lazy" decoding="async" />
-  <div>
+  {/* The name sits right beside the photo, so the image is decorative. */}
+  <img src={author.profilePhoto} alt="" loading="lazy" decoding="async" />
+  <div class="jdb-authorcard__body">
     <div class="jdb-authorcard__name">{author.name}</div>
     <p>{author.bio}</p>
   </div>

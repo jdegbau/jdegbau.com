@@ -662,7 +662,7 @@ a.jdb-panel:hover,
 /* --------------------------------------------------------------------------
    9. HERO  — two variants (home / intro)
    -------------------------------------------------------------------------- */
-.jdb-hero { padding-block: var(--jdb-s-9); position: relative; overflow: hidden; }
+.jdb-hero { padding-block: var(--jdb-s-9); position: relative; overflow: hidden; container: jdb-hero / inline-size; }
 @media (min-width: 62rem) { .jdb-hero { padding-block: var(--jdb-s-11); } }
 .jdb-hero::before {
   content: ""; position: absolute; inset: 0; pointer-events: none;
@@ -670,15 +670,17 @@ a.jdb-panel:hover,
     linear-gradient(180deg, rgba(255,77,0,.08), transparent 40%),
     repeating-linear-gradient(90deg, rgba(255,255,255,.025) 0 1px, transparent 1px 48px);
 }
-.jdb-hero--blog .jdb-hero__background,
-.jdb-hero--blog .jdb-hero__background-image { position: absolute; inset: 0; }
-.jdb-hero--blog .jdb-hero__background { z-index: 0; pointer-events: none; }
-.jdb-hero--blog .jdb-hero__background-image {
+/* backgroundImage works on any variant; the blog variant adds the bleed
+   below the hero that the overlapping article panel sits on. */
+.jdb-hero__background,
+.jdb-hero__background-image { position: absolute; inset: 0; }
+.jdb-hero__background { z-index: 0; pointer-events: none; }
+.jdb-hero__background-image {
   background-position: center; background-size: cover; background-repeat: no-repeat;
   transform: scale(1.06) translateY(-1rem);
   filter: saturate(1.15) contrast(1.06);
 }
-.jdb-hero--blog .jdb-hero__background::after {
+.jdb-hero__background::after {
   content: ""; position: absolute; inset: 0; z-index: 1;
   background:
     linear-gradient(90deg, rgba(10, 16, 31, 0.82) 0%, rgba(10, 16, 31, 0.54) 28%, rgba(10, 16, 31, 0.18) 52%, rgba(10, 16, 31, 0.38) 100%),
@@ -692,11 +694,15 @@ a.jdb-panel:hover,
 .jdb-hero__content { position: relative; z-index: 1; max-width: 64ch; }
 .jdb-hero__content > :first-child { margin-top: 0; }
 .jdb-hero__content > :last-child { margin-bottom: 0; }
+/* Same "// comment" voice as .jdb-eyebrow, so hero labels match every
+   other label on the site. */
 .jdb-hero__eyebrow {
+  display: flex; align-items: center; gap: .5ch;
   margin: 0 0 var(--jdb-s-3);
-  font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-xs); letter-spacing: .08em; text-transform: uppercase;
+  font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-xs); font-weight: var(--jdb-fw-medium);
   color: var(--jdb-fg-muted);
 }
+.jdb-hero__eyebrow::before { content: "//"; color: var(--jdb-navy-600); }
 .jdb-hero__inner { position: relative; }
 .jdb-hero--home .jdb-hero__kicker {
   font-family: var(--jdb-font-mono); color: var(--jdb-fg-muted); font-size: var(--jdb-fs-base);
@@ -756,17 +762,26 @@ a.jdb-panel:hover,
 .jdb-hero--split {
   border-bottom: 1px solid var(--jdb-line);
 }
+/* Split stacks (text first, image below) until the hero itself is wide
+   enough for two columns. A container query, so it also behaves inside
+   narrow wrappers, not just narrow screens. */
 .jdb-hero--split .jdb-hero__layout {
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  grid-template-columns: minmax(0, 1fr);
+}
+@container jdb-hero (min-width: 48rem) {
+  .jdb-hero--split .jdb-hero__layout {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  }
 }
 .jdb-hero--split .jdb-hero__content {
   max-width: none;
 }
 .jdb-hero--split h2 {
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: clamp(2rem, 6cqi, 3rem);
 }
 .jdb-hero__media {
   position: relative; z-index: 1;
+  display: grid; /* lets the image stretch to fill the frame */
   min-height: 18rem;
   border: 1px solid var(--jdb-line-strong);
   border-radius: var(--jdb-r-xl);
@@ -903,10 +918,15 @@ a.jdb-tag:hover { background: var(--jdb-orange-a20); color: #fff; }
 /* --------------------------------------------------------------------------
    17. AUTHOR BIO CARD
    -------------------------------------------------------------------------- */
-.jdb-authorcard { display: flex; align-items: center; gap: var(--jdb-s-4); padding: var(--jdb-s-5); background: var(--jdb-surface); border: 1px solid var(--jdb-line); border-radius: var(--jdb-r-lg); }
+.jdb-authorcard { display: flex; flex-wrap: wrap; align-items: center; gap: var(--jdb-s-4); padding: var(--jdb-s-5); background: var(--jdb-surface); border: 1px solid var(--jdb-line); border-radius: var(--jdb-r-lg); }
 .jdb-authorcard img { width: 3.5rem; height: 3.5rem; border-radius: 50%; object-fit: cover; flex: 0 0 auto; }
 .jdb-authorcard__name { font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-base); color: var(--jdb-fg); margin-bottom: .15rem; }
 .jdb-authorcard p { margin: 0; font-size: var(--jdb-fs-sm); }
+/* The bio takes the free space and the button wraps under it when the card
+   is narrow (phones, sidebars), instead of squeezing the bio to one word
+   per line. */
+.jdb-authorcard__body { flex: 1 1 16rem; min-width: 0; }
+.jdb-authorcard .jdb-btn { flex: 0 0 auto; white-space: nowrap; }
 
 /* --------------------------------------------------------------------------
    18. SKILL & TOOL BADGE STRIP
