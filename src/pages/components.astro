@@ -27,6 +27,7 @@ import VideoEmbed from '../components/VideoEmbed.astro';
 import PostSeriesNav from '../components/PostSeriesNav.astro';
 import RelatedPosts from '../components/RelatedPosts.astro';
 import ChartPlayground from '../components/ChartPlayground.astro';
+import Spec from './_components/Spec.astro';
 import { getAllPosts } from '../lib/posts';
 
 // Use a real post so the BlogCard example always reflects live data.
@@ -91,6 +92,124 @@ const sankeyDataset = (flows: typeof sankeyFlows, colors: Record<string, string>
 const calmColors = { colorFrom: 'var(--jdb-navy-600)', colorTo: 'var(--jdb-navy-600)', colorMode: 'from', alpha: 0.45 };
 const loudColors = { colorFrom: 'var(--jdb-orange-500)', colorTo: 'var(--jdb-good)', colorMode: 'gradient', alpha: 0.6 };
 
+// Explorer tree, in page order. Every Spec on the page needs an entry here.
+const explorer = [
+  {
+    folder: 'tokens',
+    files: [
+      { id: 'tokens-color', label: 'color' },
+      { id: 'tokens-type', label: 'type' },
+      { id: 'tokens-space', label: 'space' },
+    ],
+  },
+  {
+    folder: 'brand',
+    files: [
+      { id: 'component-logotype', label: 'Logotype' },
+      { id: 'component-icon', label: 'Icon' },
+      { id: 'component-image', label: 'Image' },
+      { id: 'component-logos', label: 'Logos' },
+    ],
+  },
+  {
+    folder: 'page sections',
+    files: [
+      { id: 'component-hero', label: 'Hero' },
+      { id: 'component-calltoaction', label: 'CallToAction' },
+      { id: 'component-contactform', label: 'ContactForm' },
+      { id: 'component-faqaccordion', label: 'FAQAccordion' },
+      { id: 'component-blogcard', label: 'BlogCard' },
+      { id: 'component-relatedposts', label: 'RelatedPosts' },
+      { id: 'component-authorbox', label: 'AuthorBox' },
+    ],
+  },
+  {
+    folder: 'posts',
+    files: [
+      { id: 'component-summarycard', label: 'SummaryCard' },
+      { id: 'component-callout', label: 'Callout' },
+      { id: 'component-steps', label: 'Steps' },
+      { id: 'component-tabs', label: 'Tabs' },
+      { id: 'component-beforeafter', label: 'BeforeAfter' },
+      { id: 'component-annotatedfigure', label: 'AnnotatedFigure' },
+      { id: 'component-downloadcard', label: 'DownloadCard' },
+      { id: 'component-videoembed', label: 'VideoEmbed' },
+      { id: 'component-tableofcontents', label: 'TableOfContents' },
+      { id: 'component-postseriesnav', label: 'PostSeriesNav' },
+    ],
+  },
+  {
+    folder: 'data viz',
+    files: [
+      { id: 'component-chartplayground', label: 'ChartPlayground' },
+      { id: 'component-quickcomparematrix', label: 'QuickCompareMatrix' },
+      { id: 'component-charttypeassessment', label: 'ChartTypeAssessment' },
+      { id: 'component-chartpickerquiz', label: 'ChartPickerQuiz' },
+      { id: 'component-datastorybestpractices', label: 'DataStoryBestPractices' },
+    ],
+  },
+];
+const componentCount = explorer.slice(1).reduce((total, group) => total + group.files.length, 0);
+
+// Token reference. Ratios are the WCAG values verified in the comments of
+// public/assets/css/main.css (section 1); keep them in sync with that file.
+const colorGroups = [
+  {
+    name: 'Surfaces',
+    swatches: [
+      { token: '--jdb-navy-950', hex: '#0a1526', role: 'Page canvas' },
+      { token: '--jdb-navy-900', hex: '#0f1f38', role: 'Header, footer, drawer' },
+      { token: '--jdb-navy-800', hex: '#152a49', role: 'Cards and panels (brand navy)' },
+      { token: '--jdb-navy-700', hex: '#223a5e', role: 'Raised surface, secondary fill' },
+      { token: '--jdb-navy-600', hex: '#33547e', role: 'Logotype brackets, quiet strokes' },
+    ],
+  },
+  {
+    name: 'Orange',
+    swatches: [
+      { token: '--jdb-orange-500', hex: '#ff4d00', role: 'Primary buttons and graphics (brand orange)', ratio: '5.50:1 with navy text on it' },
+      { token: '--jdb-orange-400', hex: '#ff7a3d', role: 'Links on cards', ratio: '5.55:1 on cards, 7.06:1 on canvas' },
+      { token: '--jdb-orange-600', hex: '#c73d00', role: 'Orange on white (print)', ratio: '5.13:1 on white' },
+    ],
+  },
+  {
+    name: 'Text',
+    swatches: [
+      { token: '--jdb-fg', hex: '#e8ecf4', role: 'Headings and primary text', ratio: '12.15:1 on cards' },
+      { token: '--jdb-fg-dim', hex: '#aab4c8', role: 'Body copy', ratio: '6.90:1 on cards' },
+      { token: '--jdb-fg-muted', hex: '#8b97b0', role: 'Meta, dates, labels', ratio: '4.90:1 on cards' },
+    ],
+  },
+  {
+    name: 'Status',
+    note: 'All three pass 7.76:1 or better on canvas and cards.',
+    swatches: [
+      { token: '--jdb-good', hex: '#4fd68a', role: 'Passing, growth' },
+      { token: '--jdb-warn', hex: '#f2b84b', role: 'Needs improvement' },
+      { token: '--jdb-bad', hex: '#ff6b6b', role: 'Errors, decline' },
+    ],
+  },
+];
+
+const typeScale = [
+  { token: '--jdb-fs-4xl', px: '48–76', role: 'Home hero', display: true },
+  { token: '--jdb-fs-3xl', px: '48', role: 'h1', display: true },
+  { token: '--jdb-fs-2xl', px: '38', role: 'h2', display: true },
+  { token: '--jdb-fs-xl', px: '30', role: 'h3', display: true },
+  { token: '--jdb-fs-lg', px: '24', role: 'h4, card titles', display: true },
+  { token: '--jdb-fs-md', px: '20', role: 'Lead paragraph', display: false },
+  { token: '--jdb-fs-base', px: '17', role: 'Body copy', display: false },
+  { token: '--jdb-fs-sm', px: '15', role: 'Nav, labels, small UI', display: false },
+  { token: '--jdb-fs-xs', px: '13', role: 'Meta, timestamps, badges', display: false },
+];
+
+const spaceScale = [
+  { token: '--jdb-s-1', rem: 0.25 }, { token: '--jdb-s-2', rem: 0.5 }, { token: '--jdb-s-3', rem: 0.75 },
+  { token: '--jdb-s-4', rem: 1 }, { token: '--jdb-s-5', rem: 1.5 }, { token: '--jdb-s-6', rem: 2 },
+  { token: '--jdb-s-7', rem: 2.5 }, { token: '--jdb-s-8', rem: 3 }, { token: '--jdb-s-9', rem: 4 },
+  { token: '--jdb-s-10', rem: 5 }, { token: '--jdb-s-11', rem: 6.5 },
+];
+
 const sampleMatrixRows = [
   { chartType: 'Line', trends: 'Ideal', compare: 'Capable', composition: 'Poor', distribution: 'Poor', bestFor: 'Traffic over time, ranking trends' },
   { chartType: 'Bar', trends: 'Capable', compare: 'Ideal', composition: 'Poor', distribution: 'Capable', bestFor: 'Channel comparison, page performance' },
@@ -99,443 +218,348 @@ const sampleMatrixRows = [
 ---
 <BaseLayout
   title="Components"
-  description="Reusable component examples used across the site."
+  description="Every shared component on jdegbau.com, rendered live with its props, plus the color, type, and spacing tokens they're built from."
   canonical="/components/"
   noindex={true}
 >
-  <article>
-    <header class="jdb-section jdb-section--tight">
-      <div class="jdb-container jdb-container--narrow">
-        <span class="jdb-eyebrow">library</span>
-        <h1>Reusable Components</h1>
-        <p class="jdb-section__sub">
-          A living gallery of the shared building blocks used across this site so new patterns stay consistent, reusable, and easy to extend.
-        </p>
-      </div>
+  <article class="workspace">
+    <header class="workspace__head jdb-container">
+      <span class="jdb-eyebrow">src/components</span>
+      <h1>Components</h1>
+      <p class="workspace__lede">
+        Every shared building block on this site, rendered live with its props. Check here before building something new: if one of these fits, reuse it.
+      </p>
+      <p class="workspace__count">{componentCount} components in {explorer.length - 1} folders, plus the tokens they share.</p>
     </header>
 
-    <section class="jdb-section jdb-section--tight">
-      <div class="jdb-container jdb-container--wide">
-        <div class="component-grid">
-          <div class="component-card">
-            <div class="component-card__head">
-              <span class="jdb-eyebrow">component</span>
-              <h2 id="component-blogcard">BlogCard</h2>
-            </div>
-            <BlogCard post={samplePost} />
+    <div class="workspace__body jdb-container">
+      <aside class="explorer-wrap">
+        <details class="explorer" open data-explorer>
+          <summary class="explorer__title">Explorer</summary>
+          <nav aria-label="Components on this page">
+            {explorer.map((group) => (
+              <div class="explorer__group">
+                <p class="explorer__folder">{group.folder}</p>
+                <ul>
+                  {group.files.map((file) => (
+                    <li><a href={`#${file.id}`} data-explorer-link={file.id}>{file.label}</a></li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </nav>
+        </details>
+      </aside>
+
+      <div class="workspace__main">
+        <section class="tokens" aria-labelledby="tokens-title">
+          <header class="tokens__head">
+            <h2 id="tokens-title">Tokens</h2>
+            <p>Components use these custom properties from <code>public/assets/css/main.css</code>, never raw values. Contrast ratios are WCAG 2.1 and verified, not estimated.</p>
+          </header>
+
+          <div class="tokens__block" id="tokens-color" data-spec>
+            <h3>Color</h3>
+            {colorGroups.map((group) => (
+              <div class="swatch-group">
+                <p class="swatch-group__name">{group.name}{group.note && <span> {group.note}</span>}</p>
+                <ul class="swatches">
+                  {group.swatches.map((swatch) => (
+                    <li class="swatch">
+                      <span class="swatch__chip" style={`background: var(${swatch.token});`}></span>
+                      <span class="swatch__token">{swatch.token}</span>
+                      <span class="swatch__hex">{swatch.hex}</span>
+                      <span class="swatch__role">{swatch.role}</span>
+                      {swatch.ratio && <span class="swatch__ratio">{swatch.ratio}</span>}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
 
-          <div class="component-card">
-            <div class="component-card__head">
-              <span class="jdb-eyebrow">component</span>
-              <h2>AuthorBox</h2>
+          <div class="tokens__block" id="tokens-type" data-spec>
+            <h3>Type</h3>
+            <p class="tokens__note">Schibsted Grotesk sets everything people read: headlines, UI, and body copy. Headlines run heavy with tight tracking. JetBrains Mono is kept for what is literally code: the logotype, code samples, and keyboard keys.</p>
+            <ol class="type-scale">
+              {typeScale.map((step) => (
+                <li class="type-step">
+                  <span class="type-step__meta"><code>{step.token}</code> {step.px}px, {step.role}</span>
+                  <span class:list={['type-step__sample', step.display ? 'type-step__sample--display' : 'type-step__sample--body']} style={`font-size: var(${step.token});`}>
+                    {step.display ? 'Chart the decision, not the data' : 'Lead with the takeaway, then show the evidence that backs it up.'}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          <div class="tokens__block" id="tokens-space" data-spec>
+            <h3>Space</h3>
+            <p class="tokens__note">A 4px base. Tight steps inside a group, larger steps between groups.</p>
+            <ol class="space-scale">
+              {spaceScale.map((step) => (
+                <li class="space-step">
+                  <code>{step.token}</code>
+                  <span class="space-step__bar" style={`width: var(${step.token});`}></span>
+                  <span class="space-step__px">{step.rem * 16}px</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        <div class="folder" id="folder-brand">
+          <p class="folder__name">brand</p>
+
+          <Spec name="Logotype" id="component-logotype" what="The (jdegbau)=>{} text logo. The only place the mark's markup and colors are defined." props="href, size, cursor, theme, label, class">
+            <div class="component-logotype">
+              <Logotype href={null} size="sm" />
+              <Logotype href={null} />
+              <Logotype href={null} size="lg" />
+              <Logotype href={null} size="xl" />
+              <Logotype href={null} size="lg" cursor={false} />
+              <div class="component-logotype__light">
+                <Logotype href={null} size="lg" theme="light" cursor={false} />
+              </div>
             </div>
+          </Spec>
+
+          <Spec name="Icon" id="component-icon" what="Inline SVG icons that inherit text size and color, with no third-party icon script." props="name, label">
+            <p class="icon-demo">
+              <Icon name="linkedin-in" label="LinkedIn" />
+              <Icon name="github" label="GitHub" />
+              <Icon name="instagram" label="Instagram" />
+              <Icon name="threads" label="Threads" />
+              <Icon name="bluesky" label="Bluesky" />
+              <Icon name="x-twitter" label="X" />
+              <Icon name="calendar-days" label="Calendar" />
+              <Icon name="clock" label="Clock" />
+              <Icon name="envelope" label="Email" />
+            </p>
+          </Spec>
+
+          <Spec name="Image" id="component-image" what="Image wrapper with consistent loading attributes. Use it instead of a raw img tag." props="src, alt, loading, decoding, class">
+            <div class="image-demo">
+              <Image src="/assets/img/seo-data-viz.png" alt="A dog at a desk surrounded by SEO dashboards" loading="lazy" decoding="async" />
+            </div>
+          </Spec>
+
+          <Spec name="Logos" id="component-logos" what="Client logos in one row, becoming a marquee when the container is too narrow to fit them." props="logos, label" flush>
+            <Logos />
+          </Spec>
+        </div>
+
+        <div class="folder" id="folder-page-sections">
+          <p class="folder__name">page sections</p>
+
+          <Spec name="Hero" id="component-hero" what="Page header in three layouts: a compact intro, a full-width hero with an optional background image, and a split hero with an image beside the text." props="variant, backgroundImage, imageSrc, imageAlt, containerWidth, class" flush>
+            <div class="variant">
+              <p class="variant__label"><code>variant="intro"</code></p>
+              <Hero variant="intro" containerWidth="narrow">
+                <span class="jdb-eyebrow">About</span>
+                <h2>Compact page introduction</h2>
+                <p class="jdb-hero__lede">A concise introduction with the same structure used across informational pages.</p>
+              </Hero>
+            </div>
+            <div class="variant">
+              <p class="variant__label"><code>variant="full" backgroundImage</code></p>
+              <Hero variant="full" backgroundImage="/assets/img/seo-data-viz.png">
+                <span class="jdb-hero__eyebrow">Guide</span>
+                <h2>Full-width hero with a background image</h2>
+                <p class="jdb-hero__lede">For post headers and narrative introductions where the image should run edge to edge.</p>
+                <div class="jdb-hero__actions">
+                  <a href="/blog/" class="jdb-btn jdb-btn--primary jdb-btn--sm">Read the blog</a>
+                </div>
+              </Hero>
+            </div>
+            <div class="variant">
+              <p class="variant__label"><code>variant="split" imageSrc</code></p>
+              <Hero variant="split" imageSrc="/assets/img/seo-data-viz.png" imageAlt="A dog at a desk surrounded by SEO dashboards">
+                <span class="jdb-hero__eyebrow">About</span>
+                <h2>Text on the left, image on the right</h2>
+                <p class="jdb-hero__lede">Stacks with the text first until the hero is at least 48rem wide.</p>
+                <div class="jdb-hero__actions">
+                  <a href="/about/" class="jdb-btn jdb-btn--outline jdb-btn--sm">About Josh</a>
+                </div>
+              </Hero>
+            </div>
+          </Spec>
+
+          <Spec name="CallToAction" id="component-calltoaction" what="The one clear next step that ends every page." props="title, primary, secondary, text, prompt, price, headingLevel">
+            <CallToAction
+              title="Stuck on a content or measurement question?"
+              text="Book a focused one-hour call and leave with practical next steps."
+              primary={{ href: '/seo-helpline/', label: 'Book a call' }}
+              secondary={{ href: '/contact/', label: 'Send a note' }}
+              price={{ amount: '$100', unit: 'per 60-minute call' }}
+              headingLevel="h3"
+            />
+          </Spec>
+
+          <Spec name="ContactForm" id="component-contactform" what="Three-field contact form with autofill hints, errors shown only after interaction, and a double-submit guard." props="action, demo">
+            <ContactForm demo />
+          </Spec>
+
+          <Spec name="FAQAccordion" id="component-faqaccordion" what="Questions and answers on native details/summary. On posts, set faq in front matter instead and the template adds FAQPage schema." props="items, title, eyebrow" flush>
+            <FAQAccordion items={sampleFaqs} />
+          </Spec>
+
+          <Spec name="BlogCard" id="component-blogcard" what="Post teaser where the whole card is one link and one tab stop." props="post">
+            <div class="demo-narrow">
+              <BlogCard post={samplePost} />
+            </div>
+          </Spec>
+
+          <Spec name="RelatedPosts" id="component-relatedposts" what="Three posts ranked by shared tags, falling back to the newest. Renders BlogCard." props="current, tags, limit, title">
+            <RelatedPosts current={samplePost?.slug} />
+          </Spec>
+
+          <Spec name="AuthorBox" id="component-authorbox" what="Author photo, bio, and the SEO Helpline link. The bio wraps above the button on narrow screens." props="none (reads src/data/author.ts)">
             <AuthorBox />
-          </div>
+          </Spec>
         </div>
-      </div>
-    </section>
 
-    <section class="jdb-section jdb-section--tight">
-      <div class="jdb-container jdb-container--wide">
-        <div class="component-grid">
-          <div class="component-card component-card--full">
-            <div class="component-card__head">
-              <span class="jdb-eyebrow">component</span>
-              <h2 id="component-hero">Hero</h2>
+        <div class="folder" id="folder-posts">
+          <p class="folder__name">posts</p>
+          <p class="folder__note">Generic pieces for long-form posts, used in <code>.mdx</code> files.</p>
+
+          <Spec name="SummaryCard" id="component-summarycard" what="At-a-glance block: a title, a one-line definition, and labeled rows colored by status." props="title, definition, eyebrow, items">
+            <div class="demo-narrow">
+              <SummaryCard
+                title="Sankey chart"
+                definition="A flow diagram where band width shows how much moves from one stage to the next."
+                items={[
+                  { label: 'Use it when', value: 'You need to show where a total goes, and where it is lost.', tone: 'good' },
+                  { label: 'Avoid it when', value: 'Flows loop back or there are more than ~25 of them.', tone: 'bad' },
+                  { label: 'Best alternative', value: 'A <strong>funnel</strong> for a single path, a stacked bar for shares.', tone: 'neutral' },
+                ]}
+              />
             </div>
-            <Hero variant="full" backgroundImage="/assets/img/default-blog-hero.gif">
-              <span class="jdb-hero__eyebrow">component</span>
-              <h2>Full-width hero with optional background image</h2>
-              <p class="jdb-hero__lede">
-                This version is ideal for narrative introductions, feature launches, and post headers where the image should stretch edge-to-edge.
-              </p>
-              <div class="jdb-hero__actions">
-                <a href="/blog/" class="jdb-btn jdb-btn--primary jdb-btn--sm">View blog</a>
+          </Spec>
+
+          <Spec name="Callout" id="component-callout" what="Aside for insights, tips, warnings, and notes. Markdown works inside it." props="type, title">
+            <div class="demo-narrow">
+              <Callout type="insight">
+                <p>One highlighted flow among grey ones is found instantly. The odd one out gets remembered.</p>
+              </Callout>
+              <Callout type="tip"><p>Sort nodes by size to reduce crossing bands.</p></Callout>
+              <Callout type="warning"><p>Never use two colors that differ only in red versus green.</p></Callout>
+            </div>
+          </Spec>
+
+          <Spec name="Steps" id="component-steps" what="Numbered how-to steps on a connecting rail. Wrap a normal ordered list." props="label">
+            <div class="demo-narrow">
+              <Steps label="How to read a Sankey chart">
+                <ol>
+                  <li><strong>Start at the left.</strong> Each node is a starting group, sized by its total.</li>
+                  <li><strong>Follow the widest band.</strong> Width is quantity, so the biggest flow is the main story.</li>
+                  <li><strong>Check where flows end.</strong> The right-hand nodes are outcomes; compare their sizes.</li>
+                </ol>
+              </Steps>
+            </div>
+          </Spec>
+
+          <Spec name="Tabs" id="component-tabs" what="Accessible tabs that sync across groups and remember the reader's choice. Each panel is a TabPanel." props="label, group (TabPanel: label)">
+            <div class="demo-narrow">
+              <Tabs label="Build it in" group="demo-tool">
+                <TabPanel label="Python">
+                  <p>Use <code>plotly.graph_objects.Sankey</code> with lists of source, target and value.</p>
+                </TabPanel>
+                <TabPanel label="Google Sheets">
+                  <p>Sheets has no native Sankey. Use a free add-on, or export the data to a no-code tool.</p>
+                </TabPanel>
+                <TabPanel label="No-code">
+                  <p>Paste the three columns into Flourish or RAWGraphs and pick the Sankey template.</p>
+                </TabPanel>
+              </Tabs>
+            </div>
+          </Spec>
+
+          <Spec name="BeforeAfter" id="component-beforeafter" what="Two versions of a visual with a 'What changed' caption, side by side or on a draggable slider." props="before, after, beforeLabel, afterLabel, caption, layout">
+            <div class="demo-pair">
+              <div class="variant variant--inline">
+                <p class="variant__label"><code>layout="side-by-side"</code> (default)</p>
+                <BeforeAfter
+                  before={{ src: '/assets/img/components/sample-chart-before.svg', alt: 'Unsorted rainbow bar chart of visits by channel with heavy gridlines and a legend', width: 640, height: 360 }}
+                  after={{ src: '/assets/img/components/sample-chart-after.svg', alt: 'Sorted bar chart of visits by channel with Search highlighted in orange and direct labels', width: 640, height: 360 }}
+                  caption="Sorted the bars, removed the legend and gridlines, labeled values directly, and highlighted the one bar the title talks about."
+                />
               </div>
-            </Hero>
-          </div>
-
-          <div class="component-card">
-            <div class="component-card__head">
-              <span class="jdb-eyebrow">component</span>
-              <h2>Hero (intro)</h2>
-            </div>
-            <Hero variant="intro" containerWidth="narrow">
-              <span class="jdb-eyebrow">about</span>
-              <h2>Compact page introduction</h2>
-              <p class="jdb-hero__lede">A concise introduction with the same structure used across informational pages.</p>
-            </Hero>
-          </div>
-
-          <div class="component-card">
-            <div class="component-card__head">
-              <span class="jdb-eyebrow">component</span>
-              <h2>Hero (split)</h2>
-            </div>
-            <Hero variant="split" imageSrc="/assets/img/default-blog-hero.gif" imageAlt="Example split hero image">
-              <span class="jdb-hero__eyebrow">component</span>
-              <h2>Text on the left, image on the right</h2>
-              <p class="jdb-hero__lede">
-                Use this when the headline needs more emphasis while the visual acts as a supporting anchor on the opposite side.
-              </p>
-              <div class="jdb-hero__actions">
-                <a href="/about/" class="jdb-btn jdb-btn--outline jdb-btn--sm">Learn more</a>
+              <div class="variant variant--inline">
+                <p class="variant__label"><code>layout="slider"</code></p>
+                <BeforeAfter
+                  layout="slider"
+                  before={{ src: '/assets/img/components/sample-chart-before.svg', alt: 'Cluttered version of the channel chart', width: 640, height: 360 }}
+                  after={{ src: '/assets/img/components/sample-chart-after.svg', alt: 'Clean version of the channel chart', width: 640, height: 360 }}
+                  caption="Drag, or focus the slider and use the arrow keys."
+                />
               </div>
-            </Hero>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="jdb-section jdb-section--tight">
-      <div class="jdb-container jdb-container--wide">
-        <div class="component-card component-card--full">
-          <div class="component-card__head">
-            <span class="jdb-eyebrow">component</span>
-            <h2 id="component-calltoaction">CallToAction</h2>
-          </div>
-          <CallToAction
-            title="Stuck on a content or measurement question?"
-            text="Book a focused one-hour call and leave with practical next steps."
-            primary={{ href: '/seo-helpline/', label: 'Book a call' }}
-            secondary={{ href: '/contact/', label: 'Send a note' }}
-            price={{ amount: '$100', unit: 'per 60-minute call' }}
-            headingLevel="h3"
-          />
-        </div>
-      </div>
-    </section>
-
-    <section class="jdb-section jdb-section--tight">
-      <div class="jdb-container jdb-container--wide">
-        <div class="component-card component-card--full">
-          <div class="component-card__head">
-            <span class="jdb-eyebrow">component</span>
-            <h2 id="component-contactform">ContactForm</h2>
-          </div>
-          <ContactForm demo />
-        </div>
-      </div>
-    </section>
-
-    <section class="jdb-section jdb-section--tight">
-      <div class="jdb-container jdb-container--wide">
-        <div class="component-card component-card--full">
-          <div class="component-card__head">
-            <span class="jdb-eyebrow">component</span>
-            <h2 id="component-logotype">Logotype</h2>
-          </div>
-          <div class="component-logotype">
-            <Logotype href={null} size="sm" />
-            <Logotype href={null} />
-            <Logotype href={null} size="lg" />
-            <Logotype href={null} size="xl" />
-            <Logotype href={null} size="lg" cursor={false} />
-            <div class="component-logotype__light">
-              <Logotype href={null} size="lg" theme="light" cursor={false} />
             </div>
-          </div>
-        </div>
-      </div>
-    </section>
+          </Spec>
 
-    <section class="jdb-section jdb-section--tight">
-      <div class="jdb-container jdb-container--wide">
-        <div class="component-card component-card--full">
-          <div class="component-card__head">
-            <span class="jdb-eyebrow">component</span>
-            <h2 id="component-logos">Logos</h2>
-          </div>
-          <Logos />
-        </div>
-      </div>
-    </section>
-
-    <section class="jdb-section jdb-section--tight">
-      <div class="jdb-container jdb-container--wide">
-        <div class="component-card component-card--full">
-          <div class="component-card__head">
-            <span class="jdb-eyebrow">component</span>
-            <h2>ChartTypeAssessment</h2>
-          </div>
-          <ChartTypeAssessment />
-        </div>
-      </div>
-    </section>
-
-    <section class="jdb-section jdb-section--tight">
-      <div class="jdb-container jdb-container--wide">
-        <div class="component-card component-card--full">
-          <div class="component-card__head">
-            <span class="jdb-eyebrow">component</span>
-            <h2>ChartPickerQuiz</h2>
-          </div>
-          <ChartPickerQuiz />
-        </div>
-      </div>
-    </section>
-
-    <section class="jdb-section jdb-section--tight">
-      <div class="jdb-container jdb-container--wide">
-        <div class="component-card component-card--full">
-          <div class="component-card__head">
-            <span class="jdb-eyebrow">component</span>
-            <h2>DataStoryBestPractices</h2>
-          </div>
-          <DataStoryBestPractices />
-        </div>
-      </div>
-    </section>
-
-    <section class="jdb-section jdb-section--tight">
-      <div class="jdb-container jdb-container--wide">
-        <div class="component-card component-card--full">
-          <div class="component-card__head">
-            <span class="jdb-eyebrow">component</span>
-            <h2>FAQAccordion</h2>
-          </div>
-          <FAQAccordion items={sampleFaqs} />
-        </div>
-      </div>
-    </section>
-
-    <section class="jdb-section jdb-section--tight">
-      <div class="jdb-container jdb-container--wide">
-        <div class="component-card component-card--full">
-          <div class="component-card__head">
-            <span class="jdb-eyebrow">component</span>
-            <h2 id="component-tableofcontents">TableOfContents</h2>
-          </div>
-          <TableOfContents items={sampleTocItems} />
-        </div>
-      </div>
-    </section>
-
-    <section class="jdb-section jdb-section--tight">
-      <div class="jdb-container jdb-container--wide">
-        <div class="component-card component-card--full">
-          <div class="component-card__head">
-            <span class="jdb-eyebrow">component</span>
-            <h2>QuickCompareMatrix</h2>
-          </div>
-          <QuickCompareMatrix rows={sampleMatrixRows} />
-        </div>
-      </div>
-    </section>
-
-    <section class="jdb-section jdb-section--tight">
-      <div class="jdb-container jdb-container--wide">
-        <div class="component-card">
-          <div class="component-card__head">
-            <span class="jdb-eyebrow">component</span>
-            <h2>Icon</h2>
-          </div>
-          <p class="icon-demo">
-            <Icon name="linkedin-in" label="LinkedIn" />
-            <Icon name="github" label="GitHub" />
-            <Icon name="instagram" label="Instagram" />
-            <Icon name="threads" label="Threads" />
-            <Icon name="bluesky" label="Bluesky" />
-            <Icon name="x-twitter" label="X" />
-            <Icon name="calendar-days" label="Calendar" />
-            <Icon name="clock" label="Clock" />
-            <Icon name="envelope" label="Email" />
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <section class="jdb-section jdb-section--tight">
-      <div class="jdb-container jdb-container--wide">
-        <div class="component-card">
-          <div class="component-card__head">
-            <span class="jdb-eyebrow">component</span>
-            <h2>Image</h2>
-          </div>
-          <div class="image-demo">
-            <Image
-              src="/assets/img/default-blog-hero.gif"
-              alt="Example image component"
-              loading="eager"
-              decoding="async"
-            />
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="jdb-section jdb-section--tight">
-      <div class="jdb-container jdb-container--wide">
-        <div class="jdb-section__head">
-          <span class="jdb-eyebrow">content building blocks</span>
-          <h2 id="content-building-blocks">Post components</h2>
-          <p class="jdb-section__sub">Generic pieces for long-form posts. Use them in <code>.mdx</code> posts; see the README for props.</p>
-        </div>
-        <div class="component-grid">
-          <div class="component-card">
-            <div class="component-card__head">
-              <span class="jdb-eyebrow">component</span>
-              <h2 id="component-summarycard">SummaryCard</h2>
+          <Spec name="AnnotatedFigure" id="component-annotatedfigure" what="A figure with numbered markers and a matching legend that carries the meaning." props="src, alt, callouts, caption">
+            <div class="demo-narrow">
+              <AnnotatedFigure
+                src="/assets/img/components/sample-chart-after.svg"
+                alt="Bar chart of visits by channel, sorted, with Search highlighted"
+                width={640}
+                height={360}
+                callouts={[
+                  { x: 57, y: 10, title: 'Insight title', text: 'States the takeaway, not the topic.' },
+                  { x: 5, y: 50, title: 'Sorted bars', text: 'Largest first, so rank reads top to bottom.' },
+                  { x: 95, y: 22, title: 'Direct labels', text: 'Values sit on the bars; no legend lookup.' },
+                ]}
+                caption="Anatomy of a clean bar chart."
+              />
             </div>
-            <SummaryCard
-              title="Sankey chart"
-              definition="A flow diagram where band width shows how much moves from one stage to the next."
-              items={[
-                { label: 'Use it when', value: 'You need to show where a total goes, and where it is lost.', tone: 'good' },
-                { label: 'Avoid it when', value: 'Flows loop back or there are more than ~25 of them.', tone: 'bad' },
-                { label: 'Best alternative', value: 'A <strong>funnel</strong> for a single path, a stacked bar for shares.', tone: 'neutral' },
-              ]}
-            />
-          </div>
+          </Spec>
 
-          <div class="component-card">
-            <div class="component-card__head">
-              <span class="jdb-eyebrow">component</span>
-              <h2 id="component-callout">Callout</h2>
+          <Spec name="DownloadCard" id="component-downloadcard" what="One or more downloads. The first file gets the primary button." props="title, description, files">
+            <div class="demo-narrow">
+              <DownloadCard
+                title="Practice dataset"
+                description="Five channels and their visits, ready to chart in any tool."
+                files={[
+                  { label: 'Download CSV', href: '/assets/downloads/sample-channel-visits.csv', format: 'CSV', size: '1 KB' },
+                ]}
+              />
             </div>
-            <Callout type="insight">
-              <p>One highlighted flow among grey ones is found instantly. The odd one out gets remembered (the Von Restorff effect).</p>
-            </Callout>
-            <Callout type="tip"><p>Sort nodes by size to reduce crossing bands.</p></Callout>
-            <Callout type="warning"><p>Never use two colours that differ only in red versus green.</p></Callout>
-          </div>
+          </Spec>
 
-          <div class="component-card">
-            <div class="component-card__head">
-              <span class="jdb-eyebrow">component</span>
-              <h2 id="component-steps">Steps</h2>
+          <Spec name="VideoEmbed" id="component-videoembed" what="Click-to-load YouTube embed with chapter buttons and VideoObject schema. Nothing loads from YouTube until the reader clicks." props="youtubeId, title, description, uploadDate, duration, chapters">
+            <div class="demo-narrow">
+              <VideoEmbed
+                youtubeId="aqz-KE-bpKQ"
+                title="Sample video embed"
+                description="Demonstrates the click-to-load YouTube embed with chapters."
+                uploadDate="2014-11-10"
+                duration="PT10M34S"
+                chapters={[
+                  { start: 0, title: 'Intro' },
+                  { start: 95, title: 'The meadow' },
+                  { start: 420, title: 'Finale' },
+                ]}
+              />
             </div>
-            <Steps label="How to read a Sankey chart">
-              <ol>
-                <li><strong>Start at the left.</strong> Each node is a starting group, sized by its total.</li>
-                <li><strong>Follow the widest band.</strong> Width is quantity, so the biggest flow is the main story.</li>
-                <li><strong>Check where flows end.</strong> The right-hand nodes are outcomes; compare their sizes.</li>
-              </ol>
-            </Steps>
-          </div>
+          </Spec>
 
-          <div class="component-card">
-            <div class="component-card__head">
-              <span class="jdb-eyebrow">component</span>
-              <h2 id="component-tabs">Tabs + TabPanel</h2>
+          <Spec name="TableOfContents" id="component-tableofcontents" what="Sticky table of contents for long posts that highlights the section being read." props="items">
+            <div class="demo-narrow">
+              <TableOfContents items={sampleTocItems} />
             </div>
-            <Tabs label="Build it in" group="demo-tool">
-              <TabPanel label="Python">
-                <p>Use <code>plotly.graph_objects.Sankey</code> with lists of source, target and value.</p>
-              </TabPanel>
-              <TabPanel label="Google Sheets">
-                <p>Sheets has no native Sankey. Use a free add-on, or export the data to a no-code tool.</p>
-              </TabPanel>
-              <TabPanel label="No-code">
-                <p>Paste the three columns into Flourish or RAWGraphs and pick the Sankey template.</p>
-              </TabPanel>
-            </Tabs>
-          </div>
+          </Spec>
 
-          <div class="component-card">
-            <div class="component-card__head">
-              <span class="jdb-eyebrow">component</span>
-              <h2 id="component-downloadcard">DownloadCard</h2>
-            </div>
-            <DownloadCard
-              title="Practice dataset"
-              description="Five channels and their visits, ready to chart in any tool."
-              files={[
-                { label: 'Download CSV', href: '/assets/downloads/sample-channel-visits.csv', format: 'CSV', size: '1 KB' },
-              ]}
-            />
-          </div>
-
-          <div class="component-card">
-            <div class="component-card__head">
-              <span class="jdb-eyebrow">component</span>
-              <h2 id="component-postseriesnav">PostSeriesNav</h2>
-            </div>
-            <p class="jdb-section__sub">Renders previous/next and the full list of parts when two or more posts share a <code>series</code> in front matter. No series is published yet, so nothing shows below.</p>
+          <Spec name="PostSeriesNav" id="component-postseriesnav" what="Previous/next links and the list of parts for a multi-part series. The post template adds it." props="series, current">
+            <p class="empty-note">Renders nothing until two or more posts share a <code>series</code> in front matter. No series is published yet.</p>
             <PostSeriesNav series="Chart by Chart" current="" />
-          </div>
+          </Spec>
         </div>
-      </div>
-    </section>
 
-    <section class="jdb-section jdb-section--tight">
-      <div class="jdb-container jdb-container--wide">
-        <div class="component-grid">
-          <div class="component-card">
-            <div class="component-card__head">
-              <span class="jdb-eyebrow">component</span>
-              <h2 id="component-beforeafter">BeforeAfter</h2>
-            </div>
-            <BeforeAfter
-              before={{ src: '/assets/img/components/sample-chart-before.svg', alt: 'Unsorted rainbow bar chart of visits by channel with heavy gridlines and a legend', width: 640, height: 360 }}
-              after={{ src: '/assets/img/components/sample-chart-after.svg', alt: 'Sorted bar chart of visits by channel with Search highlighted in orange and direct labels', width: 640, height: 360 }}
-              caption="Sorted the bars, removed the legend and gridlines, labeled values directly, and highlighted the one bar the title talks about."
-            />
-          </div>
+        <div class="folder" id="folder-data-viz">
+          <p class="folder__name">data viz</p>
+          <p class="folder__note">Built for chart content. ChartPlayground is reusable; the rest belong to the SEO data visualization guide.</p>
 
-          <div class="component-card">
-            <div class="component-card__head">
-              <span class="jdb-eyebrow">component</span>
-              <h2>BeforeAfter (slider)</h2>
-            </div>
-            <BeforeAfter
-              layout="slider"
-              before={{ src: '/assets/img/components/sample-chart-before.svg', alt: 'Cluttered version of the channel chart', width: 640, height: 360 }}
-              after={{ src: '/assets/img/components/sample-chart-after.svg', alt: 'Clean version of the channel chart', width: 640, height: 360 }}
-              caption="Drag, or focus the slider and use the arrow keys."
-            />
-          </div>
-
-          <div class="component-card">
-            <div class="component-card__head">
-              <span class="jdb-eyebrow">component</span>
-              <h2 id="component-annotatedfigure">AnnotatedFigure</h2>
-            </div>
-            <AnnotatedFigure
-              src="/assets/img/components/sample-chart-after.svg"
-              alt="Bar chart of visits by channel, sorted, with Search highlighted"
-              width={640}
-              height={360}
-              callouts={[
-                { x: 57, y: 10, title: 'Insight title', text: 'States the takeaway, not the topic.' },
-                { x: 5, y: 50, title: 'Sorted bars', text: 'Largest first, so rank reads top to bottom.' },
-                { x: 95, y: 31, title: 'Direct labels', text: 'Values sit on the bars; no legend lookup.' },
-              ]}
-              caption="Anatomy of a clean bar chart."
-            />
-          </div>
-
-          <div class="component-card">
-            <div class="component-card__head">
-              <span class="jdb-eyebrow">component</span>
-              <h2 id="component-videoembed">VideoEmbed</h2>
-            </div>
-            <VideoEmbed
-              youtubeId="aqz-KE-bpKQ"
-              title="Sample video embed"
-              description="Demonstrates the click-to-load YouTube embed with chapters."
-              uploadDate="2014-11-10"
-              duration="PT10M34S"
-              chapters={[
-                { start: 0, title: 'Intro' },
-                { start: 95, title: 'The meadow' },
-                { start: 420, title: 'Finale' },
-              ]}
-            />
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="jdb-section jdb-section--tight">
-      <div class="jdb-container jdb-container--wide">
-        <div class="component-card component-card--full">
-          <div class="component-card__head">
-            <span class="jdb-eyebrow">component · chart-specific</span>
-            <h2 id="component-chartplayground">ChartPlayground</h2>
-          </div>
-          <div class="playground-demo">
+          <Spec name="ChartPlayground" id="component-chartplayground" what="A live Chart.js chart with toggles that show what one design choice does." props="id, type, data, options, plugins, controls, alt, caption, table, height">
             <ChartPlayground
               id="demo-sankey"
               type="sankey"
@@ -552,29 +576,435 @@ const sampleMatrixRows = [
                 rows: sankeyFlows.map((flow) => [flow.from, flow.to, flow.flow]),
               }}
             />
-          </div>
-        </div>
-      </div>
-    </section>
+          </Spec>
 
-    <section class="jdb-section jdb-section--tight">
-      <div class="jdb-container jdb-container--wide">
-        <div class="component-card component-card--full">
-          <div class="component-card__head">
-            <span class="jdb-eyebrow">component</span>
-            <h2 id="component-relatedposts">RelatedPosts</h2>
-          </div>
-          <div class="playground-demo">
-            <RelatedPosts current={samplePost?.slug} />
-          </div>
+          <Spec name="QuickCompareMatrix" id="component-quickcomparematrix" what="Qualitative comparison table with use-if and avoid-if lists." props="rows, title">
+            <QuickCompareMatrix rows={sampleMatrixRows} />
+          </Spec>
+
+          <Spec name="ChartTypeAssessment" id="component-charttypeassessment" what="Gallery of chart types with when to use each and a small preview." props="none" flush>
+            <ChartTypeAssessment />
+          </Spec>
+
+          <Spec name="ChartPickerQuiz" id="component-chartpickerquiz" what="Three-question quiz that recommends a chart type." props="none" flush>
+            <ChartPickerQuiz />
+          </Spec>
+
+          <Spec name="DataStoryBestPractices" id="component-datastorybestpractices" what="Grid of data storytelling guidelines." props="items" flush>
+            <DataStoryBestPractices />
+          </Spec>
         </div>
+
+        <CallToAction
+          title="Adding a component?"
+          text="Read the component rules first, then add it to the README and to this page."
+          primary={{ href: 'https://github.com/jdegbau/jdegbau.com/blob/main/src/components/README.md', label: 'Read the component rules' }}
+          prompt="Next step"
+          headingLevel="h2"
+        />
       </div>
-    </section>
+    </div>
   </article>
-
 </BaseLayout>
 
+<script>
+  // Explorer: collapsed by default on narrow screens, and the link for the
+  // section being read is marked as current.
+  const explorer = document.querySelector<HTMLDetailsElement>('[data-explorer]');
+  if (explorer && window.matchMedia('(max-width: 61.99rem)').matches) explorer.open = false;
+
+  const links = new Map(
+    [...document.querySelectorAll<HTMLAnchorElement>('[data-explorer-link]')].map((link) => [link.dataset.explorerLink, link]),
+  );
+  let current: HTMLAnchorElement | undefined;
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const link = links.get(entry.target.id);
+        if (!link || link === current) continue;
+        current?.removeAttribute('aria-current');
+        link.setAttribute('aria-current', 'location');
+        current = link;
+      }
+    },
+    { rootMargin: '-20% 0px -70% 0px' },
+  );
+  document.querySelectorAll('[data-spec]').forEach((section) => observer.observe(section));
+</script>
+
 <style>
+  /* ---- Workspace: explorer on the left, open files on the right ---- */
+  .workspace__head {
+    padding-block: var(--jdb-s-8) var(--jdb-s-7);
+  }
+
+  .workspace__head h1 {
+    margin-bottom: var(--jdb-s-3);
+  }
+
+  .workspace__lede {
+    max-width: 60ch;
+    font-size: var(--jdb-fs-md);
+  }
+
+  .workspace__count {
+    margin-top: var(--jdb-s-3);
+    font-family: var(--jdb-font-mono);
+    font-size: var(--jdb-fs-xs);
+    color: var(--jdb-fg-muted);
+  }
+
+  .workspace__body {
+    display: grid;
+    gap: var(--jdb-s-6);
+    padding-bottom: var(--jdb-s-9);
+  }
+
+  @media (min-width: 62rem) {
+    .workspace__body {
+      grid-template-columns: 13.5rem minmax(0, 1fr);
+      gap: var(--jdb-s-7);
+    }
+  }
+
+  .workspace__main {
+    min-width: 0;
+  }
+
+  /* ---- Explorer ---- */
+  .explorer {
+    border: 1px solid var(--jdb-line-strong);
+    border-radius: var(--jdb-r-lg);
+    background: var(--jdb-navy-900);
+  }
+
+  @media (min-width: 62rem) {
+    .explorer-wrap {
+      position: relative;
+    }
+
+    .explorer {
+      position: sticky;
+      top: calc(var(--jdb-header-h) + var(--jdb-s-4));
+      max-height: calc(100vh - var(--jdb-header-h) - var(--jdb-s-6));
+      overflow-y: auto;
+      border: 0;
+      border-right: 1px solid var(--jdb-line);
+      border-radius: 0;
+      background: none;
+    }
+  }
+
+  .explorer__title {
+    display: flex;
+    align-items: center;
+    min-height: var(--jdb-target);
+    padding-inline: var(--jdb-s-4);
+    font-family: var(--jdb-font-mono);
+    font-size: var(--jdb-fs-xs);
+    color: var(--jdb-fg-muted);
+    cursor: pointer;
+  }
+
+  @media (min-width: 62rem) {
+    .explorer__title {
+      padding-inline: 0;
+    }
+  }
+
+  .explorer nav {
+    padding: 0 var(--jdb-s-4) var(--jdb-s-4);
+  }
+
+  @media (min-width: 62rem) {
+    .explorer nav {
+      padding: 0 var(--jdb-s-3) var(--jdb-s-4) 0;
+    }
+  }
+
+  .explorer__group + .explorer__group {
+    margin-top: var(--jdb-s-4);
+  }
+
+  .explorer__folder {
+    margin: 0 0 var(--jdb-s-1);
+    font-family: var(--jdb-font-mono);
+    font-size: var(--jdb-fs-xs);
+    color: var(--jdb-fg);
+  }
+
+  .explorer__folder::before {
+    content: "▾ ";
+    color: var(--jdb-navy-600);
+  }
+
+  .explorer ul {
+    margin: 0;
+    padding: 0 0 0 var(--jdb-s-3);
+    list-style: none;
+    border-left: 1px solid var(--jdb-line);
+  }
+
+  .explorer a {
+    display: block;
+    padding: .3rem var(--jdb-s-2);
+    font-family: var(--jdb-font-mono);
+    font-size: var(--jdb-fs-xs);
+    line-height: 1.4;
+    color: var(--jdb-fg-muted);
+    text-decoration: none;
+    border-radius: var(--jdb-r-sm);
+    overflow-wrap: anywhere;
+  }
+
+  .explorer a:hover {
+    color: var(--jdb-fg);
+    background: rgba(255, 255, 255, .04);
+  }
+
+  /* The open file: the one place orange is used in the explorer. */
+  .explorer a[aria-current] {
+    color: var(--jdb-orange-400);
+    background: var(--jdb-orange-a10);
+  }
+
+  /* ---- Folders ---- */
+  .folder {
+    margin-top: var(--jdb-s-10);
+    scroll-margin-top: calc(var(--jdb-header-h) + var(--jdb-s-4));
+  }
+
+  .folder__name {
+    margin: 0 0 var(--jdb-s-2);
+    padding-bottom: var(--jdb-s-2);
+    font-family: var(--jdb-font-mono);
+    font-size: var(--jdb-fs-sm);
+    color: var(--jdb-fg);
+    border-bottom: 1px solid var(--jdb-line);
+  }
+
+  .folder__name::before {
+    content: "src/components / ";
+    color: var(--jdb-fg-muted);
+  }
+
+  .folder__note {
+    margin: 0 0 var(--jdb-s-6);
+    font-size: var(--jdb-fs-sm);
+    color: var(--jdb-fg-muted);
+  }
+
+  .folder__name + :global(.spec) {
+    margin-top: var(--jdb-s-6);
+  }
+
+  /* ---- Tokens ---- */
+  .tokens__head h2 {
+    margin-bottom: var(--jdb-s-2);
+  }
+
+  .tokens__head p {
+    max-width: 68ch;
+    font-size: var(--jdb-fs-sm);
+    color: var(--jdb-fg-muted);
+  }
+
+  .tokens__block {
+    margin-top: var(--jdb-s-7);
+    scroll-margin-top: calc(var(--jdb-header-h) + var(--jdb-s-4));
+  }
+
+  .tokens__block h3 {
+    margin-bottom: var(--jdb-s-3);
+    font-size: var(--jdb-fs-lg);
+  }
+
+  .tokens__note {
+    max-width: 68ch;
+    margin-bottom: var(--jdb-s-5);
+    font-size: var(--jdb-fs-sm);
+  }
+
+  .swatch-group + .swatch-group {
+    margin-top: var(--jdb-s-5);
+  }
+
+  .swatch-group__name {
+    margin: 0 0 var(--jdb-s-2);
+    font-family: var(--jdb-font-mono);
+    font-size: var(--jdb-fs-xs);
+    color: var(--jdb-fg);
+  }
+
+  .swatch-group__name span {
+    color: var(--jdb-fg-muted);
+  }
+
+  .swatches {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 9rem), 1fr));
+    gap: var(--jdb-s-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .swatch {
+    display: grid;
+    align-content: start;
+    gap: .1rem;
+    font-size: var(--jdb-fs-xs);
+    line-height: 1.45;
+  }
+
+  .swatch__chip {
+    height: 3.25rem;
+    margin-bottom: var(--jdb-s-2);
+    border: 1px solid var(--jdb-line-strong);
+    border-radius: var(--jdb-r-md);
+  }
+
+  .swatch__token,
+  .swatch__hex,
+  .swatch__ratio {
+    font-family: var(--jdb-font-mono);
+  }
+
+  .swatch__token {
+    color: var(--jdb-fg);
+    overflow-wrap: anywhere;
+  }
+
+  .swatch__hex,
+  .swatch__role {
+    color: var(--jdb-fg-muted);
+  }
+
+  .swatch__ratio {
+    color: var(--jdb-good);
+  }
+
+  .type-scale,
+  .space-scale {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .type-step {
+    display: grid;
+    gap: var(--jdb-s-1);
+    padding-block: var(--jdb-s-3);
+    border-top: 1px solid var(--jdb-line);
+  }
+
+  .type-step__meta {
+    font-size: var(--jdb-fs-xs);
+    color: var(--jdb-fg-muted);
+  }
+
+  .type-step__meta code {
+    color: var(--jdb-fg-dim);
+    background: none;
+    border: 0;
+    padding: 0;
+  }
+
+  .type-step__sample {
+    color: var(--jdb-fg);
+    line-height: var(--jdb-lh-tight);
+    overflow-wrap: anywhere;
+  }
+
+  .type-step__sample--display {
+    font-family: var(--jdb-font-sans);
+    font-weight: var(--jdb-fw-bold);
+    letter-spacing: var(--jdb-track-heading);
+  }
+
+  .type-step__sample--body {
+    font-family: var(--jdb-font-body);
+    line-height: var(--jdb-lh-body);
+    color: var(--jdb-fg-dim);
+  }
+
+  .space-step {
+    display: grid;
+    grid-template-columns: 6.5rem auto 1fr;
+    align-items: center;
+    gap: var(--jdb-s-3);
+    padding-block: .2rem;
+    font-size: var(--jdb-fs-xs);
+  }
+
+  .space-step code {
+    color: var(--jdb-fg-dim);
+    background: none;
+    border: 0;
+    padding: 0;
+  }
+
+  .space-step__bar {
+    height: .75rem;
+    background: var(--jdb-navy-600);
+    border-radius: 1px;
+  }
+
+  .space-step__px {
+    font-family: var(--jdb-font-mono);
+    color: var(--jdb-fg-muted);
+  }
+
+  /* ---- Demo helpers ---- */
+  .variant + .variant {
+    border-top: 1px solid var(--jdb-line-strong);
+  }
+
+  .variant__label {
+    margin: 0;
+    padding: var(--jdb-s-2) var(--jdb-s-4);
+    font-size: var(--jdb-fs-xs);
+    color: var(--jdb-fg-muted);
+    background: var(--jdb-navy-900);
+    border-bottom: 1px solid var(--jdb-line);
+  }
+
+  .variant__label code {
+    color: var(--jdb-fg-dim);
+  }
+
+  .variant--inline + .variant--inline {
+    border-top: 0;
+  }
+
+  .variant--inline .variant__label {
+    margin-bottom: var(--jdb-s-3);
+    padding: 0;
+    background: none;
+    border: 0;
+  }
+
+  .demo-pair {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    gap: var(--jdb-s-6);
+  }
+
+  .demo-narrow {
+    display: grid;
+    gap: var(--jdb-s-4);
+    width: 100%;
+    max-width: 34rem;
+  }
+
+  .empty-note {
+    margin: 0;
+    max-width: 60ch;
+    font-size: var(--jdb-fs-sm);
+    color: var(--jdb-fg-muted);
+  }
+
   .component-logotype {
     display: flex;
     flex-wrap: wrap;
@@ -591,62 +1021,22 @@ const sampleMatrixRows = [
   .icon-demo {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--jdb-s-4);
+    gap: var(--jdb-s-5);
     margin: 0;
     font-size: 1.5rem;
-    color: var(--jdb-orange-400);
-  }
-
-  .component-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: var(--jdb-s-5);
-  }
-
-  .component-card {
-    display: flex;
-    flex-direction: column;
-    gap: var(--jdb-s-4);
-    padding: var(--jdb-s-5);
-    border: 1px solid var(--jdb-line-strong);
-    border-radius: var(--jdb-r-xl);
-    background: linear-gradient(180deg, rgba(15,31,56,0.92), rgba(17,30,52,0.88));
-    box-shadow: var(--jdb-sh-sm);
-    transition: border-color var(--jdb-t-fast), box-shadow var(--jdb-t-fast), transform var(--jdb-t-fast);
-  }
-
-  .component-card:hover {
-    border-color: var(--jdb-orange-500);
-    box-shadow: var(--jdb-sh-md);
-    transform: translateY(-1px);
-  }
-
-  .component-card--full {
-    padding: 0;
-    overflow: hidden;
-  }
-
-  .component-card--full .component-card__head {
-    padding: var(--jdb-s-5) var(--jdb-s-5) 0;
-  }
-
-  .component-card__head {
-    display: flex;
-    flex-direction: column;
-    gap: var(--jdb-s-2);
-  }
-
-  .component-card h2 {
-    margin: 0;
-  }
-
-  .playground-demo {
-    padding: 0 var(--jdb-s-5) var(--jdb-s-5);
+    color: var(--jdb-fg);
   }
 
   .image-demo {
+    max-width: 34rem;
     border-radius: var(--jdb-r-lg);
     overflow: hidden;
     border: 1px solid var(--jdb-line-strong);
+  }
+
+  /* The page-closing CTA sits clear of the last demo. */
+  .workspace__main > :global(.jdb-cta),
+  .workspace__main > :global(section:last-child) {
+    margin-top: var(--jdb-s-10);
   }
 </style>

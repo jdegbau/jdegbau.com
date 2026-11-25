@@ -225,10 +225,10 @@ const chartTypes = [
 <section class="jdb-section chart-assessment">
   <div class="jdb-container jdb-container--wide">
     <div class="jdb-section__head">
-      <p class="jdb-eyebrow">chart system</p>
+      <p class="jdb-eyebrow">Chart system</p>
       <h2 class="jdb-section__title">Chart type assessment</h2>
       <p class="jdb-section__sub">
-        The gallery below captures the same brand language used throughout this article: navy for baseline structure, orange for emphasis, restrained gray for secondary signals, and rounded cards that feel dashboard-ready.
+        Each card names the job a chart does best, when to reach for it, and the SEO question it answers, with a small on-brand preview.
       </p>
     </div>
 
@@ -244,7 +244,6 @@ const chartTypes = [
 
           <div class="chart-card__meta">
             <span class="chart-card__pill">Best for: {chart.bestFor}</span>
-            <span class="chart-card__pill chart-card__pill--muted">Style: on-brand</span>
           </div>
 
           <div class="chart-card__preview" set:html={chart.preview} />
@@ -287,10 +286,9 @@ const chartTypes = [
   .chart-card__eyebrow {
     margin: 0;
     color: var(--jdb-orange-400);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-size: 0.72rem;
-    font-weight: var(--jdb-fw-bold);
+    font-family: var(--jdb-font-sans);
+    font-size: var(--jdb-fs-xs);
+    font-weight: var(--jdb-fw-medium);
   }
 
   .chart-card h3 {
@@ -323,11 +321,6 @@ const chartTypes = [
     font-weight: var(--jdb-fw-semibold);
   }
 
-  .chart-card__pill--muted {
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(255, 255, 255, 0.12);
-    color: var(--jdb-fg-muted);
-  }
 
   .chart-card__preview {
     display: flex;

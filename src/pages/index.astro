@@ -80,14 +80,10 @@ const pageSchema = {
   <section class="jdb-hero jdb-hero--home">
     <div class="jdb-container">
       <div class="jdb-hero__inner">
-        <div class="jdb-hero__kicker">
-          <span class="jdb-icon jdb-icon--check" aria-hidden="true"></span>
-          Hi, I'm Josh DeGrasse-Baumann
-        </div>
+        <p class="jdb-hero__kicker">Hi, I'm Josh DeGrasse-Baumann.</p>
         <h1>
           Content strategy and measurement that prove what works.<span class="jdb-cursor" aria-hidden="true"></span>
         </h1>
-        <p class="jdb-hero__role">Content Strategy • Data Visualization • Measurement Strategy</p>
         <p class="jdb-hero__lede">
           I help teams decide what to publish, measure whether it worked, and turn the numbers into charts and stories people actually understand. Search is part of the picture, but the goal is content that earns its place.
         </p>
@@ -104,27 +100,23 @@ const pageSchema = {
   <section class="jdb-section">
     <div class="jdb-container">
       <div class="jdb-section__head">
-        <span class="jdb-eyebrow">what I do</span>
+        <span class="jdb-eyebrow">What I do</span>
         <h2 class="jdb-section__title">Content that's planned, measured, and easy to read</h2>
       </div>
-      <div class="jdb-grid jdb-grid--2">
+      <div class="jdb-grid jdb-grid--4 jdb-services">
         <article class="jdb-service">
-          <div class="jdb-service__icon"><span class="jdb-icon jdb-icon--check" aria-hidden="true"></span></div>
           <h3>Content Strategy</h3>
           <p>Audience research, content audits, editorial planning, and governance that tie every piece of content to a clear business goal.</p>
         </article>
         <article class="jdb-service">
-          <div class="jdb-service__icon"><span class="jdb-icon jdb-icon--external" aria-hidden="true"></span></div>
           <h3>Data Visualization</h3>
           <p>Dashboards, reports, and charts designed around the question being asked, so stakeholders get the point at a glance.</p>
         </article>
         <article class="jdb-service">
-          <div class="jdb-service__icon"><span class="jdb-icon jdb-icon--branch" aria-hidden="true"></span></div>
           <h3>Measurement Strategy</h3>
           <p>KPI frameworks, measurement plans, and GA4 and Tag Manager implementations that capture the data you need to make decisions.</p>
         </article>
         <article class="jdb-service">
-          <div class="jdb-service__icon"><span class="jdb-icon jdb-icon--search" aria-hidden="true"></span></div>
           <h3>SEO</h3>
           <p>Technical audits, search-informed content planning, and practical fixes that help the right people find your work.</p>
         </article>
@@ -135,7 +127,7 @@ const pageSchema = {
   <section class="jdb-section jdb-section--raised">
     <div class="jdb-container jdb-container--narrow">
       <div class="jdb-section__head">
-        <span class="jdb-eyebrow">how I work</span>
+        <span class="jdb-eyebrow">How I work</span>
         <h2 class="jdb-section__title">From question to answer in four steps</h2>
         <p class="jdb-section__sub">Good content programs start with research and end with a clear report. Here’s what working together looks like.</p>
       </div>
@@ -152,8 +144,8 @@ const pageSchema = {
 
   <section class="jdb-section">
     <div class="jdb-container">
-      <div class="jdb-section__head jdb-section__head--center">
-        <span class="jdb-eyebrow">practical guides</span>
+      <div class="jdb-section__head">
+        <span class="jdb-eyebrow">Practical guides</span>
         <h2 class="jdb-section__title">Featured writing</h2>
         <p class="jdb-section__sub">Notes on content strategy, data visualization, measurement, and SEO.</p>
       </div>
@@ -168,12 +160,12 @@ const pageSchema = {
     </div>
   </section>
 
-  <FAQAccordion items={faq} title="Questions people ask before reaching out" eyebrow="faq" />
+  <FAQAccordion items={faq} title="Questions people ask before reaching out" eyebrow="FAQ" />
 
   <section class="jdb-section">
     <div class="jdb-container">
       <CallToAction
-        prompt="ready when you are"
+        prompt="Ready when you are"
         title="Have a content or measurement question?"
         text="Book a focused one-hour call and leave with a clear diagnosis and practical next steps. No retainer required."
         primary={{ href: '/seo-helpline/', label: 'Book a consultation' }}

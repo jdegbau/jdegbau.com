@@ -5,11 +5,10 @@ const { action, demo = false } = Astro.props;
 <form class="contact-form" action={action} method="POST" accept-charset="UTF-8" data-contact-form>
   <header class="contact-form__header">
     <div>
-      <span class="jdb-eyebrow">new message</span>
+      <span class="jdb-eyebrow">New message</span>
       <h2>Start the conversation</h2>
       <p>I usually reply within two business days.</p>
     </div>
-    <span class="contact-form__index" aria-hidden="true">01 / 01</span>
   </header>
 
   <div class="contact-form__field">
@@ -95,9 +94,6 @@ const { action, demo = false } = Astro.props;
   }
 
   .contact-form__header {
-    display: flex;
-    justify-content: space-between;
-    gap: var(--jdb-s-4);
     padding-bottom: var(--jdb-s-4);
     border-bottom: 1px solid var(--jdb-line);
   }
@@ -114,13 +110,6 @@ const { action, demo = false } = Astro.props;
     font-size: var(--jdb-fs-sm);
   }
 
-  .contact-form__index {
-    flex: 0 0 auto;
-    padding-top: .2rem;
-    color: var(--jdb-fg-muted);
-    font-family: var(--jdb-font-mono);
-    font-size: var(--jdb-fs-xs);
-  }
 
   .contact-form__field {
     display: grid;
@@ -130,7 +119,7 @@ const { action, demo = false } = Astro.props;
 
   .contact-form label {
     color: var(--jdb-fg);
-    font-family: var(--jdb-font-mono);
+    font-family: var(--jdb-font-sans);
     font-size: var(--jdb-fs-xs);
   }
 

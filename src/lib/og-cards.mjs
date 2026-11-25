@@ -37,26 +37,26 @@ const h = (type, style, ...children) => ({
 
 async function loadFonts() {
   const font = (pkg, file) => readFile(require.resolve(`${pkg}/files/${file}`));
-  const [monoBold, monoRegular, interRegular] = await Promise.all([
-    font('@fontsource/jetbrains-mono', 'jetbrains-mono-latin-700-normal.woff'),
-    font('@fontsource/jetbrains-mono', 'jetbrains-mono-latin-400-normal.woff'),
-    font('@fontsource/inter', 'inter-latin-400-normal.woff'),
+  const [monoMedium, sansBlack, sansMedium] = await Promise.all([
+    font('@fontsource/jetbrains-mono', 'jetbrains-mono-latin-500-normal.woff'),
+    font('@fontsource/schibsted-grotesk', 'schibsted-grotesk-latin-800-normal.woff'),
+    font('@fontsource/schibsted-grotesk', 'schibsted-grotesk-latin-500-normal.woff'),
   ]);
   return [
-    { name: 'JetBrains Mono', data: monoBold, weight: 700, style: 'normal' },
-    { name: 'JetBrains Mono', data: monoRegular, weight: 400, style: 'normal' },
-    { name: 'Inter', data: interRegular, weight: 400, style: 'normal' },
+    { name: 'JetBrains Mono', data: monoMedium, weight: 500, style: 'normal' },
+    { name: 'Schibsted Grotesk', data: sansBlack, weight: 800, style: 'normal' },
+    { name: 'Schibsted Grotesk', data: sansMedium, weight: 500, style: 'normal' },
   ];
 }
 
 function titleSize(title) {
-  if (title.length <= 32) return 72;
-  if (title.length <= 52) return 60;
-  if (title.length <= 75) return 52;
-  return 44;
+  if (title.length <= 32) return 88;
+  if (title.length <= 52) return 74;
+  if (title.length <= 75) return 62;
+  return 52;
 }
 
-function card({ eyebrow, title, subtitle, footer }) {
+function card({ eyebrow, title, subtitle, footer, size }) {
   const content = h(
     'div',
     {
@@ -80,19 +80,15 @@ function card({ eyebrow, title, subtitle, footer }) {
     h(
       'div',
       { flexDirection: 'column', gap: 20 },
+      h('span', { fontSize: 28, fontWeight: 500, color: colors.muted }, eyebrow),
       h(
         'span',
-        { fontFamily: 'JetBrains Mono', fontSize: 24, color: colors.orangeTint, textTransform: 'uppercase', letterSpacing: 3 },
-        `// ${eyebrow}`,
-      ),
-      h(
-        'span',
-        { fontFamily: 'JetBrains Mono', fontWeight: 700, fontSize: titleSize(title), lineHeight: 1.15, color: colors.fg },
+        { fontWeight: 800, fontSize: size ?? titleSize(title), lineHeight: 1.02, letterSpacing: -2, color: colors.fg },
         title,
       ),
       subtitle ? h('span', { fontSize: 28, lineHeight: 1.4, color: colors.dim }, subtitle) : [],
     ),
-    h('span', { fontFamily: 'JetBrains Mono', fontSize: 24, color: colors.muted }, footer),
+    h('span', { fontSize: 24, fontWeight: 500, color: colors.muted }, footer),
   );
 
   return h(
@@ -102,12 +98,10 @@ function card({ eyebrow, title, subtitle, footer }) {
       height: HEIGHT,
       flexDirection: 'column',
       backgroundColor: colors.canvas,
-      backgroundImage: `radial-gradient(circle at 100% 0%, ${colors.panel} 0%, ${colors.canvas} 60%)`,
-      fontFamily: 'Inter',
+      fontFamily: 'Schibsted Grotesk',
       color: colors.fg,
     },
     content,
-    h('div', { height: 12, width: '100%', backgroundColor: colors.orange }),
   );
 }
 
@@ -137,16 +131,17 @@ export async function generateOgCards(root) {
   const posts = await readPosts(blogDir);
 
   const jobs = posts.map(async ({ slug, title }) => {
-    const png = await render(card({ eyebrow: 'article', title, footer: 'jdegbau.com/blog' }), fonts);
+    const png = await render(card({ eyebrow: 'From the blog', title, footer: 'jdegbau.com/blog' }), fonts);
     await writeFile(path.join(outDir, `${slug}.png`), png);
   });
   jobs.push(
     (async () => {
       const png = await render(
         card({
-          eyebrow: 'seo · data · development',
+          eyebrow: 'Content strategy, data visualization, and measurement',
           title: 'Joshua DeGrasse-Baumann',
-          subtitle: 'SEO consultant, data enthusiast, and developer writing about analytics, SEO, and measurement.',
+          size: 72,
+          subtitle: 'I help teams decide what to publish, measure whether it worked, and turn the numbers into charts people understand.',
           footer: 'jdegbau.com',
         }),
         fonts,

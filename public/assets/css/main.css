@@ -6,20 +6,21 @@
   font-display: swap;
 }
 
-/* Inter (SIL Open Font License), self-hosted Latin subset, variable weight. */
+/* Schibsted Grotesk (SIL Open Font License), self-hosted Latin subset,
+   variable weight 400-900. The brand's reading and display face. */
 @font-face {
-  font-family: "Inter";
-  src: url("/assets/fonts/Inter-latin-var.woff2") format("woff2");
+  font-family: "Schibsted Grotesk";
+  src: url("/assets/fonts/SchibstedGrotesk-latin-var.woff2") format("woff2");
   font-style: normal;
-  font-weight: 100 900;
+  font-weight: 400 900;
   font-display: swap;
   unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
 }
 @font-face {
-  font-family: "Inter";
-  src: url("/assets/fonts/Inter-latin-var-italic.woff2") format("woff2");
+  font-family: "Schibsted Grotesk";
+  src: url("/assets/fonts/SchibstedGrotesk-latin-var-italic.woff2") format("woff2");
   font-style: italic;
-  font-weight: 100 900;
+  font-weight: 400 900;
   font-display: swap;
   unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
 }
@@ -95,28 +96,37 @@
   --jdb-c-cta-hover:     #ff6a26;
 
   /* === Type ============================================================= */
+  --jdb-font-sans: "Schibsted Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --jdb-font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-  --jdb-font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  /* Mono carries the brand voice — nav, headings, buttons, labels, code,
-     the logotype. Body copy runs on Inter: jdegbau.com's guides run past
-     30 minutes of reading, and monospace at that length measurably hurts
-     reading speed. This is a deliberate upgrade over an all-mono
-     treatment, not a departure from brand — the mono voice still owns
-     every structural element on the page. */
+  --jdb-font-body: var(--jdb-font-sans);
+  /* One voice, one accent face.
+     Schibsted Grotesk sets everything people read: headlines, UI, and body.
+     It was drawn for a Nordic news group, so it's built for exactly what
+     this site does: make data and long explanations easy to read.
+     JetBrains Mono is reserved for what is literally code: the logotype,
+     code samples, keyboard keys. Keeping mono rare is what lets the
+     logotype read as a signature instead of a theme. */
 
+  /* Scale: a modular step of ~1.25 from a 17px base, with a large jump to
+     display sizes so headlines carry the page. */
   --jdb-fs-xs:   0.8125rem;  /* 13px — meta, timestamps, badges */
   --jdb-fs-sm:   0.9375rem;  /* 15px — nav, labels, small UI */
   --jdb-fs-base: 1.0625rem;  /* 17px — body copy */
-  --jdb-fs-md:   1.1875rem;  /* 19px — lead paragraph */
-  --jdb-fs-lg:   1.375rem;   /* 22px — card title / h4 */
-  --jdb-fs-xl:   1.75rem;    /* 28px — h3 */
-  --jdb-fs-2xl:  2.125rem;   /* 34px — h2 */
-  --jdb-fs-3xl:  2.75rem;    /* 44px — h1 */
-  --jdb-fs-4xl:  3.25rem;    /* 52px — hero h1, desktop */
+  --jdb-fs-md:   1.25rem;    /* 20px — lead paragraph */
+  --jdb-fs-lg:   1.5rem;     /* 24px — card title / h4 */
+  --jdb-fs-xl:   1.875rem;   /* 30px — h3 */
+  --jdb-fs-2xl:  2.375rem;   /* 38px — h2 */
+  --jdb-fs-3xl:  3rem;       /* 48px — h1 */
+  --jdb-fs-4xl:  clamp(3rem, 2rem + 4.2vw, 4.75rem); /* 48–76px — home hero */
 
-  --jdb-lh-tight: 1.15;
-  --jdb-lh-snug:  1.35;
-  --jdb-lh-body:  1.7;
+  --jdb-lh-display: 1.02;
+  --jdb-lh-tight: 1.1;
+  --jdb-lh-snug:  1.3;
+  --jdb-lh-body:  1.65;
+
+  /* Grotesques set large need negative tracking to hold together. */
+  --jdb-track-display: -0.035em;
+  --jdb-track-heading: -0.02em;
 
   --jdb-fw-normal: 400;  --jdb-fw-medium: 500;  --jdb-fw-semibold: 600;
   --jdb-fw-bold: 700;    --jdb-fw-black: 800;
@@ -131,7 +141,7 @@
      Radii sit one size class tighter than a typical SaaS-card kit
      (4/8/14/20) on purpose — panels should read as editor chrome, not
      rounded marketing tiles. */
-  --jdb-r-sm: 3px; --jdb-r-md: 6px; --jdb-r-lg: 10px; --jdb-r-xl: 16px; --jdb-r-pill: 999px;
+  --jdb-r-sm: 2px; --jdb-r-md: 4px; --jdb-r-lg: 8px; --jdb-r-xl: 12px; --jdb-r-pill: 999px;
 
   /* Dark surfaces get depth from borders + black shadow, not the
      navy-tinted shadows a light theme would use — there's no light to
@@ -195,15 +205,16 @@ body.jdb-noscroll { overflow: hidden; }
 
 h1, h2, h3, h4, h5 {
   margin: 0 0 var(--jdb-s-4);
-  font-family: var(--jdb-font-mono);
+  font-family: var(--jdb-font-sans);
   color: var(--jdb-c-heading);
   line-height: var(--jdb-lh-tight);
   font-weight: var(--jdb-fw-bold);
-  letter-spacing: -0.01em;
+  letter-spacing: var(--jdb-track-heading);
   text-wrap: balance;
   scroll-margin-top: calc(var(--jdb-header-h) + var(--jdb-postmeta-h) + .25rem);
 }
-h1 { font-size: var(--jdb-fs-3xl); font-weight: var(--jdb-fw-black); }
+h1 { font-size: var(--jdb-fs-3xl); font-weight: var(--jdb-fw-black); line-height: var(--jdb-lh-display); letter-spacing: var(--jdb-track-display); }
+h2 { letter-spacing: -0.025em; }
 h2 { font-size: var(--jdb-fs-2xl); }
 h3 { font-size: var(--jdb-fs-xl); }
 h4 { font-size: var(--jdb-fs-lg); line-height: var(--jdb-lh-snug); }
@@ -227,6 +238,7 @@ a:hover { color: var(--jdb-c-link-hover); }
 }
 
 img, svg, video { max-width: 100%; height: auto; display: block; }
+.jdb-stat__value { font-variant-numeric: tabular-nums; }
 strong, b { font-weight: var(--jdb-fw-semibold); color: var(--jdb-fg); }
 code, kbd, samp { font-family: var(--jdb-font-mono); }
 hr { border: 0; border-top: 1px solid var(--jdb-line); margin: var(--jdb-s-7) 0; }
@@ -265,19 +277,20 @@ hr { border: 0; border-top: 1px solid var(--jdb-line); margin: var(--jdb-s-7) 0;
 .jdb-section__title { margin-bottom: var(--jdb-s-3); }
 .jdb-section__sub { font-family: var(--jdb-font-body); font-size: var(--jdb-fs-md); color: var(--jdb-fg-muted); margin: 0; }
 
-/* Eyebrow doubles as a "// comment" — genuinely functional here since the
-   whole page is annotated dev documentation, not decorative chrome. */
+/* Eyebrow: a quiet sentence-case kicker. It names the section's topic in
+   plain words; it carries no decoration. Use it only where the heading
+   alone would be ambiguous. */
 .jdb-eyebrow {
   display: inline-flex;
   align-items: center;
   gap: .5ch;
-  font-family: var(--jdb-font-mono);
-  font-size: var(--jdb-fs-xs);
+  font-family: var(--jdb-font-sans);
+  font-size: var(--jdb-fs-sm);
   font-weight: var(--jdb-fw-medium);
   color: var(--jdb-fg-muted);
   margin-bottom: var(--jdb-s-3);
 }
-.jdb-eyebrow::before { content: "//"; color: var(--jdb-navy-600); }
+
 
 .jdb-stack > * + * { margin-top: var(--jdb-s-4); }
 .jdb-cluster { display: flex; flex-wrap: wrap; gap: var(--jdb-s-3); align-items: center; }
@@ -345,7 +358,7 @@ a.jdb-panel:hover,
 .jdb-skip-link {
   position: absolute; left: var(--jdb-s-4); top: -100%;
   z-index: 200; background: var(--jdb-orange-500); color: var(--jdb-on-orange);
-  font-family: var(--jdb-font-mono); font-weight: var(--jdb-fw-bold);
+  font-family: var(--jdb-font-sans); font-weight: var(--jdb-fw-bold);
   padding: var(--jdb-s-3) var(--jdb-s-4);
   border-radius: 0 0 var(--jdb-r-md) var(--jdb-r-md); text-decoration: none;
 }
@@ -389,15 +402,16 @@ a.jdb-panel:hover,
   align-items: center;
   justify-content: center;
   gap: var(--jdb-s-2);
-  font-family: var(--jdb-font-mono);
+  font-family: var(--jdb-font-sans);
   font-size: var(--jdb-fs-sm);
   font-weight: var(--jdb-fw-semibold);
+  letter-spacing: -0.005em;
   line-height: 1;
   text-align: center;
   text-decoration: none;
   padding: 0.9rem 1.5rem;
   min-height: 48px;
-  border: 2px solid var(--_bd);
+  border: 1px solid var(--_bd);
   border-radius: var(--jdb-r-md);
   background: var(--_bg);
   color: var(--_fg);
@@ -406,7 +420,6 @@ a.jdb-panel:hover,
               border-color var(--jdb-t-fast), transform var(--jdb-t-fast),
               box-shadow var(--jdb-t-fast);
 }
-.jdb-btn:hover { transform: translateY(-1px); }
 .jdb-btn:active { transform: translateY(0) scale(.98); transition-duration: 60ms; }
 .jdb-btn[aria-busy="true"] { cursor: progress; opacity: .8; }
 .jdb-btn[aria-disabled="true"], .jdb-btn:disabled { opacity: .5; pointer-events: none; }
@@ -414,8 +427,8 @@ a.jdb-panel:hover,
 /* Primary — orange fill, NAVY text (see token note on --jdb-on-orange).
    The one button that should read as "the money action": schedule a call,
    sign up, submit. */
-.jdb-btn--primary { background: var(--jdb-c-cta-bg); color: var(--jdb-c-cta-text); box-shadow: var(--jdb-sh-sm); }
-.jdb-btn--primary:hover { background: var(--jdb-c-cta-hover); box-shadow: var(--jdb-glow), var(--jdb-sh-sm); }
+.jdb-btn--primary { background: var(--jdb-c-cta-bg); color: var(--jdb-c-cta-text); }
+.jdb-btn--primary:hover { background: var(--jdb-c-cta-hover); }
 
 /* Secondary — navy-700 fill, white text (11.44:1). Structural, not urgent. */
 .jdb-btn--secondary { background: var(--jdb-navy-700); color: #fff; }
@@ -423,7 +436,7 @@ a.jdb-panel:hover,
 
 /* Outline — quiet internal navigation */
 .jdb-btn--outline { background: transparent; color: var(--jdb-fg); border-color: var(--jdb-line-strong); }
-.jdb-btn--outline:hover { border-color: var(--jdb-orange-500); color: #fff; background: var(--jdb-orange-a10); }
+.jdb-btn--outline:hover { border-color: var(--jdb-fg-muted); color: #fff; background: rgba(255,255,255,.04); }
 
 .jdb-btn--ghost { background: transparent; color: var(--jdb-orange-400); border-color: transparent; padding-inline: var(--jdb-s-2); min-height: var(--jdb-target); }
 .jdb-btn--ghost:hover { color: #fff; text-decoration: underline; }
@@ -459,27 +472,26 @@ a.jdb-panel:hover,
 /* Logo — the `(jdegbau)=>{}` logotype lives in src/components/Logotype.astro
    (markup + styles). Don't restyle .jdb-logo here; render <Logotype /> instead. */
 
-/* Tabs — each primary nav link reads as an open editor tab: flat bottom,
-   softened top corners, current tab lifted with an orange underline the
-   way an active tab shows which file you're looking at. */
+/* Primary nav — plain text links. The current page is marked with the
+   brand's orange cursor bar underneath, the same block that blinks in the
+   logotype. */
 .jdb-tabs { display: none; margin-left: var(--jdb-s-3); min-width: 0; }
 @media (min-width: 64rem) { .jdb-tabs { display: block; } }
 .jdb-tabs__list { display: flex; align-items: stretch; gap: 2px; list-style: none; margin: 0; padding: 0; height: var(--jdb-header-h); }
 .jdb-tabs__link {
   display: flex; align-items: center; gap: .5ch;
   height: 100%;
-  font-family: var(--jdb-font-mono);
+  font-family: var(--jdb-font-sans);
   font-size: var(--jdb-fs-sm);
   color: var(--jdb-fg-dim);
   text-decoration: none;
   padding: 0 var(--jdb-s-4);
-  border-radius: var(--jdb-r-md) var(--jdb-r-md) 0 0;
   border-bottom: 2px solid transparent;
   white-space: nowrap;
 }
-.jdb-tabs__link:hover { color: var(--jdb-fg); background: rgba(255,255,255,.04); }
+.jdb-tabs__link:hover { color: var(--jdb-fg); }
 .jdb-tabs__link[aria-current="page"] {
-  color: #fff; background: var(--jdb-navy-800);
+  color: var(--jdb-fg);
   border-bottom-color: var(--jdb-orange-500);
 }
 .jdb-tabs__link .jdb-tabs__dot { width: 6px; height: 6px; border-radius: 50%; background: var(--jdb-orange-500); }
@@ -491,11 +503,11 @@ a.jdb-panel:hover,
 .jdb-tabs__link--cta {
   height: auto; min-height: 40px;
   color: var(--jdb-fg);
-  border: 1px solid var(--jdb-orange-500);
+  border: 1px solid var(--jdb-line-strong);
   border-radius: var(--jdb-r-md);
-  background: var(--jdb-orange-a10);
+  background: transparent;
 }
-.jdb-tabs__link--cta:hover { color: #fff; background: var(--jdb-orange-a20); }
+.jdb-tabs__link--cta:hover { color: #fff; border-color: var(--jdb-fg-muted); }
 .jdb-tabs__link--cta[aria-current="page"] { background: var(--jdb-orange-a20); border-bottom-color: var(--jdb-orange-500); }
 
 .jdb-header__actions {
@@ -504,7 +516,7 @@ a.jdb-panel:hover,
 
 .jdb-search-trigger {
   display: inline-flex; align-items: center; gap: var(--jdb-s-2);
-  font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-sm); color: var(--jdb-fg-muted);
+  font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-sm); color: var(--jdb-fg-muted);
   background: rgba(255,255,255,.04); border: 1px solid var(--jdb-line-strong);
   border-radius: var(--jdb-r-md); padding: .5rem .75rem; cursor: pointer;
   min-height: var(--jdb-target);
@@ -542,7 +554,7 @@ a.jdb-panel:hover,
 }
 .jdb-searchpanel input[type="search"] {
   flex: 1; background: transparent; border: none; outline: none;
-  font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-md); color: var(--jdb-fg);
+  font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-md); color: var(--jdb-fg);
 }
 .jdb-searchpanel input[type="search"]::placeholder { color: var(--jdb-fg-muted); }
 .jdb-searchpanel__results {
@@ -561,7 +573,7 @@ a.jdb-panel:hover,
 }
 .jdb-searchpanel__result a:focus-visible { box-shadow: inset 2px 0 0 var(--jdb-orange-500); outline: none; }
 .jdb-searchpanel__result strong {
-  display: block; font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-sm); color: var(--jdb-fg);
+  display: block; font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-sm); color: var(--jdb-fg);
 }
 .jdb-searchpanel__result span {
   display: block; margin-top: .2rem; color: var(--jdb-fg-muted); font-size: var(--jdb-fs-sm);
@@ -575,7 +587,7 @@ a.jdb-panel:hover,
 .jdb-searchpanel__result--empty a { color: var(--jdb-orange-400); }
 .jdb-searchpanel__label {
   padding: var(--jdb-s-2) var(--jdb-gutter);
-  font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted);
+  font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted);
 }
 .jdb-searchpanel__result mark {
   background: var(--jdb-orange-a20); color: inherit; border-radius: 2px; padding: 0 .1em;
@@ -611,7 +623,7 @@ a.jdb-panel:hover,
 .jdb-drawer__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
 .jdb-drawer__link {
   display: flex; align-items: center; gap: var(--jdb-s-2);
-  font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-md); color: var(--jdb-fg);
+  font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-md); color: var(--jdb-fg);
   text-decoration: none; padding: var(--jdb-s-4) 0; border-bottom: 1px solid var(--jdb-line);
 }
 .jdb-drawer__link::before { content: "//"; color: var(--jdb-navy-600); font-size: var(--jdb-fs-sm); }
@@ -627,8 +639,7 @@ a.jdb-panel:hover,
 @media (max-width: 62rem) { .jdb-footer__main { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 36rem) { .jdb-footer__main { grid-template-columns: 1fr; } }
 .jdb-footer__blurb { color: var(--jdb-fg-muted); max-width: 32ch; }
-.jdb-footer__heading { font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-sm); color: var(--jdb-fg-muted); text-transform: none; margin-bottom: var(--jdb-s-4); }
-.jdb-footer__heading::before { content: "# "; color: var(--jdb-navy-600); }
+.jdb-footer__heading { font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-sm); color: var(--jdb-fg-muted); text-transform: none; margin-bottom: var(--jdb-s-4); }
 .jdb-footer__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--jdb-s-1); }
 .jdb-footer__link { display: inline-block; padding-block: var(--jdb-s-2); color: var(--jdb-fg-dim); text-decoration: none; font-size: var(--jdb-fs-sm); }
 .jdb-footer__link:hover { color: var(--jdb-orange-400); text-decoration: underline; }
@@ -643,7 +654,7 @@ a.jdb-panel:hover,
    cursor position, encoding). Doubles as the legal / copyright line. */
 .jdb-statusbar {
   background: var(--jdb-navy-800); border-top: 1px solid var(--jdb-line);
-  font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted);
+  font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted);
 }
 .jdb-statusbar__inner { display: flex; align-items: center; justify-content: space-between; gap: var(--jdb-s-4); padding-block: var(--jdb-s-3); flex-wrap: wrap; }
 .jdb-statusbar__group { display: flex; align-items: center; gap: var(--jdb-s-4); flex-wrap: wrap; }
@@ -653,7 +664,7 @@ a.jdb-panel:hover,
 /* --------------------------------------------------------------------------
    8. BREADCRUMBS  (new — blog posts nest under /blog/, guides get deep)
    -------------------------------------------------------------------------- */
-.jdb-crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: .4em; font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted); margin-bottom: var(--jdb-s-5); }
+.jdb-crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: .4em; font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted); margin-bottom: var(--jdb-s-5); }
 .jdb-crumbs a { color: var(--jdb-fg-muted); text-decoration: none; }
 .jdb-crumbs a:hover { color: var(--jdb-orange-400); text-decoration: underline; }
 .jdb-crumbs__sep { color: var(--jdb-navy-600); }
@@ -662,23 +673,20 @@ a.jdb-panel:hover,
 /* --------------------------------------------------------------------------
    9. HERO  — two variants (home / intro)
    -------------------------------------------------------------------------- */
-.jdb-hero { padding-block: var(--jdb-s-9); position: relative; overflow: hidden; }
+.jdb-hero { padding-block: var(--jdb-s-9); position: relative; overflow: hidden; container: jdb-hero / inline-size; }
 @media (min-width: 62rem) { .jdb-hero { padding-block: var(--jdb-s-11); } }
-.jdb-hero::before {
-  content: ""; position: absolute; inset: 0; pointer-events: none;
-  background:
-    linear-gradient(180deg, rgba(255,77,0,.08), transparent 40%),
-    repeating-linear-gradient(90deg, rgba(255,255,255,.025) 0 1px, transparent 1px 48px);
-}
-.jdb-hero--blog .jdb-hero__background,
-.jdb-hero--blog .jdb-hero__background-image { position: absolute; inset: 0; }
-.jdb-hero--blog .jdb-hero__background { z-index: 0; pointer-events: none; }
-.jdb-hero--blog .jdb-hero__background-image {
+
+/* backgroundImage works on any variant; the blog variant adds the bleed
+   below the hero that the overlapping article panel sits on. */
+.jdb-hero__background,
+.jdb-hero__background-image { position: absolute; inset: 0; }
+.jdb-hero__background { z-index: 0; pointer-events: none; }
+.jdb-hero__background-image {
   background-position: center; background-size: cover; background-repeat: no-repeat;
   transform: scale(1.06) translateY(-1rem);
   filter: saturate(1.15) contrast(1.06);
 }
-.jdb-hero--blog .jdb-hero__background::after {
+.jdb-hero__background::after {
   content: ""; position: absolute; inset: 0; z-index: 1;
   background:
     linear-gradient(90deg, rgba(10, 16, 31, 0.82) 0%, rgba(10, 16, 31, 0.54) 28%, rgba(10, 16, 31, 0.18) 52%, rgba(10, 16, 31, 0.38) 100%),
@@ -692,26 +700,28 @@ a.jdb-panel:hover,
 .jdb-hero__content { position: relative; z-index: 1; max-width: 64ch; }
 .jdb-hero__content > :first-child { margin-top: 0; }
 .jdb-hero__content > :last-child { margin-bottom: 0; }
+/* Same "// comment" voice as .jdb-eyebrow, so hero labels match every
+   other label on the site. */
 .jdb-hero__eyebrow {
+  display: flex; align-items: center; gap: .5ch;
   margin: 0 0 var(--jdb-s-3);
-  font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-xs); letter-spacing: .08em; text-transform: uppercase;
+  font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-sm); font-weight: var(--jdb-fw-medium);
   color: var(--jdb-fg-muted);
 }
+
 .jdb-hero__inner { position: relative; }
 .jdb-hero--home .jdb-hero__kicker {
-  font-family: var(--jdb-font-mono); color: var(--jdb-fg-muted); font-size: var(--jdb-fs-base);
-  margin-bottom: var(--jdb-s-3);
+  font-family: var(--jdb-font-sans); color: var(--jdb-fg-muted); font-size: var(--jdb-fs-md);
+  margin-bottom: var(--jdb-s-4);
 }
-.jdb-hero--home .jdb-hero__kicker .jdb-icon { color: var(--jdb-good); }
-.jdb-hero--home h1 { font-size: var(--jdb-fs-4xl); max-width: 16ch; }
+.jdb-hero--home h1 { font-size: var(--jdb-fs-4xl); max-width: 14ch; margin-bottom: var(--jdb-s-6); }
 .jdb-hero--home h1 .jdb-cursor {
   display: inline-block; width: .5ch; height: .85em; background: var(--jdb-orange-500);
   margin-left: .1em; animation: jdb-blink 1.05s steps(1) infinite; vertical-align: -0.1em;
 }
 @keyframes jdb-blink { 50% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .jdb-cursor { animation: none; } }
-.jdb-hero--home .jdb-hero__role { font-family: var(--jdb-font-mono); color: var(--jdb-orange-400); font-size: var(--jdb-fs-md); margin-bottom: var(--jdb-s-4); }
-.jdb-hero--home .jdb-hero__lede { font-size: var(--jdb-fs-md); max-width: 56ch; color: var(--jdb-fg-dim); }
+.jdb-hero--home .jdb-hero__lede { font-size: var(--jdb-fs-md); max-width: 52ch; color: var(--jdb-fg-dim); }
 .jdb-hero__actions {
   display: flex; flex-wrap: wrap; align-items: center; gap: var(--jdb-s-3);
   margin-top: var(--jdb-s-6);
@@ -756,17 +766,26 @@ a.jdb-panel:hover,
 .jdb-hero--split {
   border-bottom: 1px solid var(--jdb-line);
 }
+/* Split stacks (text first, image below) until the hero itself is wide
+   enough for two columns. A container query, so it also behaves inside
+   narrow wrappers, not just narrow screens. */
 .jdb-hero--split .jdb-hero__layout {
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  grid-template-columns: minmax(0, 1fr);
+}
+@container jdb-hero (min-width: 48rem) {
+  .jdb-hero--split .jdb-hero__layout {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  }
 }
 .jdb-hero--split .jdb-hero__content {
   max-width: none;
 }
 .jdb-hero--split h2 {
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: clamp(2rem, 6cqi, 3rem);
 }
 .jdb-hero__media {
   position: relative; z-index: 1;
+  display: grid; /* lets the image stretch to fill the frame */
   min-height: 18rem;
   border: 1px solid var(--jdb-line-strong);
   border-radius: var(--jdb-r-xl);
@@ -785,10 +804,10 @@ a.jdb-panel:hover,
 /* --------------------------------------------------------------------------
    10. LOGO STRIP  ("worked with" — Rocket Clicks, TRK Creative, Fire&Spark)
    -------------------------------------------------------------------------- */
-.jdb-logostrip__label { font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted); margin-bottom: var(--jdb-s-5); }
+.jdb-logostrip__label { font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted); margin-bottom: var(--jdb-s-5); }
 .jdb-logostrip__row { display: flex; flex-wrap: wrap; gap: var(--jdb-s-8); align-items: center; }
 .jdb-logostrip__item {
-  font-family: var(--jdb-font-mono); font-weight: var(--jdb-fw-semibold); font-size: var(--jdb-fs-lg);
+  font-family: var(--jdb-font-sans); font-weight: var(--jdb-fw-semibold); font-size: var(--jdb-fs-lg);
   color: var(--jdb-fg-muted); letter-spacing: -.01em; opacity: .75; transition: opacity var(--jdb-t-fast), color var(--jdb-t-fast);
 }
 .jdb-logostrip__item:hover { opacity: 1; color: var(--jdb-fg); }
@@ -797,19 +816,11 @@ a.jdb-panel:hover,
    11. SERVICE / SKILL CARD GRID  ("What I Do" — 4 cards)
    -------------------------------------------------------------------------- */
 .jdb-service {
-  background: var(--jdb-surface); border: 1px solid var(--jdb-line); border-radius: var(--jdb-r-lg);
-  padding: var(--jdb-s-6); height: 100%;
-  transition: border-color var(--jdb-t-fast), transform var(--jdb-t-fast);
+  padding-top: var(--jdb-s-5); height: 100%;
+  border-top: 1px solid var(--jdb-line-strong);
 }
-/* Service cards aren't links, so they don't react to hover (see --jdb-lift). */
-.jdb-service__icon {
-  width: 2.75rem; height: 2.75rem; border-radius: var(--jdb-r-md);
-  background: var(--jdb-orange-a10); color: var(--jdb-orange-500);
-  display: grid; place-items: center; margin-bottom: var(--jdb-s-4);
-}
-.jdb-service__icon .jdb-icon { width: 1.3rem; height: 1.3rem; }
-.jdb-service h3 { font-size: var(--jdb-fs-lg); margin-bottom: var(--jdb-s-2); }
-.jdb-service p { margin: 0; font-size: var(--jdb-fs-sm); }
+.jdb-service h3 { font-size: var(--jdb-fs-lg); margin-bottom: var(--jdb-s-3); }
+.jdb-service p { margin: 0; font-size: var(--jdb-fs-base); }
 
 /* --------------------------------------------------------------------------
    12. EXPERIENCE TIMELINE  ("Professional Experience")
@@ -823,10 +834,10 @@ a.jdb-panel:hover,
 }
 .jdb-timeline__item--current::before { border-color: var(--jdb-orange-500); background: var(--jdb-orange-500); box-shadow: var(--jdb-glow); }
 .jdb-timeline__role { font-size: var(--jdb-fs-lg); margin-bottom: .2rem; }
-.jdb-timeline__meta { display: flex; flex-wrap: wrap; align-items: center; gap: .6em; font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-sm); color: var(--jdb-fg-muted); margin-bottom: var(--jdb-s-3); }
+.jdb-timeline__meta { display: flex; flex-wrap: wrap; align-items: center; gap: .6em; font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-sm); color: var(--jdb-fg-muted); margin-bottom: var(--jdb-s-3); }
 .jdb-timeline__meta strong { color: var(--jdb-fg-dim); font-weight: var(--jdb-fw-medium); }
 .jdb-badge {
-  display: inline-flex; align-items: center; gap: .35em; font-family: var(--jdb-font-mono);
+  display: inline-flex; align-items: center; gap: .35em; font-family: var(--jdb-font-sans);
   font-size: var(--jdb-fs-xs); padding: .2em .6em; border-radius: var(--jdb-r-pill);
   background: rgba(79, 214, 138, .12); color: var(--jdb-good); border: 1px solid rgba(79, 214, 138, .3);
 }
@@ -838,7 +849,7 @@ a.jdb-panel:hover,
    -------------------------------------------------------------------------- */
 .jdb-stats { display: grid; gap: 1px; background: var(--jdb-line); border: 1px solid var(--jdb-line); border-radius: var(--jdb-r-lg); overflow: hidden; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); }
 .jdb-stat { background: var(--jdb-surface); padding: var(--jdb-s-6); }
-.jdb-stat__value { font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-2xl); font-weight: var(--jdb-fw-bold); color: var(--jdb-fg); line-height: 1; }
+.jdb-stat__value { font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-2xl); font-weight: var(--jdb-fw-bold); color: var(--jdb-fg); line-height: 1; }
 .jdb-stat__value .jdb-stat__unit { font-size: .55em; color: var(--jdb-orange-400); margin-left: .15em; }
 .jdb-stat__label { font-size: var(--jdb-fs-sm); color: var(--jdb-fg-muted); margin-top: var(--jdb-s-2); }
 
@@ -849,12 +860,12 @@ a.jdb-panel:hover,
   background: var(--jdb-surface); border: 1px solid var(--jdb-line); border-radius: var(--jdb-r-lg);
   padding: var(--jdb-s-6); height: 100%; display: flex; flex-direction: column;
 }
-.jdb-quote__mark { font-family: var(--jdb-font-mono); font-size: 2rem; line-height: 1; color: var(--jdb-orange-500); margin-bottom: var(--jdb-s-2); }
+.jdb-quote__mark { font-family: var(--jdb-font-sans); font-size: 2rem; line-height: 1; color: var(--jdb-orange-500); margin-bottom: var(--jdb-s-2); }
 .jdb-quote p { flex: 1; color: var(--jdb-fg-dim); font-size: var(--jdb-fs-base); }
 .jdb-quote__by { display: flex; align-items: center; gap: var(--jdb-s-3); margin-top: var(--jdb-s-5); }
 .jdb-quote__avatar { width: 2.5rem; height: 2.5rem; border-radius: 50%; background: var(--jdb-navy-700); flex: 0 0 auto; }
 .jdb-quote__name { font-weight: var(--jdb-fw-semibold); color: var(--jdb-fg); font-size: var(--jdb-fs-sm); }
-.jdb-quote__role { font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted); }
+.jdb-quote__role { font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted); }
 
 /* --------------------------------------------------------------------------
    15. BLOG POST CARD + GRID
@@ -874,10 +885,7 @@ a.jdb-panel:hover,
 .jdb-post:hover h3 a { color: var(--jdb-orange-400); }
 .jdb-post__media { display: block; flex: 0 0 auto; aspect-ratio: 16/9; overflow: hidden; background: linear-gradient(135deg, var(--jdb-navy-700), var(--jdb-navy-900)); position: relative; }
 .jdb-post__media img { display: block; width: 100%; height: 100%; object-fit: cover; }
-.jdb-post__media::after {
-  content: ""; position: absolute; inset: 0;
-  background: repeating-linear-gradient(45deg, rgba(255,255,255,.03) 0 2px, transparent 2px 10px);
-}
+
 .jdb-post__body { padding: var(--jdb-s-5); display: flex; flex-direction: column; flex: 1; }
 .jdb-post__tags { display: flex; gap: var(--jdb-s-2); margin-bottom: var(--jdb-s-3); }
 .jdb-post h3 { font-size: var(--jdb-fs-lg); margin-bottom: var(--jdb-s-2); }
@@ -886,14 +894,14 @@ a.jdb-panel:hover,
 .jdb-post p { font-size: var(--jdb-fs-sm); flex: 1; }
 .jdb-post__meta {
   display: flex; align-items: center; gap: var(--jdb-s-3); margin-top: var(--jdb-s-4);
-  font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted);
+  font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted);
 }
 
 /* --------------------------------------------------------------------------
    16. TAG / CATEGORY BADGE  (new — not on site; groups posts by topic)
    -------------------------------------------------------------------------- */
 .jdb-tag {
-  display: inline-flex; align-items: center; font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-xs);
+  display: inline-flex; align-items: center; font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-xs);
   color: var(--jdb-orange-400); background: var(--jdb-orange-a10); border: 1px solid rgba(255,77,0,.25);
   padding: .2em .65em; border-radius: var(--jdb-r-pill); text-decoration: none;
 }
@@ -903,10 +911,15 @@ a.jdb-tag:hover { background: var(--jdb-orange-a20); color: #fff; }
 /* --------------------------------------------------------------------------
    17. AUTHOR BIO CARD
    -------------------------------------------------------------------------- */
-.jdb-authorcard { display: flex; align-items: center; gap: var(--jdb-s-4); padding: var(--jdb-s-5); background: var(--jdb-surface); border: 1px solid var(--jdb-line); border-radius: var(--jdb-r-lg); }
+.jdb-authorcard { display: flex; flex-wrap: wrap; align-items: center; gap: var(--jdb-s-4); padding: var(--jdb-s-5); background: var(--jdb-surface); border: 1px solid var(--jdb-line); border-radius: var(--jdb-r-lg); }
 .jdb-authorcard img { width: 3.5rem; height: 3.5rem; border-radius: 50%; object-fit: cover; flex: 0 0 auto; }
-.jdb-authorcard__name { font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-base); color: var(--jdb-fg); margin-bottom: .15rem; }
+.jdb-authorcard__name { font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-base); color: var(--jdb-fg); margin-bottom: .15rem; }
 .jdb-authorcard p { margin: 0; font-size: var(--jdb-fs-sm); }
+/* The bio takes the free space and the button wraps under it when the card
+   is narrow (phones, sidebars), instead of squeezing the bio to one word
+   per line. */
+.jdb-authorcard__body { flex: 1 1 16rem; min-width: 0; }
+.jdb-authorcard .jdb-btn { flex: 0 0 auto; white-space: nowrap; }
 
 /* --------------------------------------------------------------------------
    18. SKILL & TOOL BADGE STRIP
@@ -916,7 +929,7 @@ a.jdb-tag:hover { background: var(--jdb-orange-a20); color: #fff; }
    the theme better than trying to fake brand marks. */
 .jdb-toolstrip { display: flex; flex-wrap: wrap; gap: var(--jdb-s-2); }
 .jdb-toolchip {
-  display: inline-flex; align-items: center; gap: .5ch; font-family: var(--jdb-font-mono);
+  display: inline-flex; align-items: center; gap: .5ch; font-family: var(--jdb-font-sans);
   font-size: var(--jdb-fs-xs); font-weight: var(--jdb-fw-medium); color: var(--jdb-fg-dim);
   background: var(--jdb-navy-700); border-radius: var(--jdb-r-sm); padding: .35em .65em;
 }
@@ -928,9 +941,9 @@ a.jdb-tag:hover { background: var(--jdb-orange-a20); color: #fff; }
 .jdb-postheader { padding-block: var(--jdb-s-7); border-bottom: 1px solid var(--jdb-line); }
 .jdb-postheader h1 { font-size: var(--jdb-fs-3xl); max-width: 24ch; }
 .jdb-postheader__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--jdb-s-5); margin-top: var(--jdb-s-4); }
-.jdb-postheader__metaitem { display: flex; align-items: center; gap: .5ch; font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-sm); color: var(--jdb-fg-muted); }
+.jdb-postheader__metaitem { display: flex; align-items: center; gap: .5ch; font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-sm); color: var(--jdb-fg-muted); }
 .jdb-share { display: flex; align-items: center; gap: var(--jdb-s-2); margin-left: auto; }
-.jdb-share span { font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted); margin-right: .25rem; }
+.jdb-share span { font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted); margin-right: .25rem; }
 .jdb-share a {
   width: var(--jdb-target); height: var(--jdb-target); display: inline-flex; align-items: center; justify-content: center;
   border: 1px solid var(--jdb-line-strong); border-radius: var(--jdb-r-md); color: var(--jdb-fg-dim);
@@ -941,7 +954,7 @@ a.jdb-tag:hover { background: var(--jdb-orange-a20); color: #fff; }
    20. TABLE OF CONTENTS  (new — guides run 30+ minutes; needs a map)
    -------------------------------------------------------------------------- */
 .jdb-toc { background: var(--jdb-surface); border: 1px solid var(--jdb-line); border-radius: var(--jdb-r-lg); padding: var(--jdb-s-5); margin-bottom: var(--jdb-s-6); overflow: visible; max-height: none; }
-.jdb-toc__title { display: flex; align-items: center; gap: .5ch; font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted); margin-bottom: var(--jdb-s-3); }
+.jdb-toc__title { display: flex; align-items: center; gap: .5ch; font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted); margin-bottom: var(--jdb-s-3); }
 .jdb-toc__list { list-style: none; margin: 0; padding: 0; border-left: 1px solid var(--jdb-line); }
 .jdb-toc__list a {
   display: block; padding: .4rem 0 .4rem var(--jdb-s-4); margin-left: -1px; border-left: 2px solid transparent;
@@ -959,7 +972,7 @@ a.jdb-tag:hover { background: var(--jdb-orange-a20); color: #fff; }
 .jdb-code__lang { font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted); margin-right: auto; }
 .jdb-code__copy {
   display: inline-flex; align-items: center; gap: .4em; background: transparent; border: none; cursor: pointer;
-  font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted); padding: .25rem .5rem; border-radius: var(--jdb-r-sm);
+  font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted); padding: .25rem .5rem; border-radius: var(--jdb-r-sm);
 }
 .jdb-code__copy:hover { color: #fff; background: rgba(255,255,255,.06); }
 .jdb-code__copy .jdb-icon { width: .85em; height: .85em; }
@@ -981,7 +994,7 @@ a.jdb-tag:hover { background: var(--jdb-orange-a20); color: #fff; }
   background: var(--_bg);
 }
 .jdb-callout__icon { color: var(--_c); flex: 0 0 auto; width: 1.15rem; height: 1.15rem; margin-top: .15em; }
-.jdb-callout__title { font-family: var(--jdb-font-mono); font-weight: var(--jdb-fw-semibold); color: var(--jdb-fg); margin-bottom: .3rem; font-size: var(--jdb-fs-sm); }
+.jdb-callout__title { font-family: var(--jdb-font-sans); font-weight: var(--jdb-fw-semibold); color: var(--jdb-fg); margin-bottom: .3rem; font-size: var(--jdb-fs-sm); }
 .jdb-callout p { margin: 0; font-size: var(--jdb-fs-sm); color: var(--jdb-fg-dim); }
 .jdb-callout--tip  { --_c: var(--jdb-good); --_bg: rgba(79,214,138,.08); }
 .jdb-callout--warn { --_c: var(--jdb-warn); --_bg: rgba(242,184,75,.08); }
@@ -994,12 +1007,12 @@ a.jdb-tag:hover { background: var(--jdb-orange-a20); color: #fff; }
 .jdb-fitcheck__col { border-radius: var(--jdb-r-lg); padding: var(--jdb-s-5); border: 1px solid var(--jdb-line); }
 .jdb-fitcheck__col--use  { background: rgba(79,214,138,.06); border-color: rgba(79,214,138,.25); }
 .jdb-fitcheck__col--avoid{ background: rgba(255,107,107,.06); border-color: rgba(255,107,107,.25); }
-.jdb-fitcheck__head { display: flex; align-items: center; gap: .5em; font-family: var(--jdb-font-mono); font-weight: var(--jdb-fw-semibold); font-size: var(--jdb-fs-sm); margin-bottom: var(--jdb-s-3); }
+.jdb-fitcheck__head { display: flex; align-items: center; gap: .5em; font-family: var(--jdb-font-sans); font-weight: var(--jdb-fw-semibold); font-size: var(--jdb-fs-sm); margin-bottom: var(--jdb-s-3); }
 .jdb-fitcheck__col--use .jdb-fitcheck__head { color: var(--jdb-good); }
 .jdb-fitcheck__col--avoid .jdb-fitcheck__head { color: var(--jdb-bad); }
 .jdb-fitcheck__col ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--jdb-s-2); }
 .jdb-fitcheck__col li { display: flex; gap: .6em; font-size: var(--jdb-fs-sm); color: var(--jdb-fg-dim); }
-.jdb-fitcheck__col li::before { flex: 0 0 auto; font-family: var(--jdb-font-mono); margin-top: .05em; }
+.jdb-fitcheck__col li::before { flex: 0 0 auto; font-family: var(--jdb-font-sans); margin-top: .05em; }
 .jdb-fitcheck__col--use li::before { content: "+"; color: var(--jdb-good); }
 .jdb-fitcheck__col--avoid li::before { content: "\2212"; color: var(--jdb-bad); }
 
@@ -1009,10 +1022,10 @@ a.jdb-tag:hover { background: var(--jdb-orange-a20); color: #fff; }
 .jdb-matrix-wrap { overflow-x: auto; border: 1px solid var(--jdb-line); border-radius: var(--jdb-r-lg); }
 .jdb-matrix { width: 100%; border-collapse: collapse; font-size: var(--jdb-fs-sm); min-width: 42rem; }
 .jdb-matrix th, .jdb-matrix td { padding: var(--jdb-s-3) var(--jdb-s-4); text-align: left; border-bottom: 1px solid var(--jdb-line); }
-.jdb-matrix thead th { font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted); background: var(--jdb-navy-900); white-space: nowrap; }
+.jdb-matrix thead th { font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted); background: var(--jdb-navy-900); white-space: nowrap; }
 .jdb-matrix tbody th { font-weight: var(--jdb-fw-semibold); color: var(--jdb-fg); white-space: nowrap; }
 .jdb-matrix tbody tr:last-child td, .jdb-matrix tbody tr:last-child th { border-bottom: none; }
-.jdb-rating { display: inline-flex; align-items: center; gap: .5em; font-size: var(--jdb-fs-xs); font-family: var(--jdb-font-mono); }
+.jdb-rating { display: inline-flex; align-items: center; gap: .5em; font-size: var(--jdb-fs-xs); font-family: var(--jdb-font-sans); }
 .jdb-rating::before { content: ""; width: 8px; height: 8px; border-radius: 50%; }
 .jdb-rating--ideal { color: var(--jdb-good); }    .jdb-rating--ideal::before   { background: var(--jdb-good); }
 .jdb-rating--capable { color: var(--jdb-warn); }  .jdb-rating--capable::before { background: var(--jdb-warn); }
@@ -1026,7 +1039,7 @@ a.jdb-tag:hover { background: var(--jdb-orange-a20); color: #fff; }
 .jdb-scenario__num {
   flex: 0 0 auto; width: 1.9rem; height: 1.9rem; border-radius: var(--jdb-r-sm);
   background: var(--jdb-navy-700); color: var(--jdb-orange-400);
-  font-family: var(--jdb-font-mono); font-weight: var(--jdb-fw-bold); font-size: var(--jdb-fs-sm);
+  font-family: var(--jdb-font-sans); font-weight: var(--jdb-fw-bold); font-size: var(--jdb-fs-sm);
   display: grid; place-items: center;
 }
 .jdb-scenario p { margin: 0; font-size: var(--jdb-fs-sm); padding-top: .2rem; }
@@ -1036,37 +1049,37 @@ a.jdb-tag:hover { background: var(--jdb-orange-a20); color: #fff; }
    26. CHART CARD  (wrapper + 4 variants: line / donut / gauge / radar)
    -------------------------------------------------------------------------- */
 .jdb-chartcard { background: var(--jdb-surface); border: 1px solid var(--jdb-line); border-radius: var(--jdb-r-lg); padding: var(--jdb-s-6); height: 100%; display: flex; flex-direction: column; }
-.jdb-chartcard__kicker { font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted); margin-bottom: var(--jdb-s-2); }
+.jdb-chartcard__kicker { font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted); margin-bottom: var(--jdb-s-2); }
 .jdb-chartcard h4 { font-size: var(--jdb-fs-md); margin-bottom: var(--jdb-s-1); }
 .jdb-chartcard__sub { font-size: var(--jdb-fs-sm); color: var(--jdb-fg-muted); margin-bottom: var(--jdb-s-5); }
 .jdb-chartcard__viz { position: relative; margin-bottom: var(--jdb-s-5); }
 .jdb-chartcard__viz svg { width: 100%; height: auto; overflow: visible; }
-.jdb-chartcard__legend { display: flex; flex-wrap: wrap; gap: var(--jdb-s-4); font-size: var(--jdb-fs-xs); font-family: var(--jdb-font-mono); color: var(--jdb-fg-muted); margin-bottom: var(--jdb-s-4); }
+.jdb-chartcard__legend { display: flex; flex-wrap: wrap; gap: var(--jdb-s-4); font-size: var(--jdb-fs-xs); font-family: var(--jdb-font-sans); color: var(--jdb-fg-muted); margin-bottom: var(--jdb-s-4); }
 .jdb-chartcard__legend span { display: inline-flex; align-items: center; gap: .5em; }
 .jdb-legend-swatch { width: 10px; height: 10px; border-radius: 2px; flex: 0 0 auto; }
 .jdb-chartcard__caption { font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted); margin-top: auto; padding-top: var(--jdb-s-3); border-top: 1px solid var(--jdb-line); }
 
 /* Center-readout overlay, shared by donut + gauge variants */
 .jdb-chart-centerstat { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; pointer-events: none; }
-.jdb-chart-centerstat .jdb-v { font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-xl); font-weight: var(--jdb-fw-bold); color: var(--jdb-fg); line-height: 1; }
+.jdb-chart-centerstat .jdb-v { font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-xl); font-weight: var(--jdb-fw-bold); color: var(--jdb-fg); line-height: 1; }
 .jdb-chart-centerstat .jdb-l { font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted); margin-top: .3rem; }
 .jdb-chart-centerstat .jdb-l--good { color: var(--jdb-good); }
 
 /* Gauge-specific: arc sits lower, stat block reads underneath rather than centered-overlay */
 .jdb-gauge__stat { text-align: center; margin-top: calc(var(--jdb-s-5) * -1.4); margin-bottom: var(--jdb-s-4); }
-.jdb-gauge__stat .jdb-v { font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-2xl); font-weight: var(--jdb-fw-bold); color: var(--jdb-good); line-height: 1; }
-.jdb-gauge__stat .jdb-l { font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted); letter-spacing: .05em; margin-top: .3rem; }
+.jdb-gauge__stat .jdb-v { font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-2xl); font-weight: var(--jdb-fw-bold); color: var(--jdb-good); line-height: 1; }
+.jdb-gauge__stat .jdb-l { font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted); letter-spacing: .05em; margin-top: .3rem; }
 
 /* --------------------------------------------------------------------------
    27. INTERACTIVE DECISION-TOOL  (the chart-picker quiz — real JS below)
    -------------------------------------------------------------------------- */
 .jdb-quiz { background: var(--jdb-surface); border: 1px solid var(--jdb-line); border-radius: var(--jdb-r-xl); padding: var(--jdb-s-7); }
 .jdb-quiz__q + .jdb-quiz__q { margin-top: var(--jdb-s-6); padding-top: var(--jdb-s-6); border-top: 1px solid var(--jdb-line); }
-.jdb-quiz__qnum { font-family: var(--jdb-font-mono); color: var(--jdb-orange-400); font-size: var(--jdb-fs-xs); margin-bottom: var(--jdb-s-2); }
+.jdb-quiz__qnum { font-family: var(--jdb-font-sans); color: var(--jdb-orange-400); font-size: var(--jdb-fs-xs); margin-bottom: var(--jdb-s-2); }
 .jdb-quiz__qtitle { font-size: var(--jdb-fs-md); margin-bottom: var(--jdb-s-4); color: var(--jdb-fg); font-weight: var(--jdb-fw-semibold); }
 .jdb-quiz__options { display: flex; flex-wrap: wrap; gap: var(--jdb-s-3); }
 .jdb-quiz__option {
-  font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-sm); color: var(--jdb-fg-dim);
+  font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-sm); color: var(--jdb-fg-dim);
   background: var(--jdb-navy-900); border: 1px solid var(--jdb-line-strong); border-radius: var(--jdb-r-md);
   padding: .65rem 1.1rem; min-height: var(--jdb-target); cursor: pointer; transition: all var(--jdb-t-fast);
 }
@@ -1078,8 +1091,8 @@ a.jdb-tag:hover { background: var(--jdb-orange-a20); color: #fff; }
   display: none;
 }
 .jdb-quiz__result.is-visible { display: block; }
-.jdb-quiz__result-label { font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted); margin-bottom: var(--jdb-s-2); }
-.jdb-quiz__result-value { font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-xl); color: var(--jdb-good); font-weight: var(--jdb-fw-bold); margin-bottom: var(--jdb-s-2); }
+.jdb-quiz__result-label { font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted); margin-bottom: var(--jdb-s-2); }
+.jdb-quiz__result-value { font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-xl); color: var(--jdb-good); font-weight: var(--jdb-fw-bold); margin-bottom: var(--jdb-s-2); }
 .jdb-quiz__result p { margin: 0; color: var(--jdb-fg-dim); font-size: var(--jdb-fs-sm); }
 
 /* --------------------------------------------------------------------------
@@ -1090,7 +1103,7 @@ a.jdb-tag:hover { background: var(--jdb-orange-a20); color: #fff; }
 .jdb-faq__item summary {
   display: flex; align-items: center; justify-content: space-between; gap: var(--jdb-s-4);
   padding: var(--jdb-s-5) 0; cursor: pointer; list-style: none;
-  font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-md); color: var(--jdb-fg);
+  font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-md); color: var(--jdb-fg);
 }
 .jdb-faq__item summary::-webkit-details-marker { display: none; }
 .jdb-faq__item summary .jdb-icon { color: var(--jdb-orange-500); transition: transform var(--jdb-t); flex: 0 0 auto; }
@@ -1101,7 +1114,7 @@ a.jdb-tag:hover { background: var(--jdb-orange-a20); color: #fff; }
    29. FORM CONTROLS  (shared by newsletter, contact form)
    -------------------------------------------------------------------------- */
 .jdb-field { display: flex; flex-direction: column; gap: var(--jdb-s-2); }
-.jdb-field label { font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted); }
+.jdb-field label { font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted); }
 .jdb-input, .jdb-textarea {
   width: 100%; background: var(--jdb-navy-950); border: 1px solid var(--jdb-line-strong); border-radius: var(--jdb-r-md);
   padding: .8rem .9rem; font-family: var(--jdb-font-body); font-size: var(--jdb-fs-base); color: var(--jdb-fg);
@@ -1126,21 +1139,20 @@ a.jdb-tag:hover { background: var(--jdb-orange-a20); color: #fff; }
    31. CONSULTATION / HELPLINE CTA BLOCK
    -------------------------------------------------------------------------- */
 .jdb-cta {
-  background: linear-gradient(135deg, var(--jdb-navy-800), var(--jdb-navy-900));
-  border: 1px solid var(--jdb-line-strong); border-radius: var(--jdb-r-xl);
+  background: var(--jdb-navy-800);
+  border: 1px solid var(--jdb-line); border-radius: var(--jdb-r-lg);
   padding: var(--jdb-s-8); display: flex; flex-wrap: wrap; gap: var(--jdb-s-6); align-items: center; justify-content: space-between;
 }
-.jdb-cta__prompt { font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-xs); color: var(--jdb-good); margin-bottom: var(--jdb-s-3); }
-.jdb-cta__prompt::before { content: "$ "; color: var(--jdb-fg-muted); }
+.jdb-cta__prompt { font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-sm); font-weight: var(--jdb-fw-medium); color: var(--jdb-fg-muted); margin-bottom: var(--jdb-s-2); }
 .jdb-cta h3 { font-size: var(--jdb-fs-xl); margin-bottom: var(--jdb-s-2); max-width: 26ch; }
 .jdb-cta p { max-width: 46ch; margin: 0; }
-.jdb-cta__price { font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-sm); color: var(--jdb-fg-muted); margin-top: var(--jdb-s-3); }
+.jdb-cta__price { font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-sm); color: var(--jdb-fg-muted); margin-top: var(--jdb-s-3); }
 .jdb-cta__price strong { color: var(--jdb-orange-400); font-size: var(--jdb-fs-lg); }
 
 /* --------------------------------------------------------------------------
    32. SEARCH RESULTS + EMPTY STATE  (new — header has a search trigger)
    -------------------------------------------------------------------------- */
-.jdb-results__count { font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted); margin-bottom: var(--jdb-s-5); }
+.jdb-results__count { font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted); margin-bottom: var(--jdb-s-5); }
 .jdb-results__count strong { color: var(--jdb-fg); }
 .jdb-empty { text-align: center; padding: var(--jdb-s-9) var(--jdb-s-5); border: 1px dashed var(--jdb-line-strong); border-radius: var(--jdb-r-lg); }
 .jdb-empty__glyph { font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-2xl); color: var(--jdb-fg-muted); margin-bottom: var(--jdb-s-3); }
@@ -1168,7 +1180,7 @@ a.jdb-tag:hover { background: var(--jdb-orange-a20); color: #fff; }
        readout, since the doc itself is dev-facing)
    -------------------------------------------------------------------------- */
 .jdb-dz { background: var(--jdb-navy-950); border-block: 1px solid var(--jdb-line); }
-.jdb-dz__bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--jdb-s-3); padding-block: var(--jdb-s-3); font-family: var(--jdb-font-mono); font-size: var(--jdb-fs-xs); }
+.jdb-dz__bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--jdb-s-3); padding-block: var(--jdb-s-3); font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-xs); }
 .jdb-dz__num { color: var(--jdb-orange-400); font-weight: var(--jdb-fw-bold); }
 .jdb-dz__name { color: var(--jdb-fg); font-weight: var(--jdb-fw-medium); }
 .jdb-dz__class { color: var(--jdb-good); }
