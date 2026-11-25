@@ -1,7 +1,6 @@
 import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
-import { KINDS } from './lib/cover-art.mjs';
 
 /**
  * Blog posts live in src/content/blog/*.md. This schema checks every post's
@@ -45,24 +44,14 @@ const blog = defineCollection({
       /** Last meaningful content update. Shown on the post and used in schema and the sitemap. */
       updated: isoDate.optional(),
       seo_title: optionalText,
-      /** Optional image shown in the article header instead of the cover (cards keep the cover). */
       featured_image: optionalText,
-      /** Alt text for featured_image. Leave it out when the image is decorative. */
-      featured_image_alt: optionalText,
       /**
        * The post's main topic. Labels the post on cards and picks the chart
        * drawn on its generated cover (see src/lib/cover-art.mjs).
        */
       topic: z.enum(['content', 'dataviz', 'measurement', 'seo', 'dev']).default('content'),
-      /**
-       * Optional: the chart drawn on the cover. Without it, posts in a topic
-       * take the topic's charts in turn. See KIND_USES in src/lib/cover-art.mjs.
-       */
-      cover: z.enum(KINDS as [string, ...string[]]).optional(),
-      /** Optional: real numbers from the post for the cover chart (trend, compare, funnel, histogram). */
-      cover_data: z.array(z.number()).min(3).max(24).optional(),
-      /** Optional: any text; change it to redraw the cover with different made-up data. */
-      cover_seed: z.string().optional(),
+      /** Optional: draw a different chart type on the cover than the topic's default. */
+      cover: z.enum(['trend', 'compare', 'search', 'hierarchy', 'code', 'measure', 'flow', 'part', 'scatter']).optional(),
       tags: z.array(z.string()).default([]),
       keywords: z.array(z.string()).optional(),
       readingTime: z.number().positive().optional(),

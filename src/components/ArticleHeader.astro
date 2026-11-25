@@ -1,9 +1,8 @@
 ---
 /**
  * The top of a blog post: breadcrumbs, topic, title, the excerpt as a
- * subtitle, a byline (photo, name, dates, reading time), and an image: the
- * post's `featured_image` when it has one (with the site's photo
- * treatment), otherwise its generated cover. Sits on the hero's graph paper.
+ * subtitle, a byline (photo, name, dates, reading time), and the post's
+ * generated cover. Sits on the hero's graph paper.
  */
 import { author } from '../data/author';
 import ChartGlyph from './ChartGlyph.astro';
@@ -58,13 +57,7 @@ const wasUpdated = post.updated !== post.date;
         </div>
       </div>
 
-      {post.featuredImage ? (
-        <div class="jdb-article-header__cover jdb-article-header__photo">
-          <img src={post.featuredImage} alt={post.featuredImageAlt ?? ''} loading="eager" fetchpriority="high" decoding="async" />
-        </div>
-      ) : (
-        <PostCover seed={post.coverSeed} kind={post.cover} data={post.coverData} ratio="4/3" class="jdb-article-header__cover" />
-      )}
+      <PostCover seed={post.slug} kind={post.cover} ratio="4/3" class="jdb-article-header__cover" />
     </div>
   </div>
 </header>
@@ -152,31 +145,6 @@ const wasUpdated = post.updated !== post.date;
     border: 1px solid var(--jdb-line-strong);
     border-radius: var(--jdb-r-lg);
     box-shadow: var(--jdb-sh-lg);
-  }
-
-  .jdb-article-header__photo {
-    position: relative;
-    aspect-ratio: 4 / 3;
-    overflow: hidden;
-    isolation: isolate;
-    background: var(--jdb-surface-band);
-  }
-
-  .jdb-article-header__photo img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: var(--jdb-photo-filter);
-  }
-
-  .jdb-article-header__photo::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: var(--jdb-photo-shade);
-    mix-blend-mode: multiply;
   }
 
   @container jdb-hero (max-width: 55.99rem) {

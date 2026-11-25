@@ -4,6 +4,7 @@ seo_title: Free Google Site Search Bookmarklet - Joshua DeGrasse-Baumann
 excerpt: Copy my free site search bookmarklet to make site searching a little less painful.
 slug: /site-search-bookmarklet/
 topic: seo
+cover: code
 ---
 
 I'm super lazy and got tired of typing "site:{domain} {query}" into a new Google tab, so I wrote a quick bookmarklet to speed it up! Figured I'd share in case anyone is similarly keyboard disinclined:

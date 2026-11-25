@@ -12,7 +12,7 @@ import { fileURLToPath } from 'node:url';
 import satori from 'satori';
 import { Resvg } from '@resvg/resvg-js';
 import { parse as parseYaml } from 'yaml';
-import { TOPICS, assignCovers, coverSvg } from './cover-art.mjs';
+import { TOPICS, coverKind, coverSvg } from './cover-art.mjs';
 
 const require = createRequire(import.meta.url);
 const WIDTH = 1200;
@@ -140,17 +140,7 @@ async function readPosts(blogDir) {
       const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---/);
       const data = (match && parseYaml(match[1])) || {};
       const slug = String(data.slug ?? file.replace(/\.mdx?$/, '')).replace(/^\/+|\/+$/g, '');
-      const dateFromFile = file.match(/^(\d{4}-\d{2}-\d{2})-/)?.[1] ?? '1970-01-01';
-      const date = data.date instanceof Date ? data.date.toISOString().slice(0, 10) : String(data.date ?? dateFromFile);
-      return {
-        slug,
-        date,
-        title: String(data.title ?? slug),
-        topic: data.topic ?? 'content',
-        cover: data.cover,
-        coverData: data.cover_data,
-        coverSeed: data.cover_seed ?? slug,
-      };
+      return { slug, title: String(data.title ?? slug), topic: data.topic, cover: data.cover };
     }),
   );
 }
@@ -162,10 +152,8 @@ export async function generateOgCards(root) {
   const fonts = await loadFonts();
   const posts = await readPosts(blogDir);
 
-  // Same chart choice as the site (src/lib/posts.ts), so cards and share images match.
-  const covers = assignCovers(posts);
-  const jobs = posts.map(async ({ slug, title, topic, coverData, coverSeed }) => {
-    const art = coverSvg({ seed: coverSeed, kind: covers.get(slug), data: coverData, aspect: ART_WIDTH / HEIGHT, mode: 'crop' });
+  const jobs = posts.map(async ({ slug, title, topic, cover }) => {
+    const art = coverSvg({ seed: slug, kind: coverKind(topic, cover), aspect: ART_WIDTH / HEIGHT, mode: 'crop' });
     const eyebrow = TOPICS[topic]?.label ?? 'From the blog';
     const png = await render(card({ eyebrow, title, footer: 'jdegbau.com/blog', art }), fonts);
     await writeFile(path.join(outDir, `${slug}.png`), png);

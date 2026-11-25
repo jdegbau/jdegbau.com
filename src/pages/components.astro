@@ -41,14 +41,11 @@ import TestimonialGroup from '../components/TestimonialGroup.astro';
 import StatRow from '../components/StatRow.astro';
 import CaseStudyCard from '../components/CaseStudyCard.astro';
 import BookingEmbed from '../components/BookingEmbed.astro';
-import { KIND_USES, TOPICS } from '../lib/cover-art.mjs';
 import Spec from './_components/Spec.astro';
 import { getAllPosts } from '../lib/posts';
 
 // Use a real post so the BlogCard example always reflects live data.
-const allPosts = await getAllPosts();
-const [samplePost] = allPosts;
-const coverKinds = Object.entries(KIND_USES) as [string, string][];
+const [samplePost] = await getAllPosts();
 
 const sampleFaqs = [
   {
@@ -396,39 +393,23 @@ const sampleMatrixRows = [
 
           <Spec name="ChartGlyph" id="component-chartglyph" what="Small chart symbols in the site's chart style: context in the text color, one orange mark. The icon set for topics and services." props="name, size, label, class">
             <div class="glyph-grid">
-              {coverKinds.map(([name]) => (
+              {(['trend', 'compare', 'search', 'hierarchy', 'code', 'measure', 'flow', 'part', 'scatter'] as const).map((name) => (
                 <div class="glyph-grid__item">
-                  <ChartGlyph name={name as any} size={32} />
+                  <ChartGlyph name={name} size={32} />
                   <code>{name}</code>
                 </div>
               ))}
             </div>
           </Spec>
 
-          <Spec name="PostCover" id="component-postcover" what="Generated cover art: a chart in the brand's chart style. Posts in a topic take the topic's charts in turn, so neighbors don't repeat; the data is seeded from the slug, or real numbers from cover_data." props="seed, kind, data, label, ratio, class" file="src/components/PostCover.astro + src/lib/cover-art.mjs">
-            <p class="demo-label">Covers in use, newest first. Look here for repeats before publishing; set <code>cover</code> or <code>cover_seed</code> in a post's front matter to change one.</p>
+          <Spec name="PostCover" id="component-postcover" what="Generated cover art: a chart picked by topic, with data seeded from the post's slug. Cards, article headers, and share images all use it." props="seed, kind, label, ratio, class" file="src/components/PostCover.astro + src/lib/cover-art.mjs">
             <div class="cover-grid">
-              {allPosts.map((post) => (
-                <div class="cover-grid__item">
-                  <PostCover seed={post.coverSeed} kind={post.cover} data={post.coverData} label={post.topicLabel} />
-                  <p><strong>{post.title}</strong><br /><code>{post.cover}</code>{post.coverData && ' · real data'}</p>
-                </div>
-              ))}
-            </div>
-
-            <p class="demo-label">Every chart, and the story it fits. Each topic rotates through its own set:</p>
-            <ul class="cover-topics">
-              {Object.entries(TOPICS).map(([key, topic]) => (
-                <li><strong>{topic.label}</strong> (<code>{key}</code>): {topic.kinds.map((kind) => <code>{kind}</code>)}</li>
-              ))}
-            </ul>
-            <div class="cover-grid">
-              {coverKinds.map(([kind, use]) => (
-                <div class="cover-grid__item">
-                  <PostCover seed={`demo-${kind}`} kind={kind} />
-                  <p><code>{kind}</code><br />{use}</p>
-                </div>
-              ))}
+              <PostCover seed="demo-trend" kind="trend" label="Measurement" />
+              <PostCover seed="demo-compare" kind="compare" label="Data visualization" />
+              <PostCover seed="demo-search" kind="search" label="SEO" />
+              <PostCover seed="demo-hierarchy" kind="hierarchy" label="Content strategy" />
+              <PostCover seed="demo-code" kind="code" label="Web development" />
+              <PostCover seed="demo-flow" kind="flow" />
             </div>
           </Spec>
 
@@ -1002,31 +983,9 @@ const sampleMatrixRows = [
     gap: var(--jdb-s-4);
   }
 
-  .cover-grid__item :global(.jdb-cover) {
+  .cover-grid > :global(*) {
     border-radius: var(--jdb-r-md);
     border: 1px solid var(--jdb-line);
-  }
-
-  .cover-grid__item p {
-    margin: var(--jdb-s-2) 0 0;
-    font-size: var(--jdb-fs-xs);
-    line-height: 1.45;
-    color: var(--jdb-fg-muted);
-  }
-
-  .cover-grid + .demo-label {
-    margin-top: var(--jdb-s-8);
-  }
-
-  .cover-topics {
-    margin: 0 0 var(--jdb-s-5);
-    padding-left: 1.2em;
-    font-size: var(--jdb-fs-sm);
-    color: var(--jdb-fg-dim);
-  }
-
-  .cover-topics code {
-    margin-left: .35em;
   }
 
   .portrait-demo {

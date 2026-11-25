@@ -15,24 +15,6 @@ const description = 'The page you are looking for cannot be found.';
         It may have moved, or the link might have a typo.
       </p>
 
-      <figure class="jdb-404__bailey">
-        <video
-          muted
-          loop
-          playsinline
-          preload="metadata"
-          width="460"
-          height="345"
-          poster="/assets/img/bailey/bailey-couch-poster.jpg"
-          aria-label="Bailey, Josh's dog, digging through the couch cushions and tumbling off the couch"
-          data-404-video
-        >
-          <source src="/assets/img/bailey/bailey-couch.webm" type="video/webm" />
-          <source src="/assets/img/bailey/bailey-couch.mp4" type="video/mp4" />
-        </video>
-        <figcaption>Bailey checked the couch too. It didn’t go well.</figcaption>
-      </figure>
-
       <div class="jdb-404__terminal" role="img" aria-label="HTTP response: 404 Not Found">
         <div class="jdb-404__line"><span class="jdb-404__prompt" aria-hidden="true">$</span> curl -I https://jdegbau.com<span data-404-path-raw>/this-page</span></div>
         <div class="jdb-404__line jdb-404__status">HTTP/2 404 Not Found</div>
@@ -65,19 +47,6 @@ const description = 'The page you are looking for cannot be found.';
   document.querySelectorAll('[data-404-path-raw]').forEach((el) => {
     el.textContent = rawPath;
   });
-
-  // Bailey's clip plays on its own unless the visitor prefers reduced
-  // motion; then it waits, with controls, for them to press play.
-  const video = document.querySelector<HTMLVideoElement>('[data-404-video]');
-  if (video) {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      video.controls = true;
-    } else {
-      video.play().catch(() => {
-        video.controls = true;
-      });
-    }
-  }
 </script>
 
 <style>
@@ -89,27 +58,6 @@ const description = 'The page you are looking for cannot be found.';
     background: var(--jdb-orange-a10);
     color: var(--jdb-orange-400);
     overflow-wrap: anywhere;
-  }
-
-  .jdb-404__bailey {
-    max-width: 26rem;
-    margin: var(--jdb-s-7) auto 0;
-  }
-
-  .jdb-404__bailey video {
-    display: block;
-    width: 100%;
-    height: auto;
-    border: 1px solid var(--jdb-line-strong);
-    border-radius: var(--jdb-r-lg);
-    filter: var(--jdb-photo-filter);
-    box-shadow: var(--jdb-sh-md);
-  }
-
-  .jdb-404__bailey figcaption {
-    margin-top: var(--jdb-s-3);
-    font-size: var(--jdb-fs-sm);
-    color: var(--jdb-fg-muted);
   }
 
   .jdb-404__terminal {

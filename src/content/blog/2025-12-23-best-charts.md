@@ -5,7 +5,6 @@ slug: /seo-data-visualization-guide/
 topic: dataviz
 excerpt: "Learn how to choose the right data visualization for SEO reporting. This guide covers charts for traffic trends, keyword analysis, attribution, and executive SEO dashboards."
 featured_image: /assets/img/seo-data-viz.png
-featured_image_alt: A black dog at a desk surrounded by SEO dashboards
 faq:
   - question: How do I choose the right chart type for my SEO data?
     answer: <p>Choosing the right chart depends on the relationship you want to highlight. Use <strong>line charts</strong> to show trends and changes over time (like organic traffic growth), <strong>bar charts</strong> for comparing discrete categories (like performance by page or folder), and <strong>scatter plots</strong> or <strong>bubble charts</strong> to identify correlations between two or more numeric variables (like keyword difficulty vs. search volume). The goal is to match the visual format to the specific question your audience needs to answer.</p>

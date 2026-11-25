@@ -253,15 +253,9 @@ Notes:
 Purpose: Generated cover art for posts: a chart in the brand's chart style.
 Location: `src/components/PostCover.astro`, drawing code in `src/lib/cover-art.mjs`
 Notes:
-- Props: `seed` (usually the post slug), `kind?` (a chart name, below), `data?` (real numbers), `label?` (topic shown as a small chip), `ratio?: 16/9 | 21/9 | 4/3 | 1/1`, `class?`.
-- 14 chart types, each suited to a kind of story (`KIND_USES` in `cover-art.mjs`): `trend`, `compare`, `search`, `hierarchy`, `code`, `measure`, `flow`, `part`, `scatter`, `funnel`, `heatmap`, `slope`, `dumbbell`, `histogram`.
-- **How a post gets its chart.** Each topic has a set of charts that fit it (`TOPICS` in `cover-art.mjs`). Posts take their topic's charts in turn, oldest first, skipping a chart the previous post just used (`assignCovers`). So posts on the same subject get different pictures, and publishing a new post never changes older covers. The data is made up but seeded from the slug, so it's stable between builds.
-- **Front matter controls**, all optional:
-  - `cover: funnel` picks the chart when another one tells the post's story better.
-  - `cover_data: [120, 118, 104, 160, 240]` draws real numbers from the post (3–24 values; used by `trend`, `compare`, `funnel`, and `histogram`). Use it when the post has a real chart.
-  - `cover_seed: anything` redraws the made-up data, if a cover looks too much like another one.
-- `/components/` shows every cover in use, newest first. Check it for repeats before publishing.
-- `BlogCard`, the article header (when the post has no `featured_image`), and the social share images (`src/lib/og-cards.mjs`) all draw from the same function, so a post looks the same everywhere.
+- Props: `seed` (usually the post slug), `kind?` (a `ChartGlyph` name), `label?` (topic shown as a small chip), `ratio?: 16/9 | 21/9 | 4/3 | 1/1`, `class?`.
+- A post's topic (`topic` front matter: `content`, `dataviz`, `measurement`, `seo`, `dev`) picks the chart; `cover` front matter overrides it. The data is seeded from the slug, so every cover is unique and stable between builds.
+- `BlogCard`, the article header, and the social share images (`src/lib/og-cards.mjs`) all draw from the same function, so a post looks the same everywhere.
 - Covers are the only images on post cards. Don't put photos, stock art, or AI images on cards.
 
 ### Portrait
@@ -296,7 +290,7 @@ Location: `src/components/ArticleHeader.astro`
 Notes:
 - Props: `post`.
 - Breadcrumbs, topic chip, title, the excerpt as a subtitle, a byline (photo, name linking to About, published and updated dates, reading time), and the post's `PostCover`, on the hero's graph paper. Marked `data-article-header` so `PostMeta` knows when to appear.
-- The header image is the post's `featured_image` when it has one (with the graded photo treatment, cropped to 4:3, alt text from `featured_image_alt`), otherwise its generated cover. Use `featured_image` sparingly, for an image that belongs to the post, like the dog-at-the-dashboards illustration on the data viz guide. Cards always show the cover.
+- `featured_image` isn't shown here: every post uses its generated cover so headers match. Put screenshots in the post body, next to the text that discusses them.
 
 ### SEO
 Purpose: Shared SEO metadata component.
@@ -440,8 +434,7 @@ The visual rules live in the tokens at the top of `public/assets/css/main.css`; 
 - **Two faces, two jobs.** Schibsted Grotesk (`--jdb-font-sans`) sets everything people read: headlines, UI, body. JetBrains Mono (`--jdb-font-mono`) is only for what is literally code: the logotype, code samples, `kbd`. Don't set labels, dates, or buttons in mono.
 - **Headlines carry the page.** Large, heavy, tightly tracked (`--jdb-track-display` / `--jdb-track-heading`). Heading sizes are fluid between a phone size and a desktop size.
 - **Graph paper is the one texture.** It appears behind heroes (`--jdb-grid-line`, `--jdb-grid-size`, under a soft orange wash, `--jdb-hero-wash`), on generated post covers, and behind the closing call to action, which bookends the hero. Don't add other washes or textures.
-- **Images: covers, charts, and one photo treatment.** Post cards use generated `PostCover` art, never photos. Photos use the `graded` treatment (`Portrait`, article header images, the 404 clip). Client logos are one color (`Logos`).
-- **Bailey is part of the site.** Josh's dog appears in his portrait, the data viz guide's header, the 404 page clip, and the footer status bar ("supervised by Bailey", linking to `/about/#bailey`). Keep the cameos small and occasional.
+- **Images: covers, charts, and one photo treatment.** Post cards use generated `PostCover` art, never photos. Photos of people use `Portrait` with the `graded` treatment. Client logos are one color (`Logos`).
 - **Orange is a signal.** The brand orange marks the main action and the current location (the active nav item, the cursor in the logotype and home headline). Don't use it for decoration.
 - **Labels are plain.** Eyebrows are short, sentence-case, and only used where the heading alone would be ambiguous. No `//`, `#`, or `$` prefixes, no all caps.
 - **Fewer boxes.** Use a hairline rule and spacing to group content; reserve filled cards for things that are clickable or need their own region.
