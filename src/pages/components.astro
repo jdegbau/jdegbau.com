@@ -161,7 +161,7 @@ const colorGroups = [
       { token: '--jdb-navy-900', hex: '#0f1f38', role: 'Header, footer, drawer' },
       { token: '--jdb-navy-800', hex: '#152a49', role: 'Cards and panels (brand navy)' },
       { token: '--jdb-navy-700', hex: '#223a5e', role: 'Raised surface, secondary fill' },
-      { token: '--jdb-navy-600', hex: '#33547e', role: 'Comment slashes, quiet strokes' },
+      { token: '--jdb-navy-600', hex: '#33547e', role: 'Logotype brackets, quiet strokes' },
     ],
   },
   {
@@ -192,15 +192,15 @@ const colorGroups = [
 ];
 
 const typeScale = [
-  { token: '--jdb-fs-4xl', px: 52, role: 'Home hero', mono: true },
-  { token: '--jdb-fs-3xl', px: 44, role: 'h1', mono: true },
-  { token: '--jdb-fs-2xl', px: 34, role: 'h2', mono: true },
-  { token: '--jdb-fs-xl', px: 28, role: 'h3', mono: true },
-  { token: '--jdb-fs-lg', px: 22, role: 'h4, card titles', mono: true },
-  { token: '--jdb-fs-md', px: 19, role: 'Lead paragraph', mono: false },
-  { token: '--jdb-fs-base', px: 17, role: 'Body copy', mono: false },
-  { token: '--jdb-fs-sm', px: 15, role: 'Nav, labels, small UI', mono: true },
-  { token: '--jdb-fs-xs', px: 13, role: 'Meta, timestamps, badges', mono: true },
+  { token: '--jdb-fs-4xl', px: '48–76', role: 'Home hero', display: true },
+  { token: '--jdb-fs-3xl', px: '48', role: 'h1', display: true },
+  { token: '--jdb-fs-2xl', px: '38', role: 'h2', display: true },
+  { token: '--jdb-fs-xl', px: '30', role: 'h3', display: true },
+  { token: '--jdb-fs-lg', px: '24', role: 'h4, card titles', display: true },
+  { token: '--jdb-fs-md', px: '20', role: 'Lead paragraph', display: false },
+  { token: '--jdb-fs-base', px: '17', role: 'Body copy', display: false },
+  { token: '--jdb-fs-sm', px: '15', role: 'Nav, labels, small UI', display: false },
+  { token: '--jdb-fs-xs', px: '13', role: 'Meta, timestamps, badges', display: false },
 ];
 
 const spaceScale = [
@@ -280,13 +280,13 @@ const sampleMatrixRows = [
 
           <div class="tokens__block" id="tokens-type" data-spec>
             <h3>Type</h3>
-            <p class="tokens__note">JetBrains Mono carries the brand voice: headings, nav, labels, buttons, code. Inter sets body copy, because the guides here run past 30 minutes and monospace slows long reading.</p>
+            <p class="tokens__note">Schibsted Grotesk sets everything people read: headlines, UI, and body copy. Headlines run heavy with tight tracking. JetBrains Mono is kept for what is literally code: the logotype, code samples, and keyboard keys.</p>
             <ol class="type-scale">
               {typeScale.map((step) => (
                 <li class="type-step">
                   <span class="type-step__meta"><code>{step.token}</code> {step.px}px, {step.role}</span>
-                  <span class:list={['type-step__sample', step.mono ? 'type-step__sample--mono' : 'type-step__sample--body']} style={`font-size: var(${step.token});`}>
-                    {step.mono ? 'Chart the decision, not the data' : 'Lead with the takeaway, then show the evidence that backs it up.'}
+                  <span class:list={['type-step__sample', step.display ? 'type-step__sample--display' : 'type-step__sample--body']} style={`font-size: var(${step.token});`}>
+                    {step.display ? 'Chart the decision, not the data' : 'Lead with the takeaway, then show the evidence that backs it up.'}
                   </span>
                 </li>
               ))}
@@ -356,7 +356,7 @@ const sampleMatrixRows = [
             <div class="variant">
               <p class="variant__label"><code>variant="intro"</code></p>
               <Hero variant="intro" containerWidth="narrow">
-                <span class="jdb-eyebrow">about</span>
+                <span class="jdb-eyebrow">About</span>
                 <h2>Compact page introduction</h2>
                 <p class="jdb-hero__lede">A concise introduction with the same structure used across informational pages.</p>
               </Hero>
@@ -364,7 +364,7 @@ const sampleMatrixRows = [
             <div class="variant">
               <p class="variant__label"><code>variant="full" backgroundImage</code></p>
               <Hero variant="full" backgroundImage="/assets/img/seo-data-viz.png">
-                <span class="jdb-hero__eyebrow">guide</span>
+                <span class="jdb-hero__eyebrow">Guide</span>
                 <h2>Full-width hero with a background image</h2>
                 <p class="jdb-hero__lede">For post headers and narrative introductions where the image should run edge to edge.</p>
                 <div class="jdb-hero__actions">
@@ -375,7 +375,7 @@ const sampleMatrixRows = [
             <div class="variant">
               <p class="variant__label"><code>variant="split" imageSrc</code></p>
               <Hero variant="split" imageSrc="/assets/img/seo-data-viz.png" imageAlt="A dog at a desk surrounded by SEO dashboards">
-                <span class="jdb-hero__eyebrow">about</span>
+                <span class="jdb-hero__eyebrow">About</span>
                 <h2>Text on the left, image on the right</h2>
                 <p class="jdb-hero__lede">Stacks with the text first until the hero is at least 48rem wide.</p>
                 <div class="jdb-hero__actions">
@@ -599,7 +599,7 @@ const sampleMatrixRows = [
           title="Adding a component?"
           text="Read the component rules first, then add it to the README and to this page."
           primary={{ href: 'https://github.com/jdegbau/jdegbau.com/blob/main/src/components/README.md', label: 'Read the component rules' }}
-          prompt="next step"
+          prompt="Next step"
           headingLevel="h2"
         />
       </div>
@@ -917,10 +917,10 @@ const sampleMatrixRows = [
     overflow-wrap: anywhere;
   }
 
-  .type-step__sample--mono {
-    font-family: var(--jdb-font-mono);
+  .type-step__sample--display {
+    font-family: var(--jdb-font-sans);
     font-weight: var(--jdb-fw-bold);
-    letter-spacing: -0.01em;
+    letter-spacing: var(--jdb-track-heading);
   }
 
   .type-step__sample--body {

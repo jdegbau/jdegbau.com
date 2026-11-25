@@ -11,7 +11,7 @@ interface Action {
 }
 
 interface Props {
-  /** Small terminal-style line above the headline, e.g. "next step". */
+  /** Short sentence-case line above the headline, e.g. "Next step". */
   prompt?: string;
   title: string;
   /** One sentence of supporting copy. */
@@ -28,7 +28,7 @@ interface Props {
 }
 
 const {
-  prompt = 'next step',
+  prompt = 'Next step',
   title,
   text,
   primary,

@@ -10,13 +10,13 @@ interface Props {
 const {
   items = [],
   title = 'Data visualization & storytelling FAQs',
-  eyebrow = 'common questions',
+  eyebrow = 'Common questions',
 } = Astro.props;
 ---
 
 <section class="jdb-section jdb-section--tight">
   <div class="jdb-container jdb-container--narrow">
-    <div class="jdb-section__head jdb-section__head--center">
+    <div class="jdb-section__head">
       {eyebrow && <p class="jdb-eyebrow">{eyebrow}</p>}
       <h2 class="jdb-section__title">{title}</h2>
     </div>

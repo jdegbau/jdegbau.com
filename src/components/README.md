@@ -78,8 +78,8 @@ Notes:
 Purpose: End-of-page call to action with a headline, one line of context, and one or two buttons.
 Location: `src/components/CallToAction.astro`
 Notes:
-- Props: `title`, `primary: { href, label }`, optional `secondary`, `text`, `prompt` (terminal-style line, default "next step"), `price: { amount, unit }`, `headingLevel` (`h2` default or `h3`).
-- Uses the shared `.jdb-cta` styles in `main.css` (section 31).
+- Props: `title`, `primary: { href, label }`, optional `secondary`, `text`, `prompt` (short sentence-case line, default "Next step"), `price: { amount, unit }`, `headingLevel` (`h2` default or `h3`).
+- Uses the shared `.jdb-cta` styles in `main.css` (section 31). `prompt` is a short sentence-case line above the headline ("Next step").
 - Every page should end with a clear next step; use this instead of hand-building a CTA section.
 
 ### CodeBlock
@@ -126,7 +126,7 @@ Notes:
 - Supports an intro variant for compact page headings, with `containerWidth="narrow"` or `containerWidth="wide"`.
 - Supports a full-width variant with optional `backgroundImage` (works on any variant). The overlay darkens the left side, so pick a darker image or one with a quiet left edge; text on a bright image won't meet contrast.
 - Supports a split hero variant with text on the left and an image on the right via `variant="split"` and `imageSrc`. It stacks (text, then image) until the hero is at least 48rem wide; this is a container query, so it also stacks inside narrow wrappers.
-- Use `jdb-hero__eyebrow` (renders as a `// comment` label like `.jdb-eyebrow`), `jdb-hero__lede`, and `jdb-hero__actions` within the default slot for consistent content styling.
+- Use `jdb-hero__eyebrow` (a quiet sentence-case label, same style as `.jdb-eyebrow`), `jdb-hero__lede`, and `jdb-hero__actions` within the default slot for consistent content styling.
 
 ### Icon
 Purpose: Inline SVG icons (social brands, calendar, clock, envelope) without a third-party icon script.
@@ -147,7 +147,7 @@ Purpose: The `(jdegbau)=>{}` text logo — the only place the brand mark's marku
 Location: `src/components/Logotype.astro`
 Notes:
 - Always render `<Logotype />` for the logo. Don't hand-write the `<em>(</em><b>jdegbau</b>…` markup or restyle `.jdb-logo` elsewhere; that duplication is how the header and footer drifted apart (different weights) before this component existed.
-- Brand spec it enforces: JetBrains Mono at weight 500 throughout; parentheses and braces in `--jdb-navy-600`; the word in `--jdb-fg`; the arrow in `--jdb-orange-400` (orange *text* tone, not the `#ff4d00` fill colour).
+- Brand spec it enforces: JetBrains Mono at weight 500 throughout; parentheses and braces in `--jdb-navy-600`; the word in `--jdb-fg`; the arrow in `--jdb-orange-400` (orange *text* tone, not the `#ff4d00` fill colour). The logotype is the one place mono appears outside code, which is what makes it read as a signature.
 - Props: `href` (default `/`; pass `null` for an unlinked mark, which then gets `role="img"`), `size` (`sm` | `md` | `lg` | `xl`, default `md` = 1.05rem as used in the header/footer), `cursor` (blinking block cursor between the braces, default `true`), `theme` (`dark` | `light`), `label` (link's accessible name), `class`.
 - The cursor stops blinking under `prefers-reduced-motion`. When printed, the logo switches to the light colours and drops the cursor.
 - Used by `Navigation` (header and mobile drawer) and `Footer`.
@@ -293,6 +293,14 @@ Notes:
 - Chart.js 4.6.1 and plugins load once per page from jsDelivr with SRI, lazily when the chart nears the viewport. The site's dark theme defaults are applied, and animation is off for `prefers-reduced-motion`.
 - To upgrade a library, edit the pinned URL and hash in `src/lib/chart-loader.ts` (instructions are in the file).
 - `table` adds a "View the data" panel for screen readers, and as a fallback if the chart can't load.
+
+## Brand and type
+The visual rules live in the tokens at the top of `public/assets/css/main.css`; the components page shows them.
+- **Two faces, two jobs.** Schibsted Grotesk (`--jdb-font-sans`) sets everything people read: headlines, UI, body. JetBrains Mono (`--jdb-font-mono`) is only for what is literally code: the logotype, code samples, `kbd`. Don't set labels, dates, or buttons in mono.
+- **Headlines carry the page.** Large, heavy, tightly tracked (`--jdb-track-display` / `--jdb-track-heading`). No decorative washes or grid textures behind them.
+- **Orange is a signal.** The brand orange marks the main action and the current location (the active nav item, the cursor in the logotype and home headline). Don't use it for decoration.
+- **Labels are plain.** Eyebrows are short, sentence-case, and only used where the heading alone would be ambiguous. No `//`, `#`, or `$` prefixes, no all caps.
+- **Fewer boxes.** Use a hairline rule and spacing to group content; reserve filled cards for things that are clickable or need their own region.
 
 ## Interaction guidelines (UX principles)
 These rules come from established UX research (the "Laws of UX" collection at lawsofux.com). They shape the components; **don't name them in site copy**, just follow them.

@@ -42,7 +42,7 @@ const { date, updated, readingTime, url } = Astro.props;
     flex: 1 1 0;
     min-height: 3rem;
     padding: var(--jdb-s-3) var(--jdb-s-4);
-    font-family: var(--jdb-font-mono);
+    font-family: var(--jdb-font-sans);
     font-size: var(--jdb-fs-xs);
     color: var(--jdb-fg-muted);
 
@@ -62,12 +62,10 @@ const { date, updated, readingTime, url } = Astro.props;
   }
 
   .post-meta__share-label {
-    font-family: var(--jdb-font-mono);
-    font-size: var(--jdb-fs-xs);
-    font-weight: var(--jdb-fw-semibold);
+    font-family: var(--jdb-font-sans);
+    font-size: var(--jdb-fs-sm);
+    font-weight: var(--jdb-fw-medium);
     color: var(--jdb-fg-muted);
-    letter-spacing: .08em;
-    text-transform: uppercase;
   }
 
   .post-meta__share a {
@@ -159,7 +157,7 @@ const { date, updated, readingTime, url } = Astro.props;
     </div>
 
     <div class="post-meta__share">
-      <span class="post-meta__share-label">Share:</span>
+      <span class="post-meta__share-label">Share</span>
       <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(Astro.props.title)}&url=${url}`} target="_blank" rel="noopener noreferrer" aria-label="Share on X">
         <Icon name="x-twitter" />
       </a>

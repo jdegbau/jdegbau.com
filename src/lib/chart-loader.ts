@@ -71,7 +71,7 @@ function applyTheme(Chart: ChartGlobal) {
   const token = (name: string, fallback: string) => css.getPropertyValue(name).trim() || fallback;
   Chart.defaults.color = token('--jdb-fg-dim', '#aab4c8');
   Chart.defaults.borderColor = token('--jdb-line', 'rgba(255,255,255,.08)');
-  Chart.defaults.font.family = token('--jdb-font-body', 'Inter, sans-serif');
+  Chart.defaults.font.family = token('--jdb-font-body', '"Schibsted Grotesk", sans-serif');
   Chart.defaults.font.size = 13;
   Chart.defaults.plugins.legend.labels.boxWidth = 12;
   Chart.defaults.plugins.tooltip.backgroundColor = token('--jdb-navy-900', '#0f1f38');

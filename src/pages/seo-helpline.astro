@@ -30,7 +30,7 @@ const faq = [
     <div class="jdb-container jdb-container--wide">
       <div class="helpline-hero__layout">
         <div class="helpline-hero__copy">
-          <span class="jdb-eyebrow">seo helpline / one-to-one consulting</span>
+          <span class="jdb-eyebrow">SEO Helpline: one-to-one consulting</span>
           <h1>Get clear on your next SEO move.</h1>
           <p class="jdb-hero__lede">Bring the question you can’t quite solve. Leave with a sharper diagnosis and practical next steps.</p>
           <div class="jdb-hero__actions">
@@ -40,7 +40,7 @@ const faq = [
         </div>
 
         <aside class="helpline-rate" aria-label="Consultation details">
-          <span class="helpline-rate__label">a focused working session</span>
+          <span class="helpline-rate__label">A focused working session</span>
           <strong class="helpline-rate__price">$100</strong>
           <span class="helpline-rate__unit">per 60-minute call</span>
           <div class="helpline-rate__rule"></div>
@@ -56,7 +56,7 @@ const faq = [
     <div class="jdb-container jdb-container--wide">
       <div class="jdb-grid jdb-grid--2 helpline-details">
         <div>
-          <span class="jdb-eyebrow">good fits for a call</span>
+          <span class="jdb-eyebrow">Good fits for a call</span>
           <h2>Bring a specific question</h2>
           <ul class="helpline-topics">
             <li>Traffic dropped and you don’t know why</li>
@@ -67,7 +67,7 @@ const faq = [
           </ul>
         </div>
         <div>
-          <span class="jdb-eyebrow">what to expect</span>
+          <span class="jdb-eyebrow">What to expect</span>
           <h2>How the session works</h2>
           <Steps label="How an SEO Helpline session works">
             <ol>
@@ -86,7 +86,7 @@ const faq = [
     <div class="jdb-container jdb-container--wide">
       <header class="helpline-booking__header">
         <div>
-          <span class="jdb-eyebrow">book a session</span>
+          <span class="jdb-eyebrow">Book a session</span>
           <h2>Pick a time that works.</h2>
         </div>
         <p>Select an available slot below to book your session. If none are available, email <a href="mailto:josh@jdegbau.com">josh@jdegbau.com</a> and we can arrange a time.</p>
@@ -98,7 +98,7 @@ const faq = [
     </div>
   </section>
 
-  <FAQAccordion items={faq} title="Questions before you book" eyebrow="faq" />
+  <FAQAccordion items={faq} title="Questions before you book" eyebrow="FAQ" />
 
 </BaseLayout>
 
@@ -133,7 +133,7 @@ const faq = [
   .helpline-rate__unit {
     display: block;
     color: var(--jdb-fg-muted);
-    font-family: var(--jdb-font-mono);
+    font-family: var(--jdb-font-sans);
     font-size: var(--jdb-fs-xs);
   }
 
@@ -141,7 +141,7 @@ const faq = [
     display: block;
     margin: var(--jdb-s-3) 0 0;
     color: var(--jdb-fg);
-    font-family: var(--jdb-font-mono);
+    font-family: var(--jdb-font-sans);
     font-size: 3.5rem;
     line-height: 1;
   }
@@ -175,7 +175,7 @@ const faq = [
   .helpline-topics li::before {
     color: var(--jdb-good);
     content: '>';
-    font-family: var(--jdb-font-mono);
+    font-family: var(--jdb-font-sans);
   }
 
   .helpline-booking { scroll-margin-top: calc(var(--jdb-header-h) + var(--jdb-s-4)); }
