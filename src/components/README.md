@@ -253,9 +253,15 @@ Notes:
 Purpose: Generated cover art for posts: a chart in the brand's chart style.
 Location: `src/components/PostCover.astro`, drawing code in `src/lib/cover-art.mjs`
 Notes:
-- Props: `seed` (usually the post slug), `kind?` (a `ChartGlyph` name), `label?` (topic shown as a small chip), `ratio?: 16/9 | 21/9 | 4/3 | 1/1`, `class?`.
-- A post's topic (`topic` front matter: `content`, `dataviz`, `measurement`, `seo`, `dev`) picks the chart; `cover` front matter overrides it. The data is seeded from the slug, so every cover is unique and stable between builds.
-- `BlogCard`, the article header, and the social share images (`src/lib/og-cards.mjs`) all draw from the same function, so a post looks the same everywhere.
+- Props: `seed` (usually the post slug), `kind?` (a chart name, below), `data?` (real numbers), `label?` (topic shown as a small chip), `ratio?: 16/9 | 21/9 | 4/3 | 1/1`, `class?`.
+- 14 chart types, each suited to a kind of story (`KIND_USES` in `cover-art.mjs`): `trend`, `compare`, `search`, `hierarchy`, `code`, `measure`, `flow`, `part`, `scatter`, `funnel`, `heatmap`, `slope`, `dumbbell`, `histogram`.
+- **How a post gets its chart.** Each topic has a set of charts that fit it (`TOPICS` in `cover-art.mjs`). Posts take their topic's charts in turn, oldest first, skipping a chart the previous post just used (`assignCovers`). So posts on the same subject get different pictures, and publishing a new post never changes older covers. The data is made up but seeded from the slug, so it's stable between builds.
+- **Front matter controls**, all optional:
+  - `cover: funnel` picks the chart when another one tells the post's story better.
+  - `cover_data: [120, 118, 104, 160, 240]` draws real numbers from the post (3–24 values; used by `trend`, `compare`, `funnel`, and `histogram`). Use it when the post has a real chart.
+  - `cover_seed: anything` redraws the made-up data, if a cover looks too much like another one.
+- `/components/` shows every cover in use, newest first. Check it for repeats before publishing.
+- `BlogCard`, the article header (when the post has no `featured_image`), and the social share images (`src/lib/og-cards.mjs`) all draw from the same function, so a post looks the same everywhere.
 - Covers are the only images on post cards. Don't put photos, stock art, or AI images on cards.
 
 ### Portrait
@@ -268,13 +274,16 @@ Notes:
 - Pass `alt=""` when the name is printed right beside the photo.
 
 ### Navigation
-Purpose: Site-wide top navigation and mobile drawer.
+Purpose: Site-wide header and mobile menu.
 Location: `src/components/Navigation.astro`
 Notes:
-- Shared across pages.
-- Contact stays last and is marked `cta: true`, which renders it as an outlined button. Keep the list to five items or fewer.
-- External items (`external: true`) open in a new tab and show an external-link icon plus screen-reader text.
-- The drawer sets `aria-expanded` on the menu button, closes with Escape, and moves focus into the panel and back to the button.
+- Shared across pages; `BaseLayout` renders it with `<Search />` in its default slot (Search appears once).
+- Desktop (64rem and up): the logotype on the left; the page links, a hairline, search, and the Contact button grouped on the right. The current page gets the brand's orange cursor bar under its label.
+- Contact is the site's main next step, so it's the standard primary button (orange, navy text, arrow), not a special nav style. Keep it last and keep the link list to four items plus Contact. The order is About, Blog, SEO Helpline, GTM Templates, Contact.
+- External links open in a new tab and show an external-link icon plus screen-reader text.
+- The header sits flat on the page at the top and gains a glass surface, hairline, and shadow once the page scrolls. Its height never changes, so anything pinned under it (the post share bar, the table of contents) can use `--jdb-header-h`.
+- Mobile: a search icon and a menu button (two bars that cross into an X). The menu is full screen under the header: large links on graph paper, the current page marked with the logotype's block cursor, and Contact as a full-width button at the bottom with the email address under it.
+- While the menu is open the page behind it is `inert` and doesn't scroll; Escape closes it and returns focus to the menu button, and it closes itself if the window grows to the desktop layout.
 
 ### PostMeta
 Purpose: Slim share and progress bar for long posts.
@@ -290,7 +299,7 @@ Location: `src/components/ArticleHeader.astro`
 Notes:
 - Props: `post`.
 - Breadcrumbs, topic chip, title, the excerpt as a subtitle, a byline (photo, name linking to About, published and updated dates, reading time), and the post's `PostCover`, on the hero's graph paper. Marked `data-article-header` so `PostMeta` knows when to appear.
-- `featured_image` isn't shown here: every post uses its generated cover so headers match. Put screenshots in the post body, next to the text that discusses them.
+- The header image is the post's `featured_image` when it has one (with the graded photo treatment, cropped to 4:3, alt text from `featured_image_alt`), otherwise its generated cover. Use `featured_image` sparingly, for an image that belongs to the post, like the dog-at-the-dashboards illustration on the data viz guide. Cards always show the cover.
 
 ### SEO
 Purpose: Shared SEO metadata component.
@@ -305,6 +314,7 @@ Location: `src/components/Search.astro`
 Notes:
 - Shared across pages.
 - Opens with `/` or Ctrl/⌘+K, closes with Escape or a click outside. The `/` hint is hidden on touch devices.
+- The trigger looks like a search field on desktop ("Search guides" with the `/` key) and is an icon button on phones. Results open in a popover under it, like an editor's command palette.
 - The index (`/search.json`: title, excerpt, tags) is prefetched when someone hovers, focuses, or touches the trigger.
 - Matching ignores case, accents, and punctuation; every word must appear in the title, excerpt, or tags, and title matches rank first. Matches are highlighted, a result count is shown, and the three newest posts are suggested before anything is typed.
 - Arrow keys move between results; Enter in the field opens the top result.
@@ -434,7 +444,8 @@ The visual rules live in the tokens at the top of `public/assets/css/main.css`; 
 - **Two faces, two jobs.** Schibsted Grotesk (`--jdb-font-sans`) sets everything people read: headlines, UI, body. JetBrains Mono (`--jdb-font-mono`) is only for what is literally code: the logotype, code samples, `kbd`. Don't set labels, dates, or buttons in mono.
 - **Headlines carry the page.** Large, heavy, tightly tracked (`--jdb-track-display` / `--jdb-track-heading`). Heading sizes are fluid between a phone size and a desktop size.
 - **Graph paper is the one texture.** It appears behind heroes (`--jdb-grid-line`, `--jdb-grid-size`, under a soft orange wash, `--jdb-hero-wash`), on generated post covers, and behind the closing call to action, which bookends the hero. Don't add other washes or textures.
-- **Images: covers, charts, and one photo treatment.** Post cards use generated `PostCover` art, never photos. Photos of people use `Portrait` with the `graded` treatment. Client logos are one color (`Logos`).
+- **Images: covers, charts, and one photo treatment.** Post cards use generated `PostCover` art, never photos. Photos use the `graded` treatment (`Portrait`, article header images, the 404 clip). Client logos are one color (`Logos`).
+- **Bailey is part of the site.** Josh's dog appears in his portrait, the data viz guide's header, the 404 page clip, and the footer status bar ("supervised by Bailey", linking to `/about/#bailey`). Keep the cameos small and occasional.
 - **Orange is a signal.** The brand orange marks the main action and the current location (the active nav item, the cursor in the logotype and home headline). Don't use it for decoration.
 - **Labels are plain.** Eyebrows are short, sentence-case, and only used where the heading alone would be ambiguous. No `//`, `#`, or `$` prefixes, no all caps.
 - **Fewer boxes.** Use a hairline rule and spacing to group content; reserve filled cards for things that are clickable or need their own region.

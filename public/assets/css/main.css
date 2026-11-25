@@ -534,7 +534,7 @@ hr { border: 0; border-top: 1px solid var(--jdb-line); margin: var(--jdb-s-7) 0;
 }
 
 /* --------------------------------------------------------------------------
-   5. HEADER + PRIMARY NAV  (tab-bar motif)
+   5. HEADER + SEARCH
    -------------------------------------------------------------------------- */
 /* The header bar itself (.jdb-header, .jdb-header__inner) is styled in
    src/components/Navigation.astro, the only place it's rendered. */
@@ -542,99 +542,79 @@ hr { border: 0; border-top: 1px solid var(--jdb-line); margin: var(--jdb-s-7) 0;
 /* Logo — the `(jdegbau)=>{}` logotype lives in src/components/Logotype.astro
    (markup + styles). Don't restyle .jdb-logo here; render <Logotype /> instead. */
 
-/* Primary nav — plain text links. The current page is marked with the
-   brand's orange cursor bar underneath, the same block that blinks in the
-   logotype. */
-.jdb-tabs { display: none; margin-left: var(--jdb-s-3); min-width: 0; }
-@media (min-width: 64rem) { .jdb-tabs { display: block; } }
-.jdb-tabs__list { display: flex; align-items: stretch; gap: 2px; list-style: none; margin: 0; padding: 0; height: var(--jdb-header-h); }
-.jdb-tabs__link {
-  display: flex; align-items: center; gap: .5ch;
-  height: 100%;
-  font-family: var(--jdb-font-sans);
-  font-size: var(--jdb-fs-sm);
-  color: var(--jdb-fg-dim);
-  text-decoration: none;
-  padding: 0 var(--jdb-s-4);
-  border-bottom: 2px solid transparent;
-  white-space: nowrap;
-}
-.jdb-tabs__link:hover { color: var(--jdb-fg); }
-.jdb-tabs__link[aria-current="page"] {
-  color: var(--jdb-fg);
-  border-bottom-color: var(--jdb-orange-500);
-}
-.jdb-tabs__link .jdb-tabs__dot { width: 6px; height: 6px; border-radius: 50%; background: var(--jdb-orange-500); }
-.jdb-tabs__ext { width: .7em; height: .7em; opacity: .7; }
-
-/* The last tab is the site's main conversion point, so it's set apart from
-   the plain tabs as an outlined button. */
-.jdb-tabs__item--cta { display: flex; align-items: center; margin-left: var(--jdb-s-2); }
-.jdb-tabs__link--cta {
-  height: auto; min-height: 40px;
-  color: var(--jdb-fg);
-  border: 1px solid var(--jdb-line-strong);
-  border-radius: var(--jdb-r-md);
-  background: transparent;
-}
-.jdb-tabs__link--cta:hover { color: #fff; border-color: var(--jdb-fg-muted); }
-.jdb-tabs__link--cta[aria-current="page"] { background: var(--jdb-orange-a20); border-bottom-color: var(--jdb-orange-500); }
-
-.jdb-header__actions {
-  position: relative; margin-left: auto; display: flex; align-items: center; gap: var(--jdb-s-2); flex: 0 0 auto;
-}
+/* The page links, Contact button, menu button, and mobile menu are styled
+   in src/components/Navigation.astro. The search trigger and panel below
+   belong to src/components/Search.astro. */
 
 .jdb-search-trigger {
-  display: inline-flex; align-items: center; gap: var(--jdb-s-2);
-  font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-sm); color: var(--jdb-fg-muted);
-  background: rgba(255,255,255,.04); border: 1px solid var(--jdb-line-strong);
-  border-radius: var(--jdb-r-md); padding: .5rem .75rem; cursor: pointer;
-  min-height: var(--jdb-target);
-  transition: border-color var(--jdb-t), color var(--jdb-t), background var(--jdb-t), box-shadow var(--jdb-t);
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--jdb-s-2);
+  min-width: var(--jdb-target); min-height: var(--jdb-target); padding: 0;
+  font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-sm); color: var(--jdb-fg-dim);
+  background: transparent; border: 1px solid transparent; border-radius: var(--jdb-r-md);
+  cursor: pointer;
+  transition: border-color var(--jdb-t-fast), color var(--jdb-t-fast), background var(--jdb-t-fast);
 }
-.jdb-search-trigger:hover,
-.jdb-search-trigger[aria-expanded="true"] {
-  color: var(--jdb-fg); border-color: var(--jdb-orange-500); background: rgba(255,255,255,.06);
-  box-shadow: inset 0 0 0 1px rgba(255, 127, 80, .25);
+.jdb-search-trigger .jdb-icon { width: 1.3rem; height: 1.3rem; }
+.jdb-search-trigger:hover { color: var(--jdb-fg); background: rgba(255,255,255,.05); }
+.jdb-search-trigger__label, .jdb-search-trigger kbd { display: none; }
+
+/* Wide screens: the trigger looks like a search field, the way an editor's
+   command palette does, with the "/" shortcut on the right. */
+@media (min-width: 64rem) {
+  .jdb-search-trigger {
+    justify-content: flex-start; gap: var(--jdb-s-2);
+    min-height: var(--jdb-target); padding: 0 .55rem 0 .8rem;
+    color: var(--jdb-fg-muted);
+    background: rgba(255,255,255,.04); border-color: var(--jdb-line);
+  }
+  .jdb-search-trigger:hover { color: var(--jdb-fg-dim); background: rgba(255,255,255,.06); border-color: var(--jdb-line-strong); }
+  .jdb-search-trigger .jdb-icon { width: 1rem; height: 1rem; }
+  .jdb-search-trigger[aria-expanded="true"] { color: var(--jdb-fg); border-color: var(--jdb-orange-500); }
+  .jdb-search-trigger__label { display: inline; margin-right: var(--jdb-s-4); }
+  .jdb-search-trigger kbd {
+    display: inline-grid; place-items: center; min-width: 1.4rem; height: 1.4rem;
+    font-family: var(--jdb-font-mono); font-size: .72rem; color: var(--jdb-fg-muted);
+    border: 1px solid var(--jdb-line-strong); border-radius: var(--jdb-r-sm);
+  }
 }
-.jdb-search-trigger kbd {
-  font-family: var(--jdb-font-mono); font-size: .7rem; color: var(--jdb-fg-muted);
-  border: 1px solid var(--jdb-line-strong); border-radius: 4px; padding: .1rem .35rem;
-}
+/* Below 80rem there isn't room for the longer label. */
+.jdb-search-trigger__more { display: none; }
+@media (min-width: 80rem) { .jdb-search-trigger__more { display: inline; } }
 /* Keyboard hints mean nothing on touch screens; hide them there. */
 @media (hover: none) { .jdb-search-trigger kbd { display: none; } }
 
-.jdb-menu-btn {
-  display: inline-flex; width: var(--jdb-target); height: var(--jdb-target); align-items: center; justify-content: center;
-  background: transparent; border: 1px solid var(--jdb-line-strong); border-radius: var(--jdb-r-md);
-  color: var(--jdb-fg); cursor: pointer;
-}
-@media (min-width: 64rem) { .jdb-menu-btn { display: none; } }
-
-/* Search panel — overlays the header area so the nav doesn't reflow when opened */
+/* Search panel: a command-palette popover under the trigger, so the page
+   doesn't reflow when it opens. */
 .jdb-searchpanel {
-  position: absolute; top: calc(100% + 1px); right: 0; left: auto; width: min(42rem, calc(100vw - 2 * var(--jdb-gutter)));
-  z-index: 90; display: none; background: rgba(10, 21, 38, .97); border-bottom: 1px solid var(--jdb-line);
-  box-shadow: 0 18px 36px rgba(2, 6, 16, .32);
+  position: absolute; top: calc(100% + .6rem); right: 0; left: auto;
+  width: min(40rem, calc(100vw - 2 * var(--jdb-gutter)));
+  z-index: 90; display: none; overflow: hidden;
+  background: var(--jdb-surface-band);
+  border: 1px solid var(--jdb-line-strong); border-radius: var(--jdb-r-lg);
+  box-shadow: var(--jdb-sh-lg);
 }
 .jdb-searchpanel.is-open { display: block; }
+.jdb-searchpanel .jdb-container { padding-inline: 0; }
 .jdb-searchpanel__inner {
   display: flex; align-items: center; gap: var(--jdb-s-3);
-  padding-block: var(--jdb-s-4);
+  padding: var(--jdb-s-4) var(--jdb-s-5);
+  border-bottom: 1px solid var(--jdb-line);
 }
+.jdb-searchpanel__inner .jdb-icon { color: var(--jdb-fg-muted); }
 .jdb-searchpanel input[type="search"] {
   flex: 1; background: transparent; border: none; outline: none;
   font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-md); color: var(--jdb-fg);
 }
 .jdb-searchpanel input[type="search"]::placeholder { color: var(--jdb-fg-muted); }
 .jdb-searchpanel__results {
-  list-style: none; margin: 0; padding: 0 0 var(--jdb-s-4); display: flex; flex-direction: column;
+  list-style: none; margin: 0; padding: 0 0 var(--jdb-s-2); display: flex; flex-direction: column;
+  max-height: min(60vh, 32rem); overflow-y: auto;
 }
 .jdb-searchpanel__result {
   border-top: 1px solid var(--jdb-line);
 }
 .jdb-searchpanel__result a {
-  display: block; padding: var(--jdb-s-3) var(--jdb-gutter); color: var(--jdb-fg-dim);
+  display: block; padding: var(--jdb-s-3) var(--jdb-s-5); color: var(--jdb-fg-dim);
   text-decoration: none; transition: background var(--jdb-t), color var(--jdb-t);
 }
 .jdb-searchpanel__result a:hover,
@@ -649,14 +629,14 @@ hr { border: 0; border-top: 1px solid var(--jdb-line); margin: var(--jdb-s-7) 0;
   display: block; margin-top: .2rem; color: var(--jdb-fg-muted); font-size: var(--jdb-fs-sm);
 }
 .jdb-searchpanel__result--empty {
-  padding: var(--jdb-s-4) var(--jdb-gutter); color: var(--jdb-fg-muted);
+  padding: var(--jdb-s-4) var(--jdb-s-5); color: var(--jdb-fg-muted);
 }
 .jdb-searchpanel__result--empty strong {
   display: block; margin-bottom: .15rem; color: var(--jdb-fg);
 }
 .jdb-searchpanel__result--empty a { color: var(--jdb-orange-400); }
 .jdb-searchpanel__label {
-  padding: var(--jdb-s-2) var(--jdb-gutter);
+  padding: var(--jdb-s-3) var(--jdb-s-5) var(--jdb-s-2);
   font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted);
 }
 .jdb-searchpanel__result mark {
@@ -664,41 +644,8 @@ hr { border: 0; border-top: 1px solid var(--jdb-line); margin: var(--jdb-s-7) 0;
 }
 
 /* --------------------------------------------------------------------------
-   6. MOBILE NAV DRAWER
+   6. MOBILE MENU — styled in src/components/Navigation.astro
    -------------------------------------------------------------------------- */
-.jdb-drawer {
-  position: fixed; inset: 0; z-index: 150;
-  visibility: hidden;
-}
-.jdb-drawer.is-open { visibility: visible; }
-.jdb-drawer__scrim {
-  position: absolute; inset: 0; background: rgba(5, 10, 20, .7);
-  opacity: 0; transition: opacity var(--jdb-t);
-}
-.jdb-drawer.is-open .jdb-drawer__scrim { opacity: 1; }
-.jdb-drawer__panel {
-  position: absolute; top: 0; right: 0; height: 100%; width: min(85vw, 320px);
-  background: var(--jdb-navy-900); border-left: 1px solid var(--jdb-line-strong);
-  transform: translateX(100%); transition: transform var(--jdb-t);
-  display: flex; flex-direction: column;
-  padding: var(--jdb-s-5);
-}
-.jdb-drawer.is-open .jdb-drawer__panel { transform: translateX(0); }
-.jdb-drawer__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--jdb-s-6); }
-.jdb-drawer__close {
-  width: var(--jdb-target); height: var(--jdb-target); display: inline-flex; align-items: center; justify-content: center;
-  background: transparent; border: 1px solid var(--jdb-line-strong); border-radius: var(--jdb-r-md);
-  color: var(--jdb-fg); cursor: pointer;
-}
-.jdb-drawer__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
-.jdb-drawer__link {
-  display: flex; align-items: center; gap: var(--jdb-s-2);
-  font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-md); color: var(--jdb-fg);
-  text-decoration: none; padding: var(--jdb-s-4) 0; border-bottom: 1px solid var(--jdb-line);
-}
-.jdb-drawer__link[aria-current="page"] { color: var(--jdb-orange-500); }
-.jdb-drawer__link .jdb-tabs__ext { margin-left: auto; }
-.jdb-drawer__foot { margin-top: auto; padding-top: var(--jdb-s-5); }
 
 /* --------------------------------------------------------------------------
    7. FOOTER  (status-bar motif)
@@ -1206,7 +1153,7 @@ a.jdb-tag:hover { background: var(--jdb-orange-a20); color: #fff; }
    -------------------------------------------------------------------------- */
 @media print {
   .jdb-header, .jdb-statusbar, .jdb-footer__social,
-  .jdb-searchpanel, .jdb-drawer, .jdb-quiz__options, .jdb-code__copy, .jdb-toc { display: none !important; }
+  .jdb-searchpanel, .jdb-quiz__options, .jdb-code__copy, .jdb-toc { display: none !important; }
   body { background: #fff; color: #111; }
   .jdb-section { border-color: #ddd; }
   h1, h2, h3, h4, .jdb-c-heading { color: #111 !important; }
