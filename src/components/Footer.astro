@@ -87,6 +87,16 @@ const currentYear = new Date().getFullYear();
         <span class="jdb-statusbar__item"><span class="jdb-icon jdb-icon--branch" aria-hidden="true"></span> main</span>
         <span class="jdb-statusbar__item">UTF-8</span>
         <span class="jdb-statusbar__item">updated {currentYear}</span>
+        <a class="jdb-statusbar__item jdb-statusbar__bailey" href="/about/#bailey">
+          <svg class="jdb-statusbar__paw" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <ellipse cx="6" cy="10" rx="2" ry="2.6" />
+            <ellipse cx="10" cy="5.8" rx="2.1" ry="2.7" />
+            <ellipse cx="14.6" cy="5.8" rx="2.1" ry="2.7" />
+            <ellipse cx="18.5" cy="10" rx="2" ry="2.6" />
+            <path d="M12.3 11.5c-3.1 0-6.3 4.4-6.3 6.9 0 1.6 1.2 2.6 2.7 2.6 1.4 0 2.3-.8 3.6-.8s2.2.8 3.6.8c1.5 0 2.7-1 2.7-2.6 0-2.5-3.2-6.9-6.3-6.9Z" />
+          </svg>
+          supervised by Bailey
+        </a>
         <a class="jdb-statusbar__item" href="/ai-info/">AI Info</a>
       </div>
       <span class="jdb-statusbar__item">© {currentYear} Joshua DeGrasse-Baumann</span>
@@ -99,6 +109,21 @@ const currentYear = new Date().getFullYear();
     width: .7em;
     height: .7em;
     opacity: .6;
+  }
+
+  .jdb-statusbar__bailey {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .jdb-statusbar__bailey:hover {
+    color: var(--jdb-fg);
+  }
+
+  .jdb-statusbar__paw {
+    width: .95em;
+    height: .95em;
+    fill: var(--jdb-orange-400);
   }
 
   .jdb-footer__top {

@@ -11,8 +11,10 @@ import ChartGlyph from './ChartGlyph.astro';
 interface Props {
   /** Usually the post slug. Same seed, same picture. */
   seed: string;
-  /** Chart type: trend, compare, search, hierarchy, code, measure, flow, part, scatter. */
+  /** Chart type, one of KINDS in src/lib/cover-art.mjs. */
   kind?: string;
+  /** Real numbers to draw instead of made-up data (trend, compare, funnel, histogram). */
+  data?: number[];
   /** Topic name shown as a small label on the cover, e.g. "SEO". */
   label?: string;
   /** Width to height. */
@@ -20,10 +22,10 @@ interface Props {
   class?: string;
 }
 
-const { seed, kind = 'trend', label, ratio = '16/9', class: className } = Astro.props;
+const { seed, kind = 'trend', data, label, ratio = '16/9', class: className } = Astro.props;
 const [rw, rh] = ratio.split('/').map(Number);
 // Taller boxes get a taller canvas, so the whole chart stays in view.
-const svg = coverSvg({ seed, kind, aspect: rw / rh });
+const svg = coverSvg({ seed, kind, data, aspect: rw / rh });
 ---
 
 <div class:list={['jdb-cover', className]} style={`aspect-ratio: ${ratio}`}>
