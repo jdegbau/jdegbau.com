@@ -11,16 +11,39 @@
  * Plain .mjs so the og-cards integration can import it before Astro runs.
  */
 
-/** Topics a post can belong to. The label shows on cards; the kind picks the chart. */
+/**
+ * Topics a post can belong to. The label shows on cards. `kinds` is the set
+ * of charts that fit the topic: posts in a topic take them in turn (see
+ * assignCovers), so two posts on the same subject don't get the same picture.
+ * The first kind is the topic's icon.
+ */
 export const TOPICS = {
-  content: { label: 'Content strategy', kind: 'hierarchy' },
-  dataviz: { label: 'Data visualization', kind: 'compare' },
-  measurement: { label: 'Measurement', kind: 'trend' },
-  seo: { label: 'SEO', kind: 'search' },
-  dev: { label: 'Web development', kind: 'code' },
+  content: { label: 'Content strategy', kinds: ['hierarchy', 'heatmap', 'part', 'dumbbell'] },
+  dataviz: { label: 'Data visualization', kinds: ['compare', 'flow', 'scatter', 'slope', 'histogram', 'part'] },
+  measurement: { label: 'Measurement', kinds: ['trend', 'funnel', 'measure', 'dumbbell'] },
+  seo: { label: 'SEO', kinds: ['search', 'slope', 'scatter', 'trend'] },
+  dev: { label: 'Web development', kinds: ['code', 'flow'] },
 };
 
-export const KINDS = ['trend', 'compare', 'search', 'hierarchy', 'code', 'measure', 'flow', 'part', 'scatter'];
+/** What each chart says, so a post can pick the one that fits its story. */
+export const KIND_USES = {
+  trend: 'change over time, before and after an event',
+  compare: 'comparing items; one stands out',
+  search: 'search results, rankings, SERP features',
+  hierarchy: 'content inventories, site structure, share of a whole by group',
+  code: 'how-tos with code, scripts, implementation',
+  measure: 'a single KPI against a target, scores, audits',
+  flow: 'journeys, attribution, where traffic goes',
+  part: 'mix and share: channels, devices, content types',
+  scatter: 'relationships and outliers',
+  funnel: 'conversion steps and drop-off',
+  heatmap: 'calendars, cadence, when things happen',
+  slope: 'before/after for many items: rankings, positions',
+  dumbbell: 'gaps: current vs. target, you vs. competitor',
+  histogram: 'distributions: word counts, load times, positions',
+};
+
+export const KINDS = Object.keys(KIND_USES);
 
 // Hex values (not CSS variables) so the same SVG renders inside satori/resvg.
 const C = {
@@ -59,16 +82,34 @@ const range = (rand, min, max) => min + rand() * (max - min);
 const glow = (id, cx, cy, r = 150) =>
   `<circle cx="${r1(cx)}" cy="${r1(cy)}" r="${r}" fill="url(#${id}-glow)"/>`;
 
-function trend(rand, id) {
-  const n = 14;
-  const event = 7 + Math.floor(rand() * 3);
-  let y = range(rand, 0.35, 0.5);
-  const pts = [];
-  for (let i = 0; i < n; i++) {
-    const drift = i < event ? range(rand, -0.06, 0.05) : range(rand, 0.02, 0.09);
-    y = Math.min(0.95, Math.max(0.12, y + drift));
-    pts.push([P.x + (i / (n - 1)) * P.w, P.y + P.h - y * P.h]);
+/** Real numbers from the post, scaled to 0–1 between `lo` and `hi`. */
+function normalize(data, lo = 0.12, hi = 0.95) {
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const span = max - min || 1;
+  return data.map((v) => lo + ((v - min) / span) * (hi - lo));
+}
+
+function trend(rand, id, data) {
+  let n = 14;
+  let event = 7 + Math.floor(rand() * 3);
+  let ys;
+  if (data) {
+    n = data.length;
+    ys = normalize(data);
+    // The story starts at the lowest point before the end.
+    event = ys.slice(0, -1).reduce((best, v, i, all) => (v < all[best] ? i : best), 0);
+    if (event >= n - 2) event = Math.floor(n * 0.55);
+  } else {
+    let y = range(rand, 0.35, 0.5);
+    ys = [];
+    for (let i = 0; i < n; i++) {
+      const drift = i < event ? range(rand, -0.06, 0.05) : range(rand, 0.02, 0.09);
+      y = Math.min(0.95, Math.max(0.12, y + drift));
+      ys.push(y);
+    }
   }
+  const pts = ys.map((v, i) => [P.x + (i / (n - 1)) * P.w, P.y + P.h - v * P.h]);
   const line = (list) => list.map(([x, yy], i) => `${i ? 'L' : 'M'}${r1(x)} ${r1(yy)}`).join(' ');
   const area = `${line(pts)} L${P.x + P.w} ${P.y + P.h} L${P.x} ${P.y + P.h} Z`;
   const [ex] = pts[event];
@@ -86,13 +127,20 @@ function trend(rand, id) {
     <line x1="${P.x}" x2="${P.x + P.w}" y1="${P.y + P.h}" y2="${P.y + P.h}" stroke="${C.ink}" stroke-width="3"/>`;
 }
 
-function compare(rand, id) {
-  const n = 7;
-  const gap = 34;
+function compare(rand, id, data) {
+  const n = data ? Math.min(data.length, 12) : 7;
+  const gap = n > 8 ? 22 : 34;
   const bw = (P.w - gap * (n - 1)) / n;
-  const heights = Array.from({ length: n }, () => range(rand, 0.28, 0.82));
-  const hi = Math.floor(rand() * n);
-  heights[hi] = 0.96;
+  let heights;
+  let hi;
+  if (data) {
+    heights = normalize(data.slice(0, n), 0.08, 0.96);
+    hi = heights.indexOf(Math.max(...heights));
+  } else {
+    heights = Array.from({ length: n }, () => range(rand, 0.28, 0.82));
+    hi = Math.floor(rand() * n);
+    heights[hi] = 0.96;
+  }
   const bars = heights.map((h, i) => {
     const x = P.x + i * (bw + gap);
     const bh = h * P.h;
@@ -285,22 +333,184 @@ function scatter(rand, id) {
     <circle cx="${r1(hi[0])}" cy="${r1(hi[1])}" r="15" fill="${C.accent}"/>`;
 }
 
-const DRAW = { trend, compare, search, hierarchy, code, measure, flow, part, scatter };
+function funnel(rand, id, data) {
+  // Conversion steps: each bar narrower than the last; the biggest drop is orange.
+  let widths;
+  if (data) {
+    const max = Math.max(...data) || 1;
+    widths = data.slice(0, 7).map((v) => Math.max(0.06, v / max));
+  } else {
+    let w = 1;
+    widths = [1];
+    for (let i = 1; i < 5; i++) {
+      w *= range(rand, 0.45, 0.85);
+      widths.push(w);
+    }
+  }
+  const n = widths.length;
+  const gap = 18;
+  const bh = (P.h - gap * (n - 1)) / n;
+  // Orange marks the step that loses the largest share of the step before it.
+  let drop = 1;
+  for (let i = 1; i < n; i++) if (widths[i] / widths[i - 1] < widths[drop] / widths[drop - 1]) drop = i;
+  const cx = P.x + P.w / 2;
+  const bars = widths.map((w, i) => {
+    const bw = w * P.w;
+    const y = P.y + i * (bh + gap);
+    const fill = i === drop ? C.accent : i % 2 ? C.ink : C.inkSoft;
+    return `<rect x="${r1(cx - bw / 2)}" y="${r1(y)}" width="${r1(bw)}" height="${r1(bh)}" rx="10" fill="${fill}"/>`;
+  }).join('');
+  return glow(id, cx, P.y + drop * (bh + gap) + bh / 2, 220) + bars;
+}
+
+function heatmap(rand, id) {
+  // A publishing calendar: weeks across, days down; one hot day in orange.
+  const cols = 18;
+  const rows = 7;
+  const gap = 9;
+  const cell = Math.min((P.w - gap * (cols - 1)) / cols, (P.h - gap * (rows - 1)) / rows);
+  const gw = cols * cell + gap * (cols - 1);
+  const gh = rows * cell + gap * (rows - 1);
+  const x0 = P.x + (P.w - gw) / 2;
+  const y0 = P.y + (P.h - gh) / 2;
+  const busyDay = Math.floor(rand() * 5) + 1;
+  const hot = [Math.floor(rand() * (cols - 4)) + 2, busyDay];
+  let cells = '';
+  for (let c = 0; c < cols; c++) {
+    const weekLoad = 0.3 + 0.7 * Math.sin((c / cols) * Math.PI * range(rand, 0.8, 1.4)) ** 2;
+    for (let r = 0; r < rows; r++) {
+      const weekend = r === 0 || r === 6;
+      const v = Math.min(1, (weekend ? 0.15 : r === busyDay ? 0.75 : 0.35) * weekLoad + rand() * 0.35);
+      const on = c === hot[0] && r === hot[1];
+      const fill = on ? C.accent : C.ink;
+      const opacity = on ? 1 : (0.1 + v ** 1.4 * 0.9).toFixed(2);
+      cells += `<rect x="${r1(x0 + c * (cell + gap))}" y="${r1(y0 + r * (cell + gap))}" width="${r1(cell)}" height="${r1(cell)}" rx="6" fill="${fill}" fill-opacity="${opacity}"/>`;
+    }
+  }
+  return glow(id, x0 + hot[0] * (cell + gap) + cell / 2, y0 + hot[1] * (cell + gap) + cell / 2, 160) + cells;
+}
+
+function slope(rand, id) {
+  // Before and after for several items; the one that climbed most is orange.
+  const n = 6;
+  const xa = P.x + P.w * 0.18;
+  const xb = P.x + P.w * 0.82;
+  const items = Array.from({ length: n }, () => [range(rand, 0.1, 0.9), range(rand, 0.1, 0.9)]);
+  const hi = Math.floor(rand() * n);
+  items[hi] = [range(rand, 0.08, 0.28), range(rand, 0.78, 0.94)];
+  const y = (v) => P.y + P.h - v * P.h;
+  const axes = [xa, xb].map((x) => `<line x1="${r1(x)}" x2="${r1(x)}" y1="${P.y - 10}" y2="${P.y + P.h + 10}" stroke="${C.ink}" stroke-width="3"/>`).join('');
+  const lines = items
+    .map(([a, b], i) => ({ a, b, i }))
+    .sort((p, q) => (p.i === hi) - (q.i === hi))
+    .map(({ a, b, i }) => {
+      const on = i === hi;
+      const stroke = on ? C.accent : C.muted;
+      const op = on ? 1 : 0.5;
+      return `<line x1="${r1(xa)}" y1="${r1(y(a))}" x2="${r1(xb)}" y2="${r1(y(b))}" stroke="${stroke}" stroke-opacity="${op}" stroke-width="${on ? 8 : 5}" stroke-linecap="round"/>
+        <circle cx="${r1(xa)}" cy="${r1(y(a))}" r="${on ? 13 : 10}" fill="${on ? C.accent : C.ink}"/>
+        <circle cx="${r1(xb)}" cy="${r1(y(b))}" r="${on ? 13 : 10}" fill="${on ? C.accent : C.ink}"/>`;
+    })
+    .join('');
+  return glow(id, xb, y(items[hi][1]), 170) + axes + lines;
+}
+
+function dumbbell(rand, id) {
+  // Two values per row (now vs. target, you vs. a competitor); the widest gap is orange.
+  const rows = 6;
+  const rowH = P.h / rows;
+  const pairs = Array.from({ length: rows }, () => {
+    const a = range(rand, 0.08, 0.6);
+    return [a, Math.min(0.96, a + range(rand, 0.08, 0.35))];
+  });
+  const hi = Math.floor(rand() * rows);
+  pairs[hi] = [range(rand, 0.06, 0.2), range(rand, 0.82, 0.96)];
+  const x = (v) => P.x + v * P.w;
+  let out = '';
+  pairs.forEach(([a, b], i) => {
+    const y = P.y + i * rowH + rowH / 2;
+    const on = i === hi;
+    out += `<line x1="${P.x}" x2="${P.x + P.w}" y1="${r1(y)}" y2="${r1(y)}" stroke="${C.ink}" stroke-opacity=".35" stroke-width="2" stroke-dasharray="2 10"/>
+      <line x1="${r1(x(a))}" x2="${r1(x(b))}" y1="${r1(y)}" y2="${r1(y)}" stroke="${on ? C.accent : C.ink}" stroke-width="${on ? 10 : 8}" stroke-linecap="round"/>
+      <circle cx="${r1(x(a))}" cy="${r1(y)}" r="${on ? 15 : 13}" fill="${on ? C.fg : C.muted}"/>
+      <circle cx="${r1(x(b))}" cy="${r1(y)}" r="${on ? 15 : 13}" fill="${on ? C.accent : C.ink}"/>`;
+  });
+  return glow(id, x(pairs[hi][1]), P.y + hi * rowH + rowH / 2, 170) + out;
+}
+
+function histogram(rand, id, data) {
+  // A distribution: touching bars under a smooth curve; the tallest bin is orange.
+  let bins;
+  if (data) {
+    bins = normalize(data.slice(0, 24), 0.06, 0.95);
+  } else {
+    const n = 16;
+    const mu = range(rand, 0.3, 0.7) * n;
+    const sigma = range(rand, 2.2, 3.6);
+    bins = Array.from({ length: n }, (_, i) => Math.max(0.05, Math.exp(-((i - mu) ** 2) / (2 * sigma ** 2)) * 0.9 + rand() * 0.08));
+  }
+  const n = bins.length;
+  const gap = 6;
+  const bw = (P.w - gap * (n - 1)) / n;
+  const hi = bins.indexOf(Math.max(...bins));
+  const bars = bins.map((h, i) => {
+    const bh = h * P.h;
+    return `<rect x="${r1(P.x + i * (bw + gap))}" y="${r1(P.y + P.h - bh)}" width="${r1(bw)}" height="${r1(bh)}" rx="4" fill="${i === hi ? C.accent : C.ink}" fill-opacity="${i === hi ? 1 : 0.85}"/>`;
+  }).join('');
+  const curve = bins
+    .map((h, i) => `${i ? 'L' : 'M'}${r1(P.x + i * (bw + gap) + bw / 2)} ${r1(P.y + P.h - h * P.h - 18)}`)
+    .join(' ');
+  return `${glow(id, P.x + hi * (bw + gap) + bw / 2, P.y + P.h * (1 - bins[hi]), 180)}${bars}
+    <path d="${curve}" fill="none" stroke="${C.muted}" stroke-opacity=".7" stroke-width="4" stroke-linejoin="round" stroke-dasharray="2 12" stroke-linecap="round"/>
+    <line x1="${P.x - 20}" x2="${P.x + P.w + 20}" y1="${P.y + P.h}" y2="${P.y + P.h}" stroke="${C.muted}" stroke-opacity=".6" stroke-width="3"/>`;
+}
+
+const DRAW = { trend, compare, search, hierarchy, code, measure, flow, part, scatter, funnel, heatmap, slope, dumbbell, histogram };
 
 // Where the story sits, so a narrow crop keeps it in view.
-const FOCUS = { trend: 'xMaxYMid', scatter: 'xMaxYMid', search: 'xMinYMid', code: 'xMinYMid' };
+const FOCUS = { trend: 'xMaxYMid', scatter: 'xMaxYMid', search: 'xMinYMid', code: 'xMinYMid', slope: 'xMaxYMid' };
 
-/** Which chart a post's cover uses: an explicit `cover` kind, else its topic's kind. */
-export function coverKind(topic, cover) {
-  if (cover && DRAW[cover]) return cover;
-  return TOPICS[topic]?.kind ?? 'trend';
+/** The topic's signature chart (its icon). */
+export function topicKind(topic) {
+  return TOPICS[topic]?.kinds[0] ?? 'trend';
+}
+
+/**
+ * Picks every post's cover chart. Posts are taken oldest first; each takes
+ * the next chart in its topic's set, skipping one that the previous post
+ * (in any topic) already used. A post's explicit `cover` always wins.
+ * Because older posts come first, publishing a new post never changes the
+ * covers of the posts before it.
+ *
+ * @param {{ slug: string, date: string, topic: string, cover?: string }[]} posts
+ * @returns {Map<string, string>} slug → chart kind
+ */
+export function assignCovers(posts) {
+  const kinds = new Map();
+  const turn = {};
+  let previous;
+  for (const post of [...posts].sort((a, b) => a.date.localeCompare(b.date) || a.slug.localeCompare(b.slug))) {
+    let kind = post.cover && DRAW[post.cover] ? post.cover : undefined;
+    if (!kind) {
+      const pool = TOPICS[post.topic]?.kinds ?? ['trend'];
+      let i = turn[post.topic] ?? 0;
+      if (pool.length > 1 && pool[i % pool.length] === previous) i += 1;
+      kind = pool[i % pool.length];
+      turn[post.topic] = i + 1;
+    }
+    kinds.set(post.slug, kind);
+    previous = kind;
+  }
+  return kinds;
 }
 
 /**
  * The cover as an SVG string.
- * @param {{ seed: string, kind?: string, title?: string, aspect?: number, mode?: 'crop' | 'extend' }} options
+ * @param {{ seed: string, kind?: string, data?: number[], title?: string, aspect?: number, mode?: 'crop' | 'extend' }} options
  *   seed  — usually the post slug; same seed, same picture.
  *   kind  — one of KINDS.
+ *   data  — real numbers from the post, for trend, compare, funnel, and
+ *           histogram covers. Other kinds ignore it.
  *   title — accessible name; omit for a decorative cover.
  *   aspect — width/height of the box the cover fills, when narrower than 16:9.
  *   mode   — `extend` (default) grows the canvas taller so the whole chart
@@ -308,7 +518,7 @@ export function coverKind(topic, cover) {
  *           chart's story in view (for tall panels like the share image).
  *           Without `aspect`, the browser crops with preserveAspectRatio.
  */
-export function coverSvg({ seed, kind = 'trend', title, aspect, mode = 'extend' }) {
+export function coverSvg({ seed, kind = 'trend', data, title, aspect, mode = 'extend' }) {
   const focus = FOCUS[kind] ?? 'xMidYMid';
   // The canvas: x, y, width, height in drawing units.
   let box = [0, 0, W, H];
@@ -326,7 +536,8 @@ export function coverSvg({ seed, kind = 'trend', title, aspect, mode = 'extend' 
   const bgRect = `x="${box[0]}" y="${box[1]}" width="${box[2]}" height="${box[3]}"`;
   const rand = rng(`${seed}:${kind}`);
   const id = `cv${rng(seed)().toString(36).slice(2, 8)}`;
-  const art = (DRAW[kind] ?? trend)(rand, id);
+  const series = Array.isArray(data) && data.length >= 3 ? data.map(Number).filter(Number.isFinite) : undefined;
+  const art = (DRAW[kind] ?? trend)(rand, id, series);
   const a11y = title ? `role="img" aria-label="${title.replace(/"/g, '&quot;')}"` : 'aria-hidden="true" focusable="false"';
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" preserveAspectRatio="${focus} slice" ${a11y}>
   <defs>

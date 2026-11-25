@@ -1,5 +1,5 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
-import { TOPICS, coverKind } from './cover-art.mjs';
+import { TOPICS, assignCovers } from './cover-art.mjs';
 
 export type BlogEntry = CollectionEntry<'blog'>;
 
@@ -15,14 +15,20 @@ export interface Post {
   date: string;
   /** Last meaningful update, YYYY-MM-DD. Equals `date` when the post was never updated. */
   updated: string;
-  /** Optional photo or screenshot shown inside the article. Cards use the generated cover. */
+  /** Optional image for the article header (in place of the cover). Cards always use the cover. */
   featuredImage?: string;
+  /** Alt text for the featured image; empty (decorative) when unset. */
+  featuredImageAlt?: string;
   /** Main topic key (content, dataviz, measurement, seo, dev). */
   topic: keyof typeof TOPICS;
   /** Reader-facing topic name, e.g. "Data visualization". */
   topicLabel: string;
-  /** Chart type drawn on the generated cover. */
+  /** Chart type drawn on the generated cover (see assignCovers). */
   cover: string;
+  /** Seed for the cover's made-up data: the slug unless `cover_seed` is set. */
+  coverSeed: string;
+  /** Real numbers for the cover chart, from `cover_data`. */
+  coverData?: number[];
   /** Generated 1200×630 social share card (see src/lib/og-cards.mjs). */
   ogImage: string;
   url: string;
@@ -60,9 +66,13 @@ function toPost(entry: BlogEntry): Post {
     date,
     updated: data.updated && data.updated > date ? data.updated : date,
     featuredImage: data.featured_image,
+    featuredImageAlt: data.featured_image_alt,
     topic: data.topic,
     topicLabel: TOPICS[data.topic].label,
-    cover: coverKind(data.topic, data.cover),
+    // Filled in by getAllPosts, which needs every post to rotate charts.
+    cover: data.cover ?? TOPICS[data.topic].kinds[0],
+    coverSeed: data.cover_seed ?? slug,
+    coverData: data.cover_data,
     ogImage: `/assets/img/og/${slug}.png`,
     url: `/blog/${slug}/`,
     tags: data.tags,
@@ -78,7 +88,10 @@ function toPost(entry: BlogEntry): Post {
 /** All posts, newest first. */
 export async function getAllPosts(): Promise<Post[]> {
   const entries = await getCollection('blog');
-  return entries.map(toPost).sort((a, b) => b.date.localeCompare(a.date));
+  const posts = entries.map(toPost).sort((a, b) => b.date.localeCompare(a.date));
+  const covers = assignCovers(posts.map(({ slug, date, topic, entry }) => ({ slug, date, topic, cover: entry.data.cover })));
+  for (const post of posts) post.cover = covers.get(post.slug) ?? post.cover;
+  return posts;
 }
 
 export interface PostHeading {
