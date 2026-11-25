@@ -172,6 +172,11 @@
        this" everywhere on the site, never as decoration. */
   --jdb-target: 44px;
   --jdb-lift:   -2px;
+
+  /* Graph paper and orange wash behind heroes (section 9). */
+  --jdb-hero-wash: rgba(255, 77, 0, .08);
+  --jdb-grid-line: rgba(255, 255, 255, .045);
+  --jdb-grid-size: 48px;
 }
 
 @media (min-width: 48rem) { :root { --jdb-gutter: 2rem; } }
@@ -675,6 +680,21 @@ a.jdb-panel:hover,
    -------------------------------------------------------------------------- */
 .jdb-hero { padding-block: var(--jdb-s-9); position: relative; overflow: hidden; container: jdb-hero / inline-size; }
 @media (min-width: 62rem) { .jdb-hero { padding-block: var(--jdb-s-11); } }
+/* Graph paper under a warm orange wash: the brand's working surface.
+   Faint 48px squares (a multiple of the 4px spacing grid) with a soft
+   orange glow at the top; both fade out toward the bottom, so they sit
+   behind the headline without crossing into the next section. */
+.jdb-hero::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    linear-gradient(to bottom, var(--jdb-hero-wash), transparent 40%),
+    linear-gradient(to right, var(--jdb-grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--jdb-grid-line) 1px, transparent 1px);
+  background-size: 100% 100%, var(--jdb-grid-size) var(--jdb-grid-size), var(--jdb-grid-size) var(--jdb-grid-size);
+  background-position: 0 0, -1px -1px, -1px -1px;
+  -webkit-mask-image: linear-gradient(to bottom, #000 35%, transparent 100%);
+          mask-image: linear-gradient(to bottom, #000 35%, transparent 100%);
+}
 
 /* backgroundImage works on any variant; the blog variant adds the bleed
    below the hero that the overlapping article panel sits on. */

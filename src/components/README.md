@@ -297,7 +297,7 @@ Notes:
 ## Brand and type
 The visual rules live in the tokens at the top of `public/assets/css/main.css`; the components page shows them.
 - **Two faces, two jobs.** Schibsted Grotesk (`--jdb-font-sans`) sets everything people read: headlines, UI, body. JetBrains Mono (`--jdb-font-mono`) is only for what is literally code: the logotype, code samples, `kbd`. Don't set labels, dates, or buttons in mono.
-- **Headlines carry the page.** Large, heavy, tightly tracked (`--jdb-track-display` / `--jdb-track-heading`). No decorative washes or grid textures behind them.
+- **Headlines carry the page.** Large, heavy, tightly tracked (`--jdb-track-display` / `--jdb-track-heading`). The only texture behind them is the hero's graph paper (`--jdb-grid-line`, `--jdb-grid-size`) under a soft orange wash at the top (`--jdb-hero-wash`); both fade out before the next section. Don't add other washes or textures elsewhere.
 - **Orange is a signal.** The brand orange marks the main action and the current location (the active nav item, the cursor in the logotype and home headline). Don't use it for decoration.
 - **Labels are plain.** Eyebrows are short, sentence-case, and only used where the heading alone would be ambiguous. No `//`, `#`, or `$` prefixes, no all caps.
 - **Fewer boxes.** Use a hairline rule and spacing to group content; reserve filled cards for things that are clickable or need their own region.
