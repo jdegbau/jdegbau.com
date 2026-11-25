@@ -327,10 +327,13 @@ The site follows Andy Crestodina and Orbit Media's approach to content and conve
 - **Link internally.** Link to related posts. The template adds `RelatedPosts`, a subscribe prompt, and the author box automatically.
 - **Promote every post.** Plan the email, social, and ally outreach (people quoted or mentioned) before you publish. Update and re-promote strong older posts rather than letting them decay. Set `updated` in the front matter when you do.
 
+## The components page
+`/components/` (noindex) is the live reference. It opens with the color, type, and spacing tokens (contrast ratios copied from the comments in `main.css`; update both together), then shows each component as an editor tab with its file, one sentence on what it's for, its props, and a live demo. A sidebar explorer groups components into folders and marks the one being read.
+
 ## Component creation checklist
 When adding a new component:
 1. Create the component in `src/components/`.
 2. Add it to this README.
-3. Add an example to `src/pages/components.astro`. Give its heading an `id="component-…"` and add it to `componentIndex` at the top of that file so it appears in the page's jump links.
+3. Add an example to `src/pages/components.astro`: wrap the demo in `<Spec name id what props>` (from `src/pages/_components/Spec.astro`) inside the right folder, and add the same `id` to the `explorer` list at the top of that file so it appears in the sidebar.
 4. Reuse existing design tokens and class conventions.
 5. Keep props explicit and minimal.

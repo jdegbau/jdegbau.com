@@ -1,0 +1,149 @@
+---
+/**
+ * One "open file" on the components showcase page: an editor tab with the
+ * component's filename, what it's for, its props, and a live demo.
+ * Page-specific (underscore folders aren't routed), so it isn't part of the
+ * shared library in src/components/.
+ */
+interface Props {
+  /** Component name without extension, e.g. "BlogCard". */
+  name: string;
+  /** Anchor id, used by the explorer and scroll tracking. */
+  id: string;
+  /** One plain sentence: what the component is for. */
+  what: string;
+  /** Prop names as written in the component, or "none". */
+  props: string;
+  /** Source file when it isn't src/components/<name>.astro. */
+  file?: string;
+  /** Drop the demo padding for components that bring their own section spacing. */
+  flush?: boolean;
+}
+
+const { name, id, what, props, file = `src/components/${name}.astro`, flush = false } = Astro.props;
+---
+
+<section class="spec" id={id} aria-labelledby={`${id}-title`} data-spec>
+  <header class="spec__tabbar">
+    <h2 class="spec__tab" id={`${id}-title`}>{name}<span class="spec__ext">.astro</span></h2>
+    <code class="spec__path">{file}</code>
+  </header>
+  <div class="spec__doc">
+    <p class="spec__what">{what}</p>
+    <p class="spec__props"><span class="spec__key">props</span> <code>{props}</code></p>
+  </div>
+  <div class:list={['spec__demo', flush && 'spec__demo--flush']}>
+    <slot />
+  </div>
+</section>
+
+<style>
+  .spec {
+    scroll-margin-top: calc(var(--jdb-header-h) + var(--jdb-s-4));
+    min-width: 0;
+  }
+
+  .spec + :global(.spec) {
+    margin-top: var(--jdb-s-9);
+  }
+
+  /* Editor tab strip: the active tab sits on the strip's baseline, with the
+     file's path set quietly at the right. */
+  .spec__tabbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--jdb-s-2) var(--jdb-s-4);
+    border-bottom: 1px solid var(--jdb-line-strong);
+  }
+
+  .spec__tab {
+    margin: 0 0 -1px;
+    padding: var(--jdb-s-2) var(--jdb-s-4);
+    font-size: var(--jdb-fs-lg);
+    line-height: var(--jdb-lh-snug);
+    color: var(--jdb-fg);
+    background: var(--jdb-navy-900);
+    border: 1px solid var(--jdb-line-strong);
+    border-bottom-color: var(--jdb-navy-900);
+    border-top: 2px solid var(--jdb-orange-500);
+    border-radius: var(--jdb-r-md) var(--jdb-r-md) 0 0;
+    overflow-wrap: anywhere;
+  }
+
+  .spec__ext {
+    color: var(--jdb-fg-muted);
+    font-weight: var(--jdb-fw-normal);
+  }
+
+  /* Paths and props are reference text, not accents: they drop the global
+     orange inline-code treatment so orange stays reserved for the open tab. */
+  .spec__path {
+    padding: 0 0 var(--jdb-s-2);
+    background: none;
+    border: 0;
+    font-size: var(--jdb-fs-xs);
+    color: var(--jdb-fg-muted);
+    overflow-wrap: anywhere;
+  }
+
+  /* On narrow screens the path would wrap between the tab and its body;
+     it repeats the tab's name, so it's dropped there. */
+  @media (max-width: 40rem) {
+    .spec__path {
+      display: none;
+    }
+  }
+
+  .spec__doc {
+    display: grid;
+    gap: var(--jdb-s-2);
+    padding: var(--jdb-s-4) var(--jdb-s-4) var(--jdb-s-5);
+    background: var(--jdb-navy-900);
+    border-inline: 1px solid var(--jdb-line-strong);
+  }
+
+  .spec__what {
+    margin: 0;
+    max-width: 68ch;
+    color: var(--jdb-fg-dim);
+  }
+
+  .spec__props {
+    margin: 0;
+    font-size: var(--jdb-fs-sm);
+    color: var(--jdb-fg-muted);
+  }
+
+  .spec__key {
+    font-family: var(--jdb-font-mono);
+    font-size: var(--jdb-fs-xs);
+    color: var(--jdb-fg-muted);
+  }
+
+  .spec__props code {
+    color: var(--jdb-fg-dim);
+    overflow-wrap: anywhere;
+  }
+
+  /* The demo area is an artboard: a faint dot grid marks "live preview"
+     apart from the documentation above it. */
+  .spec__demo {
+    display: grid;
+    gap: var(--jdb-s-5);
+    min-width: 0;
+    padding: var(--jdb-s-6) var(--jdb-s-5);
+    background:
+      radial-gradient(circle at 1px 1px, rgba(255, 255, 255, .06) 1px, transparent 0) 0 0 / 16px 16px,
+      var(--jdb-surface-canvas);
+    border: 1px solid var(--jdb-line-strong);
+    border-radius: 0 0 var(--jdb-r-lg) var(--jdb-r-lg);
+    overflow: hidden;
+  }
+
+  .spec__demo--flush {
+    padding: 0;
+    gap: 0;
+  }
+</style>
