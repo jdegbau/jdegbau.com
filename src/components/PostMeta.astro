@@ -46,8 +46,7 @@ const encodedUrl = encodeURIComponent(url);
 <style>
   .post-bar {
     position: fixed;
-    /* The site header is 8px shorter once the page has scrolled. */
-    top: calc(var(--jdb-header-h) - 8px);
+    top: var(--jdb-header-h);
     left: 0;
     right: 0;
     z-index: 70;

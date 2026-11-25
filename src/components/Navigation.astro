@@ -1,80 +1,55 @@
 ---
+/**
+ * Site header and mobile menu.
+ *
+ * Desktop: logotype on the left; the page links, search, and the Contact
+ * button grouped on the right. The current page is marked with the brand's
+ * orange cursor bar under its label. Contact is the site's main next step,
+ * so it uses the primary button, the same orange button as every other
+ * main action.
+ *
+ * Mobile: logotype, a search icon, and a menu button that opens a
+ * full-screen menu with large links and Contact as a full-width button.
+ *
+ * The header sits flat on the page at the top and gains a glass surface and
+ * hairline once the page scrolls. Search is passed in through the default
+ * slot (BaseLayout renders <Search /> there) and appears once.
+ */
 import Logotype from './Logotype.astro';
-// Contact (the main next step) closes the list and is styled as a button.
-// Keep this list short.
+
+// Keep this list short and in this order; Contact always comes last.
 const navPages = [
   { href: '/about/', label: 'About' },
   { href: '/blog/', label: 'Blog' },
   { href: '/seo-helpline/', label: 'SEO Helpline' },
   { href: 'https://store.jdegbau.com/', label: 'GTM Templates', external: true },
-  { href: '/contact/', label: 'Contact', cta: true },
 ];
+const contact = { href: '/contact/', label: 'Contact' };
+
 const currentPath = Astro.url.pathname;
-function isActive(href) {
-  if (href === '/') return currentPath === '/';
-  return currentPath.startsWith(href);
-}
+const isActive = (href: string) => (href === '/' ? currentPath === '/' : currentPath.startsWith(href));
+const external = (item: { external?: boolean }) =>
+  item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {};
 ---
-<style>
-  .jdb-header {
-    view-transition-name: site-header;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 80;
-    background: rgba(10, 21, 38, 0.76);
-    backdrop-filter: blur(16px) saturate(150%);
-    -webkit-backdrop-filter: blur(16px) saturate(150%);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
-    transition:
-      background 0.28s ease,
-      border-color 0.28s ease,
-      box-shadow 0.28s ease;
-  }
-
-  .jdb-header.is-scrolled {
-    background: rgba(10, 21, 38, 0.9);
-    border-bottom-color: rgba(255, 255, 255, 0.12);
-    box-shadow: 0 12px 32px rgba(2, 6, 16, 0.22);
-  }
-
-  .jdb-header__inner {
-    min-height: var(--jdb-header-h);
-    display: flex;
-    align-items: center;
-    flex-wrap: nowrap;
-    gap: var(--jdb-s-5);
-    transition: min-height 0.28s ease;
-  }
-
-  .jdb-header.is-scrolled .jdb-header__inner {
-    min-height: calc(var(--jdb-header-h) - 8px);
-  }
-
-</style>
 
 <header class="jdb-header" data-jdb-header>
   <div class="jdb-container jdb-header__inner">
     <Logotype />
 
-    <nav class="jdb-tabs" aria-label="Main navigation">
-      <ul class="jdb-tabs__list">
+    <nav class="jdb-nav" aria-label="Main navigation">
+      <ul class="jdb-nav__list">
         {navPages.map((item) => (
-          <li class:list={[{ 'jdb-tabs__item--cta': item.cta }]}>
+          <li>
             <a
               href={item.href}
-              class:list={['jdb-tabs__link', { 'jdb-tabs__link--cta': item.cta }]}
+              class="jdb-nav__link"
               aria-current={isActive(item.href) ? 'page' : undefined}
-              target={item.external ? '_blank' : undefined}
-              rel={item.external ? 'noopener noreferrer' : undefined}
-              data-jdb-track={item.cta ? 'nav-contact' : undefined}
+              {...external(item)}
             >
               {item.label}
               {item.external && (
                 <>
-                  <span class="jdb-icon jdb-icon--external jdb-tabs__ext" aria-hidden="true"></span>
+                  <span class="jdb-icon jdb-icon--external jdb-link-ext" aria-hidden="true"></span>
                   <span class="jdb-sr-only">(opens in a new tab)</span>
                 </>
               )}
@@ -86,85 +61,391 @@ function isActive(href) {
 
     <div class="jdb-header__actions">
       <slot />
-      <button class="jdb-menu-btn" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="jdb-drawer-panel" data-jdb-menu-btn>
-        <span class="jdb-icon jdb-icon--menu" aria-hidden="true"></span>
+      <a
+        href={contact.href}
+        class="jdb-btn jdb-btn--primary jdb-btn--arrow jdb-header__contact"
+        aria-current={isActive(contact.href) ? 'page' : undefined}
+        data-jdb-track="nav-contact"
+      >{contact.label}</a>
+      <button
+        class="jdb-menu-btn"
+        type="button"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="jdb-menu"
+        data-jdb-menu-btn
+      >
+        <span class="jdb-menu-btn__bars" aria-hidden="true"><span></span><span></span></span>
       </button>
     </div>
   </div>
 </header>
 
-<div class="jdb-drawer" data-jdb-drawer>
-  <div class="jdb-drawer__scrim" data-jdb-close></div>
-  <aside class="jdb-drawer__panel" id="jdb-drawer-panel" aria-label="Mobile navigation panel">
-    <div class="jdb-drawer__head">
-      <Logotype />
-      <button class="jdb-drawer__close" type="button" aria-label="Close navigation" data-jdb-close>
-        <span class="jdb-icon jdb-icon--close" aria-hidden="true"></span>
-      </button>
+<div class="jdb-menu" id="jdb-menu" data-jdb-menu>
+  <div class="jdb-container jdb-menu__inner">
+    <nav aria-label="Main navigation">
+      <ul class="jdb-menu__list">
+        {navPages.map((item) => (
+          <li>
+            <a
+              href={item.href}
+              class="jdb-menu__link"
+              aria-current={isActive(item.href) ? 'page' : undefined}
+              {...external(item)}
+            >
+              <span>{item.label}</span>
+              {item.external && (
+                <>
+                  <span class="jdb-icon jdb-icon--external jdb-link-ext" aria-hidden="true"></span>
+                  <span class="jdb-sr-only">(opens in a new tab)</span>
+                </>
+              )}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+    <div class="jdb-menu__foot">
+      <a href={contact.href} class="jdb-btn jdb-btn--primary jdb-btn--lg jdb-btn--block jdb-btn--arrow" data-jdb-track="nav-contact">{contact.label}</a>
+      <p class="jdb-menu__note">Or email <a href="mailto:josh@jdegbau.com">josh@jdegbau.com</a></p>
     </div>
-    <ul class="jdb-drawer__list">
-      {navPages.map((item) => (
-        <li>
-          <a
-            href={item.href}
-            class="jdb-drawer__link"
-            aria-current={isActive(item.href) ? 'page' : undefined}
-            target={item.external ? '_blank' : undefined}
-            rel={item.external ? 'noopener noreferrer' : undefined}
-          >
-            {item.label}
-            {item.external && (
-              <>
-                <span class="jdb-icon jdb-icon--external jdb-tabs__ext" aria-hidden="true"></span>
-                <span class="jdb-sr-only">(opens in a new tab)</span>
-              </>
-            )}
-          </a>
-        </li>
-      ))}
-    </ul>
-    <div class="jdb-drawer__foot">
-      <slot />
-    </div>
-  </aside>
+  </div>
 </div>
 
-<script>
-  const drawer = document.querySelector('[data-jdb-drawer]');
-  const menuButton = document.querySelector('[data-jdb-menu-btn]');
-  const closeButtons = document.querySelectorAll('[data-jdb-close]');
-  const header = document.querySelector('[data-jdb-header]');
-
-  if (drawer && menuButton) {
-    const closeButton = drawer.querySelector('button[data-jdb-close]');
-
-    const setDrawer = (open) => {
-      drawer.classList.toggle('is-open', open);
-      document.body.classList.toggle('jdb-noscroll', open);
-      menuButton.setAttribute('aria-expanded', String(open));
-      // Move focus into the panel on open and back to the trigger on close,
-      // so keyboard users never lose their place.
-      if (open) closeButton?.focus();
-      else menuButton.focus();
-    };
-
-    menuButton.addEventListener('click', () => setDrawer(true));
-    closeButtons.forEach((button) => button.addEventListener('click', () => setDrawer(false)));
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && drawer.classList.contains('is-open')) setDrawer(false);
-    });
+<style>
+  .jdb-header {
+    view-transition-name: site-header;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 80;
+    background: var(--jdb-surface-page);
+    border-bottom: 1px solid transparent;
+    transition:
+      background var(--jdb-dur) ease,
+      border-color var(--jdb-dur) ease,
+      box-shadow var(--jdb-dur) ease;
   }
 
+  /* Scrolled: a glass surface and hairline, so the header separates from
+     the content passing under it. */
+  .jdb-header.is-scrolled {
+    background: rgba(10, 21, 38, 0.82);
+    backdrop-filter: blur(16px) saturate(150%);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    border-bottom-color: var(--jdb-line);
+    box-shadow: 0 10px 30px rgba(2, 6, 16, 0.25);
+  }
+
+  /* With the menu open the header and menu read as one surface. */
+  .jdb-header.is-menu-open {
+    background: var(--jdb-surface-page);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-bottom-color: var(--jdb-line);
+    box-shadow: none;
+  }
+
+  .jdb-header__inner {
+    min-height: var(--jdb-header-h);
+    display: flex;
+    align-items: center;
+    gap: var(--jdb-s-4);
+  }
+
+  /* ---- Desktop links ---------------------------------------------------- */
+  .jdb-nav {
+    display: none;
+    margin-left: auto;
+  }
+
+  .jdb-nav__list {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .jdb-nav__link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: .4ch;
+    min-height: var(--jdb-target);
+    padding: 0 .8rem;
+    font-size: var(--jdb-fs-sm);
+    font-weight: var(--jdb-fw-medium);
+    color: var(--jdb-fg-dim);
+    text-decoration: none;
+    white-space: nowrap;
+    border-radius: var(--jdb-r-md);
+    transition: color var(--jdb-t-fast), background var(--jdb-t-fast);
+  }
+
+  .jdb-nav__link:hover {
+    color: var(--jdb-fg);
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  /* The current page: the logotype's orange cursor, laid flat under the label. */
+  .jdb-nav__link[aria-current='page'] {
+    color: var(--jdb-fg);
+  }
+
+  .jdb-nav__link[aria-current='page']::after {
+    content: '';
+    position: absolute;
+    left: .8rem;
+    right: .8rem;
+    bottom: .45rem;
+    height: 2px;
+    border-radius: 1px;
+    background: var(--jdb-orange-500);
+  }
+
+  .jdb-link-ext {
+    width: .7em;
+    height: .7em;
+    opacity: .6;
+  }
+
+  /* ---- Actions: search, Contact, menu button ---------------------------- */
+  .jdb-header__actions {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--jdb-s-2);
+    margin-left: auto;
+  }
+
+  .jdb-header__contact {
+    display: none;
+    min-height: var(--jdb-target);
+    padding: 0 1.1rem;
+    font-size: var(--jdb-fs-sm);
+  }
+
+  .jdb-menu-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--jdb-target);
+    height: var(--jdb-target);
+    margin-right: calc(var(--jdb-s-2) * -1);
+    padding: 0;
+    color: var(--jdb-fg);
+    background: transparent;
+    border: 0;
+    border-radius: var(--jdb-r-md);
+    cursor: pointer;
+  }
+
+  .jdb-menu-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  /* Two bars that cross into an X when the menu is open. */
+  .jdb-menu-btn__bars {
+    position: relative;
+    width: 20px;
+    height: 10px;
+  }
+
+  .jdb-menu-btn__bars span {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    border-radius: 1px;
+    background: currentColor;
+    transition: transform var(--jdb-dur) var(--jdb-ease), top var(--jdb-dur) var(--jdb-ease);
+  }
+
+  .jdb-menu-btn__bars span:first-child { top: 0; }
+  .jdb-menu-btn__bars span:last-child { top: 8px; }
+
+  .jdb-menu-btn[aria-expanded='true'] .jdb-menu-btn__bars span:first-child {
+    top: 4px;
+    transform: rotate(45deg);
+  }
+
+  .jdb-menu-btn[aria-expanded='true'] .jdb-menu-btn__bars span:last-child {
+    top: 4px;
+    transform: rotate(-45deg);
+  }
+
+  @media (min-width: 64rem) {
+    .jdb-nav { display: block; }
+    .jdb-header__contact { display: inline-flex; }
+    .jdb-menu-btn { display: none; }
+
+    /* A hairline between the page links and the actions. */
+    .jdb-header__actions {
+      margin-left: var(--jdb-s-2);
+      padding-left: var(--jdb-s-4);
+    }
+
+    .jdb-header__actions::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 1px;
+      height: 1.25rem;
+      margin-top: -.625rem;
+      background: var(--jdb-line-strong);
+    }
+  }
+
+  /* ---- Mobile menu -------------------------------------------------------- */
+  .jdb-menu {
+    position: fixed;
+    inset: var(--jdb-header-h) 0 0 0;
+    z-index: 79;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--jdb-surface-page);
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(-.5rem);
+    transition:
+      opacity var(--jdb-dur) ease,
+      transform var(--jdb-dur-slow) var(--jdb-ease),
+      visibility 0s linear var(--jdb-dur-slow);
+  }
+
+  /* The hero's graph paper, fading out down the menu. */
+  .jdb-menu::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(to right, var(--jdb-grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--jdb-grid-line) 1px, transparent 1px);
+    background-size: var(--jdb-grid-size) var(--jdb-grid-size);
+    -webkit-mask-image: linear-gradient(to bottom, #000, transparent 70%);
+            mask-image: linear-gradient(to bottom, #000, transparent 70%);
+  }
+
+  .jdb-menu.is-open {
+    visibility: visible;
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity var(--jdb-dur) ease,
+      transform var(--jdb-dur-slow) var(--jdb-ease),
+      visibility 0s;
+  }
+
+  .jdb-menu__inner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    padding-block: var(--jdb-s-6) var(--jdb-s-7);
+  }
+
+  .jdb-menu__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .jdb-menu__link {
+    display: flex;
+    align-items: center;
+    gap: var(--jdb-s-3);
+    padding: var(--jdb-s-4) 0;
+    font-size: var(--jdb-fs-2xl);
+    font-weight: var(--jdb-fw-bold);
+    letter-spacing: var(--jdb-track-heading);
+    line-height: 1.1;
+    color: var(--jdb-fg);
+    text-decoration: none;
+    border-bottom: 1px solid var(--jdb-line);
+  }
+
+  .jdb-menu__link:hover {
+    color: var(--jdb-orange-400);
+  }
+
+  /* Current page: the logotype's block cursor after the label. */
+  .jdb-menu__link[aria-current='page'] span:first-child::after {
+    content: '';
+    display: inline-block;
+    width: .32em;
+    height: .8em;
+    margin-left: .15em;
+    vertical-align: -.05em;
+    border-radius: 1px;
+    background: var(--jdb-orange-500);
+  }
+
+  .jdb-menu__link .jdb-link-ext {
+    width: .45em;
+    height: .45em;
+  }
+
+  .jdb-menu__foot {
+    margin-top: auto;
+    padding-top: var(--jdb-s-8);
+  }
+
+  .jdb-menu__note {
+    margin: var(--jdb-s-4) 0 0;
+    text-align: center;
+    font-size: var(--jdb-fs-sm);
+    color: var(--jdb-fg-muted);
+  }
+
+  @media (min-width: 64rem) {
+    .jdb-menu { display: none; }
+  }
+
+  @media print {
+    .jdb-menu, .jdb-menu-btn, .jdb-header__contact { display: none !important; }
+  }
+</style>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-jdb-header]');
+  const menu = document.querySelector<HTMLElement>('[data-jdb-menu]');
+  const menuButton = document.querySelector<HTMLButtonElement>('[data-jdb-menu-btn]');
+
+  // Glass and hairline once the page has scrolled.
   if (header) {
-    const updateHeaderState = () => {
-      const currentScrollY = window.scrollY;
-      header.classList.toggle('is-scrolled', currentScrollY > 12);
+    const update = () => header.classList.toggle('is-scrolled', window.scrollY > 8);
+    window.addEventListener('scroll', () => requestAnimationFrame(update), { passive: true });
+    update();
+  }
+
+  if (header && menu && menuButton) {
+    // While the menu is open, the page behind it is inert, so keyboard and
+    // screen-reader focus stays in the header and menu.
+    const behind = () => [document.querySelector('main'), document.querySelector('footer')].filter(Boolean) as HTMLElement[];
+
+    const setMenu = (open: boolean, { returnFocus = true } = {}) => {
+      menu.classList.toggle('is-open', open);
+      header.classList.toggle('is-menu-open', open);
+      document.body.classList.toggle('jdb-noscroll', open);
+      menuButton.setAttribute('aria-expanded', String(open));
+      menuButton.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+      behind().forEach((el) => (el.inert = open));
+      if (open) menu.querySelector<HTMLElement>('a')?.focus();
+      else if (returnFocus) menuButton.focus();
     };
 
-    window.addEventListener('scroll', () => {
-      window.requestAnimationFrame(updateHeaderState);
-    }, { passive: true });
-
-    updateHeaderState();
+    menuButton.addEventListener('click', () => setMenu(!menu.classList.contains('is-open')));
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && menu.classList.contains('is-open')) setMenu(false);
+    });
+    // Close if the window grows to the desktop layout.
+    window.matchMedia('(min-width: 64rem)').addEventListener('change', (event) => {
+      if (event.matches && menu.classList.contains('is-open')) setMenu(false, { returnFocus: false });
+    });
   }
 </script>

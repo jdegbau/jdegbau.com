@@ -268,13 +268,16 @@ Notes:
 - Pass `alt=""` when the name is printed right beside the photo.
 
 ### Navigation
-Purpose: Site-wide top navigation and mobile drawer.
+Purpose: Site-wide header and mobile menu.
 Location: `src/components/Navigation.astro`
 Notes:
-- Shared across pages.
-- Contact stays last and is marked `cta: true`, which renders it as an outlined button. Keep the list to five items or fewer.
-- External items (`external: true`) open in a new tab and show an external-link icon plus screen-reader text.
-- The drawer sets `aria-expanded` on the menu button, closes with Escape, and moves focus into the panel and back to the button.
+- Shared across pages; `BaseLayout` renders it with `<Search />` in its default slot (Search appears once).
+- Desktop (64rem and up): the logotype on the left; the page links, a hairline, search, and the Contact button grouped on the right. The current page gets the brand's orange cursor bar under its label.
+- Contact is the site's main next step, so it's the standard primary button (orange, navy text, arrow), not a special nav style. Keep it last and keep the link list to four items plus Contact. The order is About, Blog, SEO Helpline, GTM Templates, Contact.
+- External links open in a new tab and show an external-link icon plus screen-reader text.
+- The header sits flat on the page at the top and gains a glass surface, hairline, and shadow once the page scrolls. Its height never changes, so anything pinned under it (the post share bar, the table of contents) can use `--jdb-header-h`.
+- Mobile: a search icon and a menu button (two bars that cross into an X). The menu is full screen under the header: large links on graph paper, the current page marked with the logotype's block cursor, and Contact as a full-width button at the bottom with the email address under it.
+- While the menu is open the page behind it is `inert` and doesn't scroll; Escape closes it and returns focus to the menu button, and it closes itself if the window grows to the desktop layout.
 
 ### PostMeta
 Purpose: Slim share and progress bar for long posts.
@@ -305,6 +308,7 @@ Location: `src/components/Search.astro`
 Notes:
 - Shared across pages.
 - Opens with `/` or Ctrl/⌘+K, closes with Escape or a click outside. The `/` hint is hidden on touch devices.
+- The trigger looks like a search field on desktop ("Search guides" with the `/` key) and is an icon button on phones. Results open in a popover under it, like an editor's command palette.
 - The index (`/search.json`: title, excerpt, tags) is prefetched when someone hovers, focuses, or touches the trigger.
 - Matching ignores case, accents, and punctuation; every word must appear in the title, excerpt, or tags, and title matches rank first. Matches are highlighted, a result count is shown, and the three newest posts are suggested before anything is typed.
 - Arrow keys move between results; Enter in the field opens the top result.
