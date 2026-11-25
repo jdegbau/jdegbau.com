@@ -3,7 +3,7 @@ const { items = [] } = Astro.props;
 const visibleItems = items.filter((item) => item.level === 2);
 ---
 
-<aside class="jdb-toc" aria-label="Table of contents">
+<nav class="jdb-toc" aria-label="Table of contents">
   <div class="jdb-toc__title">
     <button class="jdb-toc__toggle" type="button" aria-expanded="true" aria-controls="jdb-toc-list">
       <span>On this page</span>
@@ -19,7 +19,7 @@ const visibleItems = items.filter((item) => item.level === 2);
       </li>
     ))}
   </ul>
-</aside>
+</nav>
 
 <style>
   /* Wide screens: a quiet rail beside the article, no box. The section being

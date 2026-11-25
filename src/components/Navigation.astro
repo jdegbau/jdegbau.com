@@ -17,6 +17,7 @@ function isActive(href) {
 ---
 <style>
   .jdb-header {
+    view-transition-name: site-header;
     position: fixed;
     top: 0;
     left: 0;
@@ -68,6 +69,7 @@ function isActive(href) {
               aria-current={isActive(item.href) ? 'page' : undefined}
               target={item.external ? '_blank' : undefined}
               rel={item.external ? 'noopener noreferrer' : undefined}
+              data-jdb-track={item.cta ? 'nav-contact' : undefined}
             >
               {item.label}
               {item.external && (

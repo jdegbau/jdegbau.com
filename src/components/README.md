@@ -413,6 +413,17 @@ Notes:
 - To upgrade a library, edit the pinned URL and hash in `src/lib/chart-loader.ts` (instructions are in the file).
 - `table` adds a "View the data" panel for screen readers, and as a fallback if the chart can't load.
 
+## Measuring the redesign (Tag Manager hooks)
+The main conversion points carry a `data-jdb-track` attribute naming the action, so one Tag Manager trigger can measure all of them before and after design changes:
+- `hero-primary`, `hero-secondary`, `about-primary` (page hero buttons)
+- `cta-primary`, `cta-secondary` (every `CallToAction`)
+- `nav-contact` (the Contact button in the header)
+- `helpline-choose-time`, `helpline-ask-first`, `booking-direct` (SEO Helpline page)
+- `newsletter` (the footer signup form)
+- `share-x`, `share-linkedin`, `share-email`, `share-copy` (post share bar)
+
+In Tag Manager: add a Custom JavaScript variable that returns `{{Click Element}}.closest('[data-jdb-track]')?.dataset.jdbTrack`, a Click (All Elements) trigger where that variable is not undefined, and a GA4 event tag (e.g. `cta_click` with parameter `cta` = the variable). Use a Form Submission trigger on `[data-jdb-track="newsletter"]` for signups. Give new conversion points a `data-jdb-track` name in the same style.
+
 ## Post body styles
 Post bodies get `jdb-prose jdb-prose--article` (in `src/pages/blog/[slug].astro`): 18px text at a 68ch measure, a larger first paragraph, a hairline and extra space above each H2 written in the post, and styled markdown tables, figures, and lists (`main.css` section 37).
 
@@ -427,6 +438,7 @@ The visual rules live in the tokens at the top of `public/assets/css/main.css`; 
 - **Orange is a signal.** The brand orange marks the main action and the current location (the active nav item, the cursor in the logotype and home headline). Don't use it for decoration.
 - **Labels are plain.** Eyebrows are short, sentence-case, and only used where the heading alone would be ambiguous. No `//`, `#`, or `$` prefixes, no all caps.
 - **Fewer boxes.** Use a hairline rule and spacing to group content; reserve filled cards for things that are clickable or need their own region.
+- **Motion is quiet and purposeful.** One easing curve (`--jdb-ease`) and three durations. The only motion: the logotype and home-hero cursor blink, charts drawing their line in once (`TrendChart`), a short crossfade between pages (cross-document view transitions), the post share bar sliding in, and hover/press feedback on things you can click. All of it is off under `prefers-reduced-motion`.
 
 ## Interaction guidelines (UX principles)
 These rules come from established UX research (the "Laws of UX" collection at lawsofux.com). They shape the components; **don't name them in site copy**, just follow them.
