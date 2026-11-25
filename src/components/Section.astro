@@ -1,0 +1,101 @@
+---
+/**
+ * A page section with an optional header (eyebrow, title, lede) and content.
+ * Use it instead of hand-building <section class="jdb-section"> + head
+ * markup, so every section on the site shares spacing and header styles.
+ *
+ * Layouts:
+ *   stacked  header above content (default)
+ *   split    header in a left column that stays in view while the content
+ *            scrolls past on wide screens; stacks on narrow ones. Use it to
+ *            break up a run of stacked sections.
+ *   center   centered header above content
+ */
+interface Props {
+  title?: string;
+  eyebrow?: string;
+  /** One or two sentences under the title. */
+  lede?: string;
+  layout?: 'stacked' | 'split' | 'center';
+  /** `band` is the raised navy for alternating sections. */
+  tone?: 'page' | 'band';
+  width?: 'default' | 'narrow';
+  /** Less vertical padding. */
+  tight?: boolean;
+  headingLevel?: 'h2' | 'h3';
+  id?: string;
+  class?: string;
+}
+
+const {
+  title,
+  eyebrow,
+  lede,
+  layout = 'stacked',
+  tone = 'page',
+  width = 'default',
+  tight = false,
+  headingLevel = 'h2',
+  id,
+  class: className,
+} = Astro.props;
+
+const Heading = headingLevel;
+const titleId = title ? `${id ?? title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}-title` : undefined;
+const hasHead = Boolean(title || eyebrow || lede || Astro.slots.has('actions'));
+---
+
+<section
+  id={id}
+  class:list={['jdb-section', 'jdb-sec', `jdb-sec--${layout}`, { 'jdb-section--raised': tone === 'band', 'jdb-section--tight': tight }, className]}
+  aria-labelledby={titleId}
+>
+  <div class:list={['jdb-container', { 'jdb-container--narrow': width === 'narrow' }]}>
+    <div class="jdb-sec__grid">
+      {hasHead && (
+        <header class:list={['jdb-section__head', 'jdb-sec__head', { 'jdb-section__head--center': layout === 'center' }]}>
+          {eyebrow && <p class="jdb-eyebrow">{eyebrow}</p>}
+          {title && <Heading class="jdb-section__title" id={titleId}>{title}</Heading>}
+          {lede && <p class="jdb-section__sub">{lede}</p>}
+          {Astro.slots.has('actions') && <div class="jdb-sec__actions"><slot name="actions" /></div>}
+        </header>
+      )}
+      <div class="jdb-sec__body">
+        <slot />
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* The section is the query container, so split decides by the space it
+     actually has, inside any wrapper. */
+  .jdb-sec {
+    container: jdb-sec / inline-size;
+  }
+
+  .jdb-sec__actions {
+    margin-top: var(--jdb-s-5);
+  }
+
+  .jdb-sec--split .jdb-sec__head {
+    margin-bottom: var(--jdb-s-7);
+  }
+
+  /* Split: header column on the left, content on the right, once there's
+     room for both. The header sticks while long content scrolls past. */
+  @container jdb-sec (min-width: 56rem) {
+    .jdb-sec--split .jdb-sec__grid {
+      display: grid;
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: var(--jdb-s-9);
+      align-items: start;
+    }
+
+    .jdb-sec--split .jdb-sec__head {
+      position: sticky;
+      top: calc(var(--jdb-header-h) + var(--jdb-s-6));
+      margin-bottom: 0;
+    }
+  }
+</style>

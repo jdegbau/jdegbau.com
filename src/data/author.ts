@@ -1,7 +1,15 @@
 export const author = {
-  profilePhoto: '/assets/img/joshua-degrasse-baumann.JPG',
-  profilePhotoWidth: 200,
-  profilePhotoHeight: 250,
+  profilePhoto: '/assets/img/josh/josh-portrait-724.jpg',
+  profilePhotoWidth: 724,
+  profilePhotoHeight: 1086,
+  /**
+   * Josh's photo in sizes for <Portrait>. Each crop has AVIF, WebP, and JPEG
+   * files at every listed width: `${base}-${width}.${ext}`.
+   */
+  photo: {
+    portrait: { base: '/assets/img/josh/josh-portrait', widths: [480, 724], width: 724, height: 1086 },
+    avatar: { base: '/assets/img/josh/josh-avatar', widths: [160, 320], width: 320, height: 320 },
+  },
   name: 'Joshua DeGrasse-Baumann',
   bio: 'Josh is a Content Marketing Strategist at Ellsworth Adhesives and a former Lead SEO Strategist at Fire&Spark. He writes practical guides on content strategy, data visualization, measurement, and SEO.',
   aiProfile: {

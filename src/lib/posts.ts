@@ -1,4 +1,5 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
+import { TOPICS, coverKind } from './cover-art.mjs';
 
 export type BlogEntry = CollectionEntry<'blog'>;
 
@@ -14,8 +15,14 @@ export interface Post {
   date: string;
   /** Last meaningful update, YYYY-MM-DD. Equals `date` when the post was never updated. */
   updated: string;
-  /** On-page hero image. */
-  featuredImage: string;
+  /** Optional photo or screenshot shown inside the article. Cards use the generated cover. */
+  featuredImage?: string;
+  /** Main topic key (content, dataviz, measurement, seo, dev). */
+  topic: keyof typeof TOPICS;
+  /** Reader-facing topic name, e.g. "Data visualization". */
+  topicLabel: string;
+  /** Chart type drawn on the generated cover. */
+  cover: string;
   /** Generated 1200×630 social share card (see src/lib/og-cards.mjs). */
   ogImage: string;
   url: string;
@@ -27,8 +34,6 @@ export interface Post {
   faq: { question: string; answer: string }[];
   entry: BlogEntry;
 }
-
-const DEFAULT_HERO = '/assets/img/default-blog-hero.gif';
 
 function trimSlashes(value: string) {
   return value.trim().replace(/^\/+/, '').replace(/\/+$/, '');
@@ -54,7 +59,10 @@ function toPost(entry: BlogEntry): Post {
     excerpt: data.excerpt,
     date,
     updated: data.updated && data.updated > date ? data.updated : date,
-    featuredImage: data.featured_image ?? DEFAULT_HERO,
+    featuredImage: data.featured_image,
+    topic: data.topic,
+    topicLabel: TOPICS[data.topic].label,
+    cover: coverKind(data.topic, data.cover),
     ogImage: `/assets/img/og/${slug}.png`,
     url: `/blog/${slug}/`,
     tags: data.tags,

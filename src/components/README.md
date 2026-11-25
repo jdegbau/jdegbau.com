@@ -39,9 +39,10 @@ Notes:
 Purpose: Compact blog post teaser card.
 Location: `src/components/BlogCard.astro`
 Notes:
-- Expects a `post` prop.
-- Used in blog listing and landing pages.
-- The whole card is clickable: the title link stretches over the card (`.jdb-post h3 a::after`). The image link is removed from the tab order so keyboard users get one stop per card. Don't add other links inside the card body; they'd sit under the stretched link.
+- Props: `post`, `variant?: default | featured`, `headingLevel?: h2 | h3` (default `h3`).
+- Shows the post's generated `PostCover` with its topic label, the title, a three-line excerpt, the date, and reading time. Cards never show `featured_image`.
+- The whole card is clickable: the title link stretches over the card. Don't add other links inside the card body; they'd sit under the stretched link.
+- `featured` sits side by side (cover left, text right) when the card is at least 44rem wide, and stacks like a normal card otherwise. Use it to lead the blog index.
 
 ### ChartTypeAssessment
 Purpose: Showcase of chart types and usage guidance for the SEO visualization post.
@@ -113,6 +114,15 @@ Notes:
 - Expects optional `rows` and `title` props.
 - Uses the shared `jdb-matrix` and `jdb-fitcheck` library styles.
 
+### Section
+Purpose: A page section with an optional header (eyebrow, title, lede) above or beside its content.
+Location: `src/components/Section.astro`
+Notes:
+- Props: `title?`, `eyebrow?`, `lede?`, `layout?: stacked | split | center`, `tone?: page | band`, `width?: default | narrow`, `tight?`, `headingLevel?: h2 | h3`, `id?`, `class?`. Slots: default (content) and `actions` (a link or button under the header).
+- Use it instead of hand-building `<section class="jdb-section">` plus `jdb-section__head` markup.
+- `split` puts the header in a left column that stays in view while the content scrolls, once the section is at least 56rem wide (container query); it stacks below that. Use it to break up a run of stacked sections.
+- `tone="band"` is the raised navy for alternating sections.
+
 ### Footer
 Purpose: Site-wide footer with navigation and newsletter signup.
 Location: `src/components/Footer.astro`
@@ -153,12 +163,39 @@ Notes:
 - Used by `Navigation` (header and mobile drawer) and `Footer`.
 
 ### Logos
-Purpose: Row of brand or partner logos.
+Purpose: Row of client logos.
 Location: `src/components/Logos.astro`
 Notes:
-- Reusable when displaying brand or partner logos.
-- Props: optional `logos` (array of `{ src, alt, variant? }`; defaults to the site's client logos) and optional `label` (accessible list label).
+- Props: optional `logos` (array of `{ src, alt, width, height, weight? }`; defaults to the site's client logos), `label` (accessible list label), and `caption` (visible line above; pass `''` to hide).
+- Logos are one-color white silhouettes in `public/assets/img/logos/mono/`, made from the full-color files by `node scripts/mono-logos.mjs`. Add a new logo by adding its source file and a step to that script. Don't show full-color client logos; four brand colors in a row compete with the page.
+- Each logo is sized to the same visual area, not the same height, so wide wordmarks and compact marks look equally weighted. `weight` (default 1) gives a logo with thin, small lettering a bit more room.
 - Shows a single row on wide containers. When the container is too narrow to fit every logo on one line (≤ 46rem, via a container query), it becomes an auto-scrolling marquee that pauses on hover/focus. With `prefers-reduced-motion`, it becomes a swipeable horizontal row instead.
+
+### ChartGlyph
+Purpose: Small chart symbols used as the icon set for topics and services.
+Location: `src/components/ChartGlyph.astro`
+Notes:
+- Props: `name` (`trend`, `compare`, `search`, `hierarchy`, `code`, `measure`, `flow`, `part`, `scatter`), `size?` (px, default 24), `label?`, `class?`.
+- Context lines use the current text color; one mark is orange, following the chart rule "orange for the story, gray for context". They match the chart types drawn on `PostCover`.
+- Decorative by default. Pass `label` when the glyph is the only thing conveying its meaning.
+
+### PostCover
+Purpose: Generated cover art for posts: a chart in the brand's chart style.
+Location: `src/components/PostCover.astro`, drawing code in `src/lib/cover-art.mjs`
+Notes:
+- Props: `seed` (usually the post slug), `kind?` (a `ChartGlyph` name), `label?` (topic shown as a small chip), `ratio?: 16/9 | 21/9 | 4/3 | 1/1`, `class?`.
+- A post's topic (`topic` front matter: `content`, `dataviz`, `measurement`, `seo`, `dev`) picks the chart; `cover` front matter overrides it. The data is seeded from the slug, so every cover is unique and stable between builds.
+- `BlogCard`, the article header, and the social share images (`src/lib/og-cards.mjs`) all draw from the same function, so a post looks the same everywhere.
+- Covers are the only images on post cards. Don't put photos, stock art, or AI images on cards.
+
+### Portrait
+Purpose: Josh's photo (or another photo prepared the same way) with the site's photo treatment.
+Location: `src/components/Portrait.astro`
+Notes:
+- Props: `crop?: portrait | avatar`, `photo?` (a `{ base, widths, width, height }` source for a different photo), `alt?`, `shape?: rect | circle`, `treatment?: graded | natural`, `sizes?`, `caption?`, `loading?`, `class?`.
+- Serves AVIF and WebP with a JPEG fallback from `public/assets/img/josh/`. The crops and sizes are listed in `src/data/author.ts` (`photo`).
+- `graded` (default) is slightly cooler and calmer with a navy shade at the bottom, so the photo sits in the dark page. Use it for every photo so they read as one set.
+- Pass `alt=""` when the name is printed right beside the photo.
 
 ### Navigation
 Purpose: Site-wide top navigation and mobile drawer.
@@ -297,7 +334,9 @@ Notes:
 ## Brand and type
 The visual rules live in the tokens at the top of `public/assets/css/main.css`; the components page shows them.
 - **Two faces, two jobs.** Schibsted Grotesk (`--jdb-font-sans`) sets everything people read: headlines, UI, body. JetBrains Mono (`--jdb-font-mono`) is only for what is literally code: the logotype, code samples, `kbd`. Don't set labels, dates, or buttons in mono.
-- **Headlines carry the page.** Large, heavy, tightly tracked (`--jdb-track-display` / `--jdb-track-heading`). The only texture behind them is the hero's graph paper (`--jdb-grid-line`, `--jdb-grid-size`) under a soft orange wash at the top (`--jdb-hero-wash`); both fade out before the next section. Don't add other washes or textures elsewhere.
+- **Headlines carry the page.** Large, heavy, tightly tracked (`--jdb-track-display` / `--jdb-track-heading`). Heading sizes are fluid between a phone size and a desktop size.
+- **Graph paper is the one texture.** It appears behind heroes (`--jdb-grid-line`, `--jdb-grid-size`, under a soft orange wash, `--jdb-hero-wash`), on generated post covers, and behind the closing call to action, which bookends the hero. Don't add other washes or textures.
+- **Images: covers, charts, and one photo treatment.** Post cards use generated `PostCover` art, never photos. Photos of people use `Portrait` with the `graded` treatment. Client logos are one color (`Logos`).
 - **Orange is a signal.** The brand orange marks the main action and the current location (the active nav item, the cursor in the logotype and home headline). Don't use it for decoration.
 - **Labels are plain.** Eyebrows are short, sentence-case, and only used where the heading alone would be ambiguous. No `//`, `#`, or `$` prefixes, no all caps.
 - **Fewer boxes.** Use a hairline rule and spacing to group content; reserve filled cards for things that are clickable or need their own region.

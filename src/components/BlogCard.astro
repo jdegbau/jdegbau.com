@@ -1,29 +1,168 @@
 ---
-import Image from './Image.astro';
-const { post } = Astro.props;
+/**
+ * Post teaser card: generated cover, title, excerpt, date and reading time.
+ * The whole card is one link (the title link stretches over it).
+ */
+import PostCover from './PostCover.astro';
+import type { Post } from '../lib/posts';
+
+interface Props {
+  post: Post;
+  /** `featured`: wide, side-by-side card for leading a list. */
+  variant?: 'default' | 'featured';
+  headingLevel?: 'h2' | 'h3';
+}
+
+const { post, variant = 'default', headingLevel = 'h3' } = Astro.props;
+const Heading = headingLevel;
+const published = new Date(`${post.date}T12:00:00Z`);
 ---
-<article class="jdb-post">
-  <!-- The title link covers the whole card (see .jdb-post in main.css), so this
-       image link is skipped by keyboard and screen readers to avoid a duplicate stop. -->
-  <a href={post.url} class="jdb-post__media" tabindex="-1" aria-hidden="true">
-    <Image
-      src={post.featuredImage ?? '/assets/img/default-blog-hero.gif'}
-      alt={post.title}
-      loading="lazy"
-      decoding="async"
-    />
-  </a>
+<article class="jdb-postcard">
+<div class:list={['jdb-post', `jdb-post--${variant}`]}>
+  <PostCover
+    seed={post.slug}
+    kind={post.cover}
+    label={post.topicLabel}
+    ratio={variant === 'featured' ? '4/3' : '16/9'}
+    class="jdb-post__cover"
+  />
   <div class="jdb-post__body">
-    <div class="jdb-post__tags">
-      {post.tags?.slice(0, 2).map((tag) => (
-        <span class="jdb-tag jdb-tag--muted">{tag}</span>
-      ))}
-    </div>
-    <h3><a href={post.url}>{post.title}</a></h3>
-    <p>{post.excerpt || 'Read more on the blog.'}</p>
+    <Heading class="jdb-post__title"><a href={post.url}>{post.title}</a></Heading>
+    <p class="jdb-post__excerpt">{post.excerpt}</p>
     <div class="jdb-post__meta">
-      <time datetime={new Date(post.date).toISOString().split('T')[0]}> {new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} </time>
-      <span>{post.readingTime ? `${post.readingTime} min read` : 'Read now'}</span>
+      <time datetime={post.date}>{published.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}</time>
+      <span aria-hidden="true">·</span>
+      <span>{post.readingTime} min read</span>
     </div>
   </div>
+</div>
 </article>
+
+<style>
+  /* The outer element is the size container, so a featured card can switch
+     to side-by-side based on the room it actually has. */
+  .jdb-postcard {
+    height: 100%;
+    container: jdb-post / inline-size;
+  }
+
+  .jdb-post {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .jdb-post:hover {
+    border-color: color-mix(in srgb, var(--jdb-orange-500) 70%, transparent);
+    box-shadow: var(--jdb-sh-md);
+    transform: translateY(var(--jdb-lift));
+  }
+
+  .jdb-post:hover :global(.jdb-post__cover svg:not(.jdb-glyph)) {
+    transform: scale(1.035);
+  }
+
+  .jdb-post:has(.jdb-post__title a:focus-visible) {
+    outline: 2px solid var(--jdb-orange-500);
+    outline-offset: 2px;
+  }
+
+  :global(.jdb-post__cover) {
+    flex: 0 0 auto;
+    border-bottom: 1px solid var(--jdb-line);
+  }
+
+  .jdb-post__body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: var(--jdb-s-5) var(--jdb-s-5) var(--jdb-s-5);
+  }
+
+  .jdb-post__title {
+    font-size: var(--jdb-fs-lg);
+    line-height: 1.15;
+    margin: 0 0 var(--jdb-s-3);
+  }
+
+  .jdb-post__title a {
+    color: inherit;
+    text-decoration: none;
+    transition: color var(--jdb-t-fast);
+  }
+
+  /* The title link covers the whole card: one big target, not two small ones. */
+  .jdb-post__title a::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+  }
+
+  .jdb-post:hover .jdb-post__title a {
+    color: var(--jdb-orange-400);
+  }
+
+  .jdb-post__title a:focus-visible {
+    outline: none;
+  }
+
+  .jdb-post__excerpt {
+    flex: 1;
+    margin: 0;
+    font-size: var(--jdb-fs-sm);
+    line-height: 1.55;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .jdb-post__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--jdb-s-2);
+    margin-top: var(--jdb-s-5);
+    padding-top: var(--jdb-s-4);
+    border-top: 1px solid var(--jdb-line);
+    font-size: var(--jdb-fs-xs);
+    color: var(--jdb-fg-muted);
+  }
+
+  /* Featured: cover beside the text once the card is wide enough. */
+  @container jdb-post (min-width: 44rem) {
+    .jdb-post--featured {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    }
+
+    .jdb-post--featured :global(.jdb-post__cover) {
+      height: 100%;
+      aspect-ratio: auto !important;
+      min-height: 20rem;
+      border-bottom: 0;
+      border-right: 1px solid var(--jdb-line);
+    }
+
+    .jdb-post--featured .jdb-post__body {
+      justify-content: center;
+      padding: var(--jdb-s-8) var(--jdb-s-7);
+    }
+
+    .jdb-post--featured .jdb-post__title {
+      font-size: var(--jdb-fs-2xl);
+      letter-spacing: -0.025em;
+      line-height: 1.05;
+      margin-bottom: var(--jdb-s-4);
+    }
+
+    .jdb-post--featured .jdb-post__excerpt {
+      flex: 0 0 auto;
+      font-size: var(--jdb-fs-base);
+      -webkit-line-clamp: 4;
+    }
+  }
+</style>

@@ -1,12 +1,20 @@
 ---
 import { author } from '../data/author';
+import Portrait from './Portrait.astro';
 ---
 <div class="jdb-authorcard">
   {/* The name sits right beside the photo, so the image is decorative. */}
-  <img src={author.profilePhoto} alt="" loading="lazy" decoding="async" />
+  <Portrait crop="avatar" shape="circle" alt="" sizes="3.5rem" class="jdb-authorcard__photo" />
   <div class="jdb-authorcard__body">
     <div class="jdb-authorcard__name">{author.name}</div>
     <p>{author.bio}</p>
   </div>
   <a class="jdb-btn jdb-btn--outline jdb-btn--sm" href={author.cta.href}>{author.cta.text}</a>
 </div>
+
+<style>
+  :global(.jdb-authorcard__photo) {
+    width: 3.5rem;
+    flex: 0 0 auto;
+  }
+</style>

@@ -27,6 +27,10 @@ import VideoEmbed from '../components/VideoEmbed.astro';
 import PostSeriesNav from '../components/PostSeriesNav.astro';
 import RelatedPosts from '../components/RelatedPosts.astro';
 import ChartPlayground from '../components/ChartPlayground.astro';
+import Section from '../components/Section.astro';
+import ChartGlyph from '../components/ChartGlyph.astro';
+import PostCover from '../components/PostCover.astro';
+import Portrait from '../components/Portrait.astro';
 import Spec from './_components/Spec.astro';
 import { getAllPosts } from '../lib/posts';
 
@@ -109,11 +113,15 @@ const explorer = [
       { id: 'component-icon', label: 'Icon' },
       { id: 'component-image', label: 'Image' },
       { id: 'component-logos', label: 'Logos' },
+      { id: 'component-chartglyph', label: 'ChartGlyph' },
+      { id: 'component-postcover', label: 'PostCover' },
+      { id: 'component-portrait', label: 'Portrait' },
     ],
   },
   {
     folder: 'page sections',
     files: [
+      { id: 'component-section', label: 'Section' },
       { id: 'component-hero', label: 'Hero' },
       { id: 'component-calltoaction', label: 'CallToAction' },
       { id: 'component-contactform', label: 'ContactForm' },
@@ -344,13 +352,50 @@ const sampleMatrixRows = [
             </div>
           </Spec>
 
-          <Spec name="Logos" id="component-logos" what="Client logos in one row, becoming a marquee when the container is too narrow to fit them." props="logos, label" flush>
+          <Spec name="Logos" id="component-logos" what="One-color client logos sized to equal visual weight, in one row that becomes a marquee when there isn't room." props="logos, label, caption" flush>
             <Logos />
+          </Spec>
+
+          <Spec name="ChartGlyph" id="component-chartglyph" what="Small chart symbols in the site's chart style: context in the text color, one orange mark. The icon set for topics and services." props="name, size, label, class">
+            <div class="glyph-grid">
+              {(['trend', 'compare', 'search', 'hierarchy', 'code', 'measure', 'flow', 'part', 'scatter'] as const).map((name) => (
+                <div class="glyph-grid__item">
+                  <ChartGlyph name={name} size={32} />
+                  <code>{name}</code>
+                </div>
+              ))}
+            </div>
+          </Spec>
+
+          <Spec name="PostCover" id="component-postcover" what="Generated cover art: a chart picked by topic, with data seeded from the post's slug. Cards, article headers, and share images all use it." props="seed, kind, label, ratio, class" file="src/components/PostCover.astro + src/lib/cover-art.mjs">
+            <div class="cover-grid">
+              <PostCover seed="demo-trend" kind="trend" label="Measurement" />
+              <PostCover seed="demo-compare" kind="compare" label="Data visualization" />
+              <PostCover seed="demo-search" kind="search" label="SEO" />
+              <PostCover seed="demo-hierarchy" kind="hierarchy" label="Content strategy" />
+              <PostCover seed="demo-code" kind="code" label="Web development" />
+              <PostCover seed="demo-flow" kind="flow" />
+            </div>
+          </Spec>
+
+          <Spec name="Portrait" id="component-portrait" what="Josh's photo as AVIF, WebP, and JPEG with the site's graded photo treatment, as a rectangle or a circle." props="crop, photo, alt, shape, treatment, sizes, caption, loading, class">
+            <div class="portrait-demo">
+              <Portrait sizes="14rem" caption={'crop="portrait" (graded)'} />
+              <Portrait sizes="14rem" treatment="natural" caption={'treatment="natural"'} />
+              <Portrait crop="avatar" shape="circle" sizes="6rem" alt="" class="portrait-demo__avatar" caption={'crop="avatar" shape="circle"'} />
+            </div>
           </Spec>
         </div>
 
         <div class="folder" id="folder-page-sections">
           <p class="folder__name">page sections</p>
+
+          <Spec name="Section" id="component-section" what="A page section with an optional eyebrow, title, and lede. Split puts the header in a left column that stays in view while the content scrolls." props="title, eyebrow, lede, layout, tone, width, tight, headingLevel, id, class (slots: default, actions)" flush>
+            <Section layout="split" tone="band" eyebrow={'layout="split"'} title="Header on the left, content on the right" lede="Stacks on narrow screens. Use it to break up a run of stacked sections.">
+              <p>Section content goes in the default slot. On wide screens the header column stays in view while this column scrolls past.</p>
+              <p>Other layouts: <code>stacked</code> (the default) and <code>center</code>.</p>
+            </Section>
+          </Spec>
 
           <Spec name="Hero" id="component-hero" what="Page header in three layouts: a compact intro, a full-width hero with an optional background image, and a split hero with an image beside the text." props="variant, backgroundImage, imageSrc, imageAlt, containerWidth, class" flush>
             <div class="variant">
@@ -404,10 +449,12 @@ const sampleMatrixRows = [
             <FAQAccordion items={sampleFaqs} />
           </Spec>
 
-          <Spec name="BlogCard" id="component-blogcard" what="Post teaser where the whole card is one link and one tab stop." props="post">
+          <Spec name="BlogCard" id="component-blogcard" what="Post teaser with its generated cover, where the whole card is one link and one tab stop. The featured variant sits side by side when there's room." props="post, variant, headingLevel">
             <div class="demo-narrow">
               <BlogCard post={samplePost} />
             </div>
+            <p class="demo-label"><code>variant="featured"</code></p>
+            <BlogCard post={samplePost} variant="featured" />
           </Spec>
 
           <Spec name="RelatedPosts" id="component-relatedposts" what="Three posts ranked by shared tags, falling back to the newest. Renders BlogCard." props="current, tags, limit, title">
@@ -770,6 +817,59 @@ const sampleMatrixRows = [
   }
 
   /* ---- Folders ---- */
+  .glyph-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr));
+    gap: var(--jdb-s-3);
+  }
+
+  .glyph-grid__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--jdb-s-2);
+    padding: var(--jdb-s-4) var(--jdb-s-2);
+    color: var(--jdb-fg-dim);
+    border: 1px solid var(--jdb-line);
+    border-radius: var(--jdb-r-md);
+  }
+
+  .glyph-grid__item code {
+    font-size: var(--jdb-fs-xs);
+  }
+
+  .cover-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+    gap: var(--jdb-s-4);
+  }
+
+  .cover-grid > :global(*) {
+    border-radius: var(--jdb-r-md);
+    border: 1px solid var(--jdb-line);
+  }
+
+  .portrait-demo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--jdb-s-5);
+  }
+
+  .portrait-demo > :global(*) {
+    width: 12rem;
+  }
+
+  .portrait-demo > :global(.portrait-demo__avatar) {
+    width: 6rem;
+  }
+
+  .demo-label {
+    margin: var(--jdb-s-6) 0 var(--jdb-s-3);
+    font-size: var(--jdb-fs-xs);
+    color: var(--jdb-fg-muted);
+  }
+
   .folder {
     margin-top: var(--jdb-s-10);
     scroll-margin-top: calc(var(--jdb-header-h) + var(--jdb-s-4));

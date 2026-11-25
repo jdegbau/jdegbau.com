@@ -46,7 +46,9 @@ title: My Post Title                # required
 slug: /my-post-title/               # required; the post lives at /blog/my-post-title/
 excerpt: One or two sentences.      # required; used as the meta description
 seo_title: Title for search results # optional; defaults to title
-featured_image: /assets/img/x.png   # optional; on-page hero image
+topic: seo                          # content | dataviz | measurement | seo | dev (default content)
+cover: trend                        # optional; chart drawn on the generated cover (defaults to the topic's)
+featured_image: /assets/img/x.png   # optional; photo or screenshot shown inside the article
 updated: 2026-11-12                 # optional; set when you meaningfully revise a post
 tags: [SEO, Analytics]              # optional
 ---
@@ -54,7 +56,7 @@ tags: [SEO, Analytics]              # optional
 
 Setting `updated` shows "Updated …" on the post and feeds `dateModified`, `article:modified_time` and the sitemap's `<lastmod>`.
 
-Each post automatically gets a 1200×630 social share card (`/assets/img/og/<slug>.png`), generated at build time by `src/lib/og-cards.mjs`. The generated images are git-ignored.
+Each post gets generated cover art: a small chart picked by its `topic` (or `cover`), with data seeded from the slug so it's unique and stable (`src/lib/cover-art.mjs`). Blog cards show it, and so does the post's 1200×630 social share card (`/assets/img/og/<slug>.png`), generated at build time by `src/lib/og-cards.mjs`. The generated share images are git-ignored.
 
 ## Notes
 

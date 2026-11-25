@@ -2,6 +2,7 @@
 title: Why Is Google Adding SRSLTID To My URLs?
 seo_title: Why Is Google Adding SRSLTID To My URLs?
 slug: /why-is-google-adding-srsltid-to-my-urls/
+topic: seo
 excerpt: Seeing a strange srsltid parameter on your URLs in Google Search? Learn more about what this parameter means and if it's hurting your SEO.
 ---
 Over the last month or so, ecommerce sites have been dealing with an issue tied to a mysterious `srsltid` parameter that is being appended to their URLs in search. But where did this parameter come from and what does it do?
