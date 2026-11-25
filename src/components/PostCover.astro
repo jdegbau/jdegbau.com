@@ -1,0 +1,72 @@
+---
+/**
+ * Generated cover art: a small chart in the brand's chart style, seeded so
+ * the same seed always draws the same picture. Blog cards, the article
+ * header, and the social share image all use it, so a post looks the same
+ * everywhere. See src/lib/cover-art.mjs for the drawing code.
+ */
+import { coverSvg } from '../lib/cover-art.mjs';
+import ChartGlyph from './ChartGlyph.astro';
+
+interface Props {
+  /** Usually the post slug. Same seed, same picture. */
+  seed: string;
+  /** Chart type: trend, compare, search, hierarchy, code, measure, flow, part, scatter. */
+  kind?: string;
+  /** Topic name shown as a small label on the cover, e.g. "SEO". */
+  label?: string;
+  /** Width to height. */
+  ratio?: '16/9' | '21/9' | '4/3' | '1/1';
+  class?: string;
+}
+
+const { seed, kind = 'trend', label, ratio = '16/9', class: className } = Astro.props;
+const [rw, rh] = ratio.split('/').map(Number);
+// Taller boxes get a taller canvas, so the whole chart stays in view.
+const svg = coverSvg({ seed, kind, aspect: rw / rh });
+---
+
+<div class:list={['jdb-cover', className]} style={`aspect-ratio: ${ratio}`}>
+  <Fragment set:html={svg} />
+  {label && (
+    <span class="jdb-cover__label">
+      <ChartGlyph name={kind as any} size={14} />
+      {label}
+    </span>
+  )}
+</div>
+
+<style>
+  .jdb-cover {
+    position: relative;
+    overflow: hidden;
+    background: var(--jdb-surface-band);
+  }
+
+  .jdb-cover :global(svg:not(.jdb-glyph)) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transition: transform var(--jdb-dur-slow) var(--jdb-ease);
+  }
+
+  .jdb-cover__label {
+    position: absolute;
+    top: var(--jdb-s-3);
+    left: var(--jdb-s-3);
+    display: inline-flex;
+    align-items: center;
+    gap: .45em;
+    padding: .3em .65em .3em .5em;
+    font-size: var(--jdb-fs-xs);
+    font-weight: var(--jdb-fw-medium);
+    line-height: 1.2;
+    color: var(--jdb-fg);
+    background: rgba(10, 21, 38, .72);
+    border: 1px solid var(--jdb-line-strong);
+    border-radius: var(--jdb-r-pill);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+</style>

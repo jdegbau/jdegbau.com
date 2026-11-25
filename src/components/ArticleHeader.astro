@@ -1,0 +1,155 @@
+---
+/**
+ * The top of a blog post: breadcrumbs, topic, title, the excerpt as a
+ * subtitle, a byline (photo, name, dates, reading time), and the post's
+ * generated cover. Sits on the hero's graph paper.
+ */
+import { author } from '../data/author';
+import ChartGlyph from './ChartGlyph.astro';
+import Portrait from './Portrait.astro';
+import PostCover from './PostCover.astro';
+import type { Post } from '../lib/posts';
+
+interface Props {
+  post: Post;
+}
+
+const { post } = Astro.props;
+const format = (value: string) =>
+  new Date(`${value}T12:00:00Z`).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+const wasUpdated = post.updated !== post.date;
+---
+
+<header class="jdb-hero jdb-article-header" data-article-header>
+  <div class="jdb-container">
+    <div class="jdb-article-header__layout">
+      <div class="jdb-article-header__text">
+        <nav class="jdb-crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a>
+          <span class="jdb-crumbs__sep" aria-hidden="true">/</span>
+          <a href="/blog/">Blog</a>
+        </nav>
+
+        <p class="jdb-article-header__topic">
+          <ChartGlyph name={post.cover as any} size={18} />
+          {post.topicLabel}
+        </p>
+
+        <h1 class="jdb-article-header__title">{post.title}</h1>
+        <p class="jdb-article-header__dek">{post.excerpt}</p>
+
+        <div class="jdb-byline">
+          <Portrait crop="avatar" shape="circle" alt="" sizes="2.75rem" loading="eager" class="jdb-byline__photo" />
+          <div class="jdb-byline__text">
+            <a class="jdb-byline__name" href="/about/">{author.name}</a>
+            <p class="jdb-byline__meta">
+              <time datetime={post.date}>{format(post.date)}</time>
+              {wasUpdated && (
+                <>
+                  <span aria-hidden="true">·</span>
+                  <span>Updated <time datetime={post.updated}>{format(post.updated)}</time></span>
+                </>
+              )}
+              <span aria-hidden="true">·</span>
+              <span>{post.readingTime} min read</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <PostCover seed={post.slug} kind={post.cover} ratio="4/3" class="jdb-article-header__cover" />
+    </div>
+  </div>
+</header>
+
+<style>
+  .jdb-article-header {
+    border-bottom: 1px solid var(--jdb-line);
+  }
+
+  .jdb-article-header__layout {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: var(--jdb-s-8);
+    align-items: center;
+  }
+
+  @container jdb-hero (min-width: 56rem) {
+    .jdb-article-header__layout {
+      grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+      gap: var(--jdb-s-9);
+    }
+  }
+
+  .jdb-article-header__topic {
+    display: inline-flex;
+    align-items: center;
+    gap: .5em;
+    margin: 0 0 var(--jdb-s-4);
+    padding: .35em .8em .35em .6em;
+    font-size: var(--jdb-fs-sm);
+    font-weight: var(--jdb-fw-medium);
+    color: var(--jdb-fg);
+    background: rgba(255, 255, 255, .04);
+    border: 1px solid var(--jdb-line-strong);
+    border-radius: var(--jdb-r-pill);
+  }
+
+  .jdb-article-header__title {
+    max-width: 22ch;
+    margin-bottom: var(--jdb-s-5);
+  }
+
+  .jdb-article-header__dek {
+    max-width: 56ch;
+    margin: 0 0 var(--jdb-s-7);
+    font-size: var(--jdb-fs-md);
+    line-height: 1.5;
+    color: var(--jdb-fg-dim);
+  }
+
+  .jdb-byline {
+    display: flex;
+    align-items: center;
+    gap: var(--jdb-s-3);
+  }
+
+  :global(.jdb-byline__photo) {
+    width: 2.75rem;
+    flex: 0 0 auto;
+  }
+
+  .jdb-byline__name {
+    font-size: var(--jdb-fs-sm);
+    font-weight: var(--jdb-fw-semibold);
+    color: var(--jdb-fg);
+    text-decoration: none;
+  }
+
+  .jdb-byline__name:hover {
+    color: var(--jdb-orange-400);
+    text-decoration: underline;
+  }
+
+  .jdb-byline__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 .5em;
+    margin: .1rem 0 0;
+    font-size: var(--jdb-fs-xs);
+    color: var(--jdb-fg-muted);
+  }
+
+  :global(.jdb-article-header__cover) {
+    border: 1px solid var(--jdb-line-strong);
+    border-radius: var(--jdb-r-lg);
+    box-shadow: var(--jdb-sh-lg);
+  }
+
+  @container jdb-hero (max-width: 55.99rem) {
+    :global(.jdb-article-header__cover) {
+      aspect-ratio: 16 / 9 !important;
+    }
+  }
+</style>

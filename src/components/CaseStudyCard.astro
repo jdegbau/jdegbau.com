@@ -1,0 +1,167 @@
+---
+/**
+ * A short case study: the problem, what was done, and the result, with one
+ * headline number. Links to the full write-up when `href` is set (the whole
+ * card becomes the link). Real engagements only; leave unknowns bracketed.
+ */
+import ChartGlyph from './ChartGlyph.astro';
+
+interface Props {
+  title: string;
+  /** Client or context label, e.g. "B2B manufacturer". */
+  client?: string;
+  problem: string;
+  approach: string;
+  result: string;
+  /** The headline number. */
+  metric?: { value: string; label: string };
+  /** ChartGlyph name for the kind of work. */
+  glyph?: 'trend' | 'compare' | 'search' | 'hierarchy' | 'code' | 'measure' | 'flow' | 'part' | 'scatter';
+  href?: string;
+  headingLevel?: 'h2' | 'h3';
+  class?: string;
+}
+
+const { title, client, problem, approach, result, metric, glyph, href, headingLevel = 'h3', class: className } = Astro.props;
+const Heading = headingLevel;
+---
+
+<article class:list={['jdb-case', { 'jdb-case--link': href }, className]}>
+  <header class="jdb-case__head">
+    {(client || glyph) && (
+      <p class="jdb-case__client">
+        {glyph && <ChartGlyph name={glyph} size={18} />}
+        {client}
+      </p>
+    )}
+    <Heading class="jdb-case__title">
+      {href ? <a href={href}>{title}</a> : title}
+    </Heading>
+  </header>
+
+  {metric && (
+    <p class="jdb-case__metric">
+      <span class="jdb-case__metric-value">{metric.value}</span>
+      <span class="jdb-case__metric-label">{metric.label}</span>
+    </p>
+  )}
+
+  <dl class="jdb-case__rows">
+    <div>
+      <dt>Problem</dt>
+      <dd>{problem}</dd>
+    </div>
+    <div>
+      <dt>What I did</dt>
+      <dd>{approach}</dd>
+    </div>
+    <div>
+      <dt>Result</dt>
+      <dd>{result}</dd>
+    </div>
+  </dl>
+</article>
+
+<style>
+  .jdb-case {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--jdb-s-5);
+    height: 100%;
+    padding: var(--jdb-s-6);
+    background: var(--jdb-surface-card);
+    border: 1px solid var(--jdb-line);
+    border-radius: var(--jdb-r-lg);
+    transition: border-color var(--jdb-t-fast), transform var(--jdb-t), box-shadow var(--jdb-t);
+  }
+
+  .jdb-case--link:hover {
+    border-color: color-mix(in srgb, var(--jdb-orange-500) 70%, transparent);
+    box-shadow: var(--jdb-sh-md);
+    transform: translateY(var(--jdb-lift));
+  }
+
+  .jdb-case--link:has(.jdb-case__title a:focus-visible) {
+    outline: 2px solid var(--jdb-orange-500);
+    outline-offset: 2px;
+  }
+
+  .jdb-case__client {
+    display: flex;
+    align-items: center;
+    gap: .5em;
+    margin: 0 0 var(--jdb-s-2);
+    font-size: var(--jdb-fs-xs);
+    font-weight: var(--jdb-fw-medium);
+    color: var(--jdb-fg-muted);
+  }
+
+  .jdb-case__title {
+    margin: 0;
+    font-size: var(--jdb-fs-lg);
+    line-height: 1.2;
+  }
+
+  .jdb-case__title a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .jdb-case__title a::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+
+  .jdb-case__title a:focus-visible {
+    outline: none;
+  }
+
+  .jdb-case--link:hover .jdb-case__title a {
+    color: var(--jdb-orange-400);
+  }
+
+  .jdb-case__metric {
+    display: flex;
+    align-items: baseline;
+    gap: var(--jdb-s-3);
+    margin: 0;
+    padding: var(--jdb-s-4) 0;
+    border-block: 1px solid var(--jdb-line);
+  }
+
+  .jdb-case__metric-value {
+    font-size: var(--jdb-fs-2xl);
+    font-weight: var(--jdb-fw-black);
+    letter-spacing: var(--jdb-track-display);
+    line-height: 1;
+    color: var(--jdb-orange-400);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .jdb-case__metric-label {
+    font-size: var(--jdb-fs-sm);
+    color: var(--jdb-fg-dim);
+  }
+
+  .jdb-case__rows {
+    display: grid;
+    gap: var(--jdb-s-4);
+    margin: 0;
+  }
+
+  .jdb-case__rows dt {
+    margin-bottom: var(--jdb-s-1);
+    font-size: var(--jdb-fs-xs);
+    font-weight: var(--jdb-fw-semibold);
+    color: var(--jdb-fg-muted);
+  }
+
+  .jdb-case__rows dd {
+    margin: 0;
+    font-size: var(--jdb-fs-sm);
+    color: var(--jdb-fg-dim);
+  }
+</style>

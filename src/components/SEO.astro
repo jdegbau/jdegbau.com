@@ -72,7 +72,10 @@ const jsonLd = schema ?? (noindex ? null : defaultSchema);
 {noindex ? <meta name="robots" content="noindex" /> : null}
 {pageKeywords ? <meta name="keywords" content={pageKeywords} /> : null}
 <link rel="alternate" type="application/rss+xml" href="/feed.xml" />
-<link rel="icon" href="/assets/img/favicon.gif" type="image/gif" />
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml" />
+<link rel="icon" href="/assets/img/favicon-32.png" type="image/png" sizes="32x32" />
+<link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png" />
+<meta name="theme-color" content="#0a1526" />
 {noindex ? null : <link rel="canonical" href={pageUrl} />}
 <meta property="og:title" content={pageTitle} />
 <meta property="og:description" content={pageDescription} />

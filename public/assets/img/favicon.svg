@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- The logotype's signature: an orange block cursor between braces. -->
+  <rect width="32" height="32" rx="7" fill="#0a1526"/>
+  <g fill="none" stroke="#aab4c8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M11.5 7.5c-2 0-3 .9-3 2.8v3.2c0 1.6-.8 2.5-2.3 2.5 1.5 0 2.3.9 2.3 2.5v3.2c0 1.9 1 2.8 3 2.8"/>
+    <path d="M20.5 7.5c2 0 3 .9 3 2.8v3.2c0 1.6.8 2.5 2.3 2.5-1.5 0-2.3.9-2.3 2.5v3.2c0 1.9-1 2.8-3 2.8"/>
+  </g>
+  <rect x="13.4" y="9.5" width="5.2" height="13" rx=".6" fill="#ff4d00"/>
+</svg>

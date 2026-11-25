@@ -1,0 +1,61 @@
+---
+/**
+ * A margin note for long posts: an aside that sits in the empty space to the
+ * right of the text on wide screens (beside the paragraph it follows) and
+ * inline, as a quiet indented note, everywhere else.
+ *
+ * Use it for asides that would interrupt the sentence: a definition, a
+ * source, a caveat. Keep it to two or three sentences.
+ */
+interface Props {
+  /** Optional short label, e.g. "Source" or "Definition". */
+  label?: string;
+}
+
+const { label } = Astro.props;
+---
+
+<aside class="jdb-sidenote">
+  {label && <p class="jdb-sidenote__label">{label}</p>}
+  <div class="jdb-sidenote__body"><slot /></div>
+</aside>
+
+<style>
+  .jdb-sidenote {
+    margin: var(--jdb-s-5) 0;
+    padding: var(--jdb-s-1) 0 var(--jdb-s-1) var(--jdb-s-4);
+    border-left: 2px solid var(--jdb-navy-600);
+    font-size: var(--jdb-fs-sm);
+    line-height: 1.55;
+  }
+
+  .jdb-sidenote__label {
+    margin: 0 0 var(--jdb-s-1);
+    font-size: var(--jdb-fs-xs);
+    font-weight: var(--jdb-fw-semibold);
+    color: var(--jdb-fg-muted);
+  }
+
+  .jdb-sidenote__body :global(p) {
+    margin: 0;
+    font-size: inherit;
+    line-height: inherit;
+    color: var(--jdb-fg-muted);
+  }
+
+  .jdb-sidenote__body :global(p + p) {
+    margin-top: var(--jdb-s-2);
+  }
+
+  /* Wide screens: float into the margin to the right of the 68ch text
+     column. Only where that margin is wide enough (post layout, 1440px+). */
+  @media (min-width: 90rem) {
+    :global(.jdb-prose--article) .jdb-sidenote {
+      float: right;
+      clear: right;
+      width: 13rem;
+      margin: .35rem -15rem var(--jdb-s-4) 0;
+      padding-left: var(--jdb-s-3);
+    }
+  }
+</style>

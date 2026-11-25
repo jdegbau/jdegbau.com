@@ -39,9 +39,10 @@ Notes:
 Purpose: Compact blog post teaser card.
 Location: `src/components/BlogCard.astro`
 Notes:
-- Expects a `post` prop.
-- Used in blog listing and landing pages.
-- The whole card is clickable: the title link stretches over the card (`.jdb-post h3 a::after`). The image link is removed from the tab order so keyboard users get one stop per card. Don't add other links inside the card body; they'd sit under the stretched link.
+- Props: `post`, `variant?: default | featured`, `headingLevel?: h2 | h3` (default `h3`).
+- Shows the post's generated `PostCover` with its topic label, the title, a three-line excerpt, the date, and reading time. Cards never show `featured_image`.
+- The whole card is clickable: the title link stretches over the card. Don't add other links inside the card body; they'd sit under the stretched link.
+- `featured` sits side by side (cover left, text right) when the card is at least 44rem wide, and stacks like a normal card otherwise. Use it to lead the blog index.
 
 ### ChartTypeAssessment
 Purpose: Showcase of chart types and usage guidance for the SEO visualization post.
@@ -70,7 +71,8 @@ Purpose: Reusable FAQ accordion for post-level or site-wide Q&A sections.
 Location: `src/components/FAQAccordion.astro`
 Notes:
 - Accepts an `items` prop with `question` and `answer` fields.
-- Optional `title` and `eyebrow` props set the heading text (defaults keep the data-viz guide wording).
+- Optional `title`, `eyebrow`, and `lede` props set the heading text (defaults keep the data-viz guide wording). `layout="split"` puts the heading beside the questions on wide screens (built on `Section`).
+- A round +/− toggle marks each question. Answers slide open in browsers that can animate to `height: auto` and open instantly elsewhere.
 - Uses native `<details>/<summary>` for accessible, theme-consistent expansion.
 - On blog posts, prefer the `faq` front matter field: the template renders this component and the FAQPage schema from the same items.
 
@@ -78,8 +80,9 @@ Notes:
 Purpose: End-of-page call to action with a headline, one line of context, and one or two buttons.
 Location: `src/components/CallToAction.astro`
 Notes:
-- Props: `title`, `primary: { href, label }`, optional `secondary`, `text`, `prompt` (short sentence-case line, default "Next step"), `price: { amount, unit }`, `headingLevel` (`h2` default or `h3`).
-- Uses the shared `.jdb-cta` styles in `main.css` (section 31). `prompt` is a short sentence-case line above the headline ("Next step").
+- Props: `title`, `primary: { href, label }`, optional `secondary`, `text`, `prompt` (short sentence-case line, default "Next step"), `price: { amount, unit }`, `note` (closing variant only; default "I usually reply within two business days."), `variant?: default | closing`, `headingLevel` (`h2` default or `h3`).
+- `closing` is the page's last word: centered on graph paper (it bookends the hero), with Josh's photo, name, and `note` above a display-size headline. Use it once per page, as the final section. `default` is a navy panel for the end of a post or inside a section.
+- The primary button carries the arrow (`jdb-btn--arrow`). Both buttons have `data-jdb-track` attributes for Tag Manager.
 - Every page should end with a clear next step; use this instead of hand-building a CTA section.
 
 ### CodeBlock
@@ -105,6 +108,15 @@ Location: `src/components/TableOfContents.astro`
 Notes:
 - Expects an `items` prop containing heading objects with `id`, `text`, and `level`.
 - Automatically highlights the current section as the page scrolls.
+- On wide screens it's a quiet rail with no box, scrolling on its own if it's taller than the window; the section being read gets the orange rail mark. Below 64rem it becomes a collapsible box above the article, collapsed by default.
+
+### Sidenote
+Purpose: A margin note for long posts.
+Location: `src/components/Sidenote.astro`
+Notes:
+- Props: `label?` (e.g. "Source", "Definition"); the note goes in the default slot (markdown works in MDX).
+- In a post (`.jdb-prose--article`) on screens 90rem and wider, it floats into the empty margin right of the text, beside the paragraph it follows. Everywhere else it's an indented aside in the text flow.
+- Use it for asides that would interrupt the sentence. Keep it to two or three sentences; longer asides belong in a `Callout`.
 
 ### QuickCompareMatrix
 Purpose: Reusable qualitative comparison table for chart-selection and decision-support content.
@@ -113,16 +125,29 @@ Notes:
 - Expects optional `rows` and `title` props.
 - Uses the shared `jdb-matrix` and `jdb-fitcheck` library styles.
 
+### Section
+Purpose: A page section with an optional header (eyebrow, title, lede) above or beside its content.
+Location: `src/components/Section.astro`
+Notes:
+- Props: `title?`, `eyebrow?`, `lede?`, `layout?: stacked | split | center`, `tone?: page | band`, `width?: default | narrow`, `tight?`, `headingLevel?: h2 | h3`, `id?`, `class?`. Slots: default (content) and `actions` (a link or button under the header).
+- Use it instead of hand-building `<section class="jdb-section">` plus `jdb-section__head` markup.
+- `split` puts the header in a left column that stays in view while the content scrolls, once the section is at least 56rem wide (container query); it stacks below that. Use it to break up a run of stacked sections.
+- `tone="band"` is the raised navy for alternating sections.
+
 ### Footer
 Purpose: Site-wide footer with navigation and newsletter signup.
 Location: `src/components/Footer.astro`
 Notes:
-- Shared across pages.
+- Shared across pages. The newsletter signup leads (`#newsletter`, the target of every "Subscribe by email" link), with the logotype, blurb, and social links beside it, then the link columns and the status bar.
+- Keep social icons to one row.
 
 ### Hero
-Purpose: Reusable hero section with intro, full-width, and split variants.
+Purpose: Reusable hero section with intro, home, full-width, and split variants.
 Location: `src/components/Hero.astro`
 Notes:
+- Props: `variant?: intro | home | full | split`, `backgroundImage?`, `imageSrc?`, `imageAlt?`, `containerWidth?`, `class?`. Slots: default (text) and `media`.
+- Anything in the `media` slot (a `ChartFrame`, a `Portrait`) sits beside the text on wide screens and below it on narrow ones, on any variant. The home page puts a `TrendChart` there; About puts Josh's portrait.
+- `home` is the display-size headline used once, on the home page, with the blinking cursor (`<span class="jdb-cursor">`).
 - Supports an intro variant for compact page headings, with `containerWidth="narrow"` or `containerWidth="wide"`.
 - Supports a full-width variant with optional `backgroundImage` (works on any variant). The overlay darkens the left side, so pick a darker image or one with a quiet left edge; text on a bright image won't meet contrast.
 - Supports a split hero variant with text on the left and an image on the right via `variant="split"` and `imageSrc`. It stacks (text, then image) until the hero is at least 48rem wide; this is a container query, so it also stacks inside narrow wrappers.
@@ -153,12 +178,94 @@ Notes:
 - Used by `Navigation` (header and mobile drawer) and `Footer`.
 
 ### Logos
-Purpose: Row of brand or partner logos.
+Purpose: Row of client logos.
 Location: `src/components/Logos.astro`
 Notes:
-- Reusable when displaying brand or partner logos.
-- Props: optional `logos` (array of `{ src, alt, variant? }`; defaults to the site's client logos) and optional `label` (accessible list label).
+- Props: optional `logos` (array of `{ src, alt, width, height, weight? }`; defaults to the site's client logos), `label` (accessible list label), and `caption` (visible line above; pass `''` to hide).
+- Logos are one-color white silhouettes in `public/assets/img/logos/mono/`, made from the full-color files by `node scripts/mono-logos.mjs`. Add a new logo by adding its source file and a step to that script. Don't show full-color client logos; four brand colors in a row compete with the page.
+- Each logo is sized to the same visual area, not the same height, so wide wordmarks and compact marks look equally weighted. `weight` (default 1) gives a logo with thin, small lettering a bit more room.
 - Shows a single row on wide containers. When the container is too narrow to fit every logo on one line (≤ 46rem, via a container query), it becomes an auto-scrolling marquee that pauses on hover/focus. With `prefers-reduced-motion`, it becomes a swipeable horizontal row instead.
+
+### TrendChart
+Purpose: A line chart with one annotated event, drawn in SVG with no chart library.
+Location: `src/components/TrendChart.astro`
+Notes:
+- Props: `values` (oldest first), `label` (required text alternative stating the point), `event?: { index, label }`, `valueLabel?` (e.g. "+65%"), `startLabel?`, `endLabel?`, `animate?` (default true), `class?`.
+- Gray before the event, orange after it: the story is the change. Labels are HTML over the SVG, so they stay readable at any width.
+- Draws itself in once when it scrolls into view; under `prefers-reduced-motion` it just appears. Without JavaScript it draws on load.
+- Wrap it in `ChartFrame`. For interactive or non-line charts, use `ChartPlayground`.
+
+### ChartFrame
+Purpose: The standard wrapper for every chart: takeaway title, explanation, chart, source, data table.
+Location: `src/components/ChartFrame.astro`
+Notes:
+- Props: `title` (the takeaway as a sentence), `dek?` (what's plotted: measure, unit, period), `source?`, `table?: { columns, rows }` (adds a "View the data" disclosure), `titleAs?: p | h2 | h3 | h4` (use `h3` in posts), `surface?: card | plain`, `class?`.
+- Write titles as findings ("Clicks rose 65% after the refresh"), not labels ("Clicks by week").
+- Illustrative or sample data must say so in `source`.
+
+### FeatureList
+Purpose: A short list of services, principles, or deliverables.
+Location: `src/components/FeatureList.astro`
+Notes:
+- Props: `items: { title, text, glyph?, href? }[]`, `columns?: 2 | 3 | 4`, `headingLevel?`, `class?`.
+- Items sit on a hairline, not in boxes (they aren't clickable unless given `href`). Each gets its `ChartGlyph`, or a two-digit number when there's no glyph.
+- Services use the same glyph as their blog topic: content `hierarchy`, data visualization `compare`, measurement `trend`, SEO `search`.
+
+### Testimonial + TestimonialGroup
+Purpose: Client quotes.
+Location: `src/components/Testimonial.astro`, `src/components/TestimonialGroup.astro`, data in `src/data/testimonials.ts`
+Notes:
+- `Testimonial` props: `quote`, `name`, `role?`, `photo?` (square; initials are shown without one), `class?`.
+- `TestimonialGroup` props: `items`, `title?`, `eyebrow?`, `tone?`. It renders nothing while `items` is empty, so the home page and SEO Helpline page already include it and it appears as soon as `src/data/testimonials.ts` has entries.
+- Real quotes only, with permission, worded as the person said them. Never invent or paraphrase one.
+
+### StatRow
+Purpose: A row of proof-point numbers.
+Location: `src/components/StatRow.astro`
+Notes:
+- Props: `items: { value, unit?, label, note? }[]`, `class?`. `note` is the source or period.
+- Only confirmed numbers. An unknown value stays visibly unknown (`[N]`) until it's confirmed; don't ship a placeholder to a live page.
+
+### CaseStudyCard
+Purpose: A short case study: problem, what was done, result, and one headline number.
+Location: `src/components/CaseStudyCard.astro`
+Notes:
+- Props: `title`, `client?`, `problem`, `approach`, `result`, `metric?: { value, label }`, `glyph?`, `href?`, `headingLevel?`, `class?`.
+- With `href`, the whole card links to the full write-up (stretched title link) and lifts on hover.
+- Real engagements only. Describe the client generically ("B2B manufacturer") unless you have permission to name them.
+
+### BookingEmbed
+Purpose: The TidyCal booking calendar, with graceful loading.
+Location: `src/components/BookingEmbed.astro`
+Notes:
+- Props: `path` (TidyCal path, e.g. `jdegbau/seo-helpline-consultation`), `linkLabel?`, `demo?` (placeholder only, no TidyCal script).
+- A calendar-shaped placeholder holds the space until the calendar appears. If it hasn't after 8 seconds, the message says so and the direct booking link is emphasized. The direct link is always shown below, and a no-JavaScript fallback links to TidyCal.
+
+### ChartGlyph
+Purpose: Small chart symbols used as the icon set for topics and services.
+Location: `src/components/ChartGlyph.astro`
+Notes:
+- Props: `name` (`trend`, `compare`, `search`, `hierarchy`, `code`, `measure`, `flow`, `part`, `scatter`), `size?` (px, default 24), `label?`, `class?`.
+- Context lines use the current text color; one mark is orange, following the chart rule "orange for the story, gray for context". They match the chart types drawn on `PostCover`.
+- Decorative by default. Pass `label` when the glyph is the only thing conveying its meaning.
+
+### PostCover
+Purpose: Generated cover art for posts: a chart in the brand's chart style.
+Location: `src/components/PostCover.astro`, drawing code in `src/lib/cover-art.mjs`
+Notes:
+- Props: `seed` (usually the post slug), `kind?` (a `ChartGlyph` name), `label?` (topic shown as a small chip), `ratio?: 16/9 | 21/9 | 4/3 | 1/1`, `class?`.
+- A post's topic (`topic` front matter: `content`, `dataviz`, `measurement`, `seo`, `dev`) picks the chart; `cover` front matter overrides it. The data is seeded from the slug, so every cover is unique and stable between builds.
+- `BlogCard`, the article header, and the social share images (`src/lib/og-cards.mjs`) all draw from the same function, so a post looks the same everywhere.
+- Covers are the only images on post cards. Don't put photos, stock art, or AI images on cards.
+
+### Portrait
+Purpose: Josh's photo (or another photo prepared the same way) with the site's photo treatment.
+Location: `src/components/Portrait.astro`
+Notes:
+- Props: `crop?: portrait | avatar`, `photo?` (a `{ base, widths, width, height }` source for a different photo), `alt?`, `shape?: rect | circle`, `treatment?: graded | natural`, `sizes?`, `caption?`, `loading?`, `class?`.
+- Serves AVIF and WebP with a JPEG fallback from `public/assets/img/josh/`. The crops and sizes are listed in `src/data/author.ts` (`photo`).
+- `graded` (default) is slightly cooler and calmer with a navy shade at the bottom, so the photo sits in the dark page. Use it for every photo so they read as one set.
+- Pass `alt=""` when the name is printed right beside the photo.
 
 ### Navigation
 Purpose: Site-wide top navigation and mobile drawer.
@@ -170,11 +277,20 @@ Notes:
 - The drawer sets `aria-expanded` on the menu button, closes with Escape, and moves focus into the panel and back to the button.
 
 ### PostMeta
-Purpose: Metadata display for posts.
+Purpose: Slim share and progress bar for long posts.
 Location: `src/components/PostMeta.astro`
 Notes:
-- Intended for article metadata sections.
-- Props: `date`, `readingTime`, `url`, `title`, and optional `updated` (a formatted date shown as "Updated …" when the post was revised).
+- Props: `title`, `url` (absolute).
+- Hidden until the reader scrolls past the element marked `data-article-header` (`ArticleHeader`), then slides in under the site header with the post title, share links (X, LinkedIn, email, copy link), and the reading-progress bar (`#progress-bar`, driven by `progress-bar.min.js`, growing from the center).
+- Dates and reading time live in `ArticleHeader`, so they aren't repeated here.
+
+### ArticleHeader
+Purpose: The top of a blog post.
+Location: `src/components/ArticleHeader.astro`
+Notes:
+- Props: `post`.
+- Breadcrumbs, topic chip, title, the excerpt as a subtitle, a byline (photo, name linking to About, published and updated dates, reading time), and the post's `PostCover`, on the hero's graph paper. Marked `data-article-header` so `PostMeta` knows when to appear.
+- `featured_image` isn't shown here: every post uses its generated cover so headers match. Put screenshots in the post body, next to the text that discusses them.
 
 ### SEO
 Purpose: Shared SEO metadata component.
@@ -214,6 +330,7 @@ Notes:
 Purpose: Numbered how-to steps on a connecting rail.
 Location: `src/components/Steps.astro`
 Notes:
+- `layout="row"` puts short steps side by side, with the rail running across, once the container is at least 52rem wide. Use it for three to five short steps; long steps read better in the default column.
 - Wrap a normal ordered list (a markdown `1.` list in MDX). A bold phrase at the start of an item reads as the step title.
 - Optional `label` names the group for screen readers.
 - Images inside items get spacing and rounded corners.
@@ -249,7 +366,8 @@ Notes:
 Purpose: Figure with numbered callout markers and a matching numbered legend.
 Location: `src/components/AnnotatedFigure.astro`
 Notes:
-- Props: `src` + `alt` (alt is required when `src` is set), or a default slot for inline SVG; `callouts: { x, y, title, text? }[]`; `caption?`.
+- Props: `src` + `alt` (alt is required when `src` is set), or a default slot for inline SVG; `callouts: { x, y, title, text? }[]`; `title?` (the takeaway); `caption?` (one line on what's shown); `source?`.
+- Renders inside `ChartFrame`.
 - `x` and `y` are percentages from the visual's top-left corner. The legend carries the meaning, so markers are decorative for screen readers.
 - Use for chart anatomy, UI teardowns, annotated screenshots.
 
@@ -287,20 +405,40 @@ Notes:
 Purpose: Live Chart.js chart with toggles that show what a design choice does. (Chart-specific.)
 Location: `src/components/ChartPlayground.astro`, loader in `src/lib/chart-loader.ts`
 Notes:
-- Props: `id`, `type`, `data`, `options?`, `plugins?: ('sankey' | 'treemap')[]`, `controls?: { label, patch, checked? }[]`, `alt` (required text description), `caption?`, `table?: { columns, rows }`, `height?` (px, default 360).
+- Props: `id`, `type`, `data`, `options?`, `plugins?: ('sankey' | 'treemap')[]`, `controls?: { label, patch, checked? }[]`, `alt` (required text description), `title?` (the takeaway), `dek?` (what's plotted; `caption` still works as an older name), `source?`, `table?: { columns, rows }`, `height?` (px, default 360).
+- Renders inside `ChartFrame`, so it shares the title, source line, and "View the data" table with every other chart.
 - Each control is a checkbox; when it's on, its `patch` is deep-merged into the config (objects merge, arrays replace, so patch a whole `datasets` array).
 - Config is plain JSON: no functions or scriptable options. Colors can be site tokens written as `"var(--jdb-orange-500)"`.
 - Chart.js 4.6.1 and plugins load once per page from jsDelivr with SRI, lazily when the chart nears the viewport. The site's dark theme defaults are applied, and animation is off for `prefers-reduced-motion`.
 - To upgrade a library, edit the pinned URL and hash in `src/lib/chart-loader.ts` (instructions are in the file).
 - `table` adds a "View the data" panel for screen readers, and as a fallback if the chart can't load.
 
+## Measuring the redesign (Tag Manager hooks)
+The main conversion points carry a `data-jdb-track` attribute naming the action, so one Tag Manager trigger can measure all of them before and after design changes:
+- `hero-primary`, `hero-secondary`, `about-primary` (page hero buttons)
+- `cta-primary`, `cta-secondary` (every `CallToAction`)
+- `nav-contact` (the Contact button in the header)
+- `helpline-choose-time`, `helpline-ask-first`, `booking-direct` (SEO Helpline page)
+- `newsletter` (the footer signup form)
+- `share-x`, `share-linkedin`, `share-email`, `share-copy` (post share bar)
+
+In Tag Manager: add a Custom JavaScript variable that returns `{{Click Element}}.closest('[data-jdb-track]')?.dataset.jdbTrack`, a Click (All Elements) trigger where that variable is not undefined, and a GA4 event tag (e.g. `cta_click` with parameter `cta` = the variable). Use a Form Submission trigger on `[data-jdb-track="newsletter"]` for signups. Give new conversion points a `data-jdb-track` name in the same style.
+
+## Post body styles
+Post bodies get `jdb-prose jdb-prose--article` (in `src/pages/blog/[slug].astro`): 18px text at a 68ch measure, a larger first paragraph, a hairline and extra space above each H2 written in the post, and styled markdown tables, figures, and lists (`main.css` section 37).
+
+Older posts contain raw HTML from the site's previous CSS framework (`columns`, `card`, `notification`, `is-size-7`, `has-text-grey`, …). `main.css` section 38 maps that markup onto the current design so those posts match. Don't use those classes in new posts; use `ChartFrame`, `Callout`, and the other components instead.
+
 ## Brand and type
 The visual rules live in the tokens at the top of `public/assets/css/main.css`; the components page shows them.
 - **Two faces, two jobs.** Schibsted Grotesk (`--jdb-font-sans`) sets everything people read: headlines, UI, body. JetBrains Mono (`--jdb-font-mono`) is only for what is literally code: the logotype, code samples, `kbd`. Don't set labels, dates, or buttons in mono.
-- **Headlines carry the page.** Large, heavy, tightly tracked (`--jdb-track-display` / `--jdb-track-heading`). The only texture behind them is the hero's graph paper (`--jdb-grid-line`, `--jdb-grid-size`) under a soft orange wash at the top (`--jdb-hero-wash`); both fade out before the next section. Don't add other washes or textures elsewhere.
+- **Headlines carry the page.** Large, heavy, tightly tracked (`--jdb-track-display` / `--jdb-track-heading`). Heading sizes are fluid between a phone size and a desktop size.
+- **Graph paper is the one texture.** It appears behind heroes (`--jdb-grid-line`, `--jdb-grid-size`, under a soft orange wash, `--jdb-hero-wash`), on generated post covers, and behind the closing call to action, which bookends the hero. Don't add other washes or textures.
+- **Images: covers, charts, and one photo treatment.** Post cards use generated `PostCover` art, never photos. Photos of people use `Portrait` with the `graded` treatment. Client logos are one color (`Logos`).
 - **Orange is a signal.** The brand orange marks the main action and the current location (the active nav item, the cursor in the logotype and home headline). Don't use it for decoration.
 - **Labels are plain.** Eyebrows are short, sentence-case, and only used where the heading alone would be ambiguous. No `//`, `#`, or `$` prefixes, no all caps.
 - **Fewer boxes.** Use a hairline rule and spacing to group content; reserve filled cards for things that are clickable or need their own region.
+- **Motion is quiet and purposeful.** One easing curve (`--jdb-ease`) and three durations. The only motion: the logotype and home-hero cursor blink, charts drawing their line in once (`TrendChart`), a short crossfade between pages (cross-document view transitions), the post share bar sliding in, and hover/press feedback on things you can click. All of it is off under `prefers-reduced-motion`.
 
 ## Interaction guidelines (UX principles)
 These rules come from established UX research (the "Laws of UX" collection at lawsofux.com). They shape the components; **don't name them in site copy**, just follow them.

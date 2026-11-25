@@ -45,6 +45,13 @@ const blog = defineCollection({
       updated: isoDate.optional(),
       seo_title: optionalText,
       featured_image: optionalText,
+      /**
+       * The post's main topic. Labels the post on cards and picks the chart
+       * drawn on its generated cover (see src/lib/cover-art.mjs).
+       */
+      topic: z.enum(['content', 'dataviz', 'measurement', 'seo', 'dev']).default('content'),
+      /** Optional: draw a different chart type on the cover than the topic's default. */
+      cover: z.enum(['trend', 'compare', 'search', 'hierarchy', 'code', 'measure', 'flow', 'part', 'scatter']).optional(),
       tags: z.array(z.string()).default([]),
       keywords: z.array(z.string()).optional(),
       readingTime: z.number().positive().optional(),

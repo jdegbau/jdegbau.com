@@ -89,7 +89,8 @@ for (const file of htmlFiles) {
   if (!noindex && !/<meta name="description" content="[^"]+"/.test(html)) report('missing meta description');
 
   for (const [tag] of markup.matchAll(/<img\b[^>]*>/gi)) {
-    if (!/\salt=/.test(tag)) report(`<img> without alt: ${tag.slice(0, 120)}`);
+    // A bare `alt` attribute (how Astro renders alt="") is a valid empty alt.
+    if (!/\salt(=|[\s>/])/.test(tag)) report(`<img> without alt: ${tag.slice(0, 120)}`);
   }
 
   for (const [, json] of html.matchAll(/<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi)) {

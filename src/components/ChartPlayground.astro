@@ -11,6 +11,7 @@
  * Always pass `alt`; add `table` for a screen-reader friendly copy of the data.
  */
 import type { ChartPluginName } from '../lib/chart-loader';
+import ChartFrame from './ChartFrame.astro';
 
 interface Control {
   label: string;
@@ -29,6 +30,13 @@ interface Props {
   controls?: Control[];
   /** Text description of what the chart shows (used as the canvas label). */
   alt: string;
+  /** The takeaway, as a sentence (ChartFrame title). */
+  title?: string;
+  /** One line on what's plotted. */
+  dek?: string;
+  /** Where the data comes from. */
+  source?: string;
+  /** Older name for `dek`; still works. */
   caption?: string;
   /** Optional data table shown in a collapsible "View the data" panel. */
   table?: { columns: string[]; rows: (string | number)[][] };
@@ -45,6 +53,9 @@ const {
   plugins = [],
   controls = [],
   alt,
+  title,
+  dek,
+  source,
   caption,
   table,
   height = 360,
@@ -55,50 +66,30 @@ const config = { type, data, options: { responsive: true, maintainAspectRatio: f
 const payload = { config, plugins, patches: controls.map((control) => control.patch) };
 ---
 
-<figure class:list={['jdb-playground', className]} data-playground id={id}>
-  {controls.length > 0 && (
-    <fieldset class="jdb-playground__controls">
-      <legend>Try it</legend>
-      {controls.map((control, index) => (
-        <label class="jdb-playground__toggle">
-          <input type="checkbox" data-playground-control={index} checked={control.checked} />
-          <span>{control.label}</span>
-        </label>
-      ))}
-    </fieldset>
-  )}
-  <div class="jdb-playground__canvas" style={`height:${height}px`}>
-    <canvas role="img" aria-label={alt}>{alt}</canvas>
-    <p class="jdb-playground__status" data-playground-status>Loading chart…</p>
+<ChartFrame title={title} dek={dek ?? caption} source={source} table={table} class:list={['jdb-playground', className]}>
+  <div class="jdb-playground__body" data-playground id={id}>
+    {controls.length > 0 && (
+      <fieldset class="jdb-playground__controls">
+        <legend>Try it</legend>
+        {controls.map((control, index) => (
+          <label class="jdb-playground__toggle">
+            <input type="checkbox" data-playground-control={index} checked={control.checked} />
+            <span>{control.label}</span>
+          </label>
+        ))}
+      </fieldset>
+    )}
+    <div class="jdb-playground__canvas" style={`height:${height}px`}>
+      <canvas role="img" aria-label={alt}>{alt}</canvas>
+      <p class="jdb-playground__status" data-playground-status>Loading chart…</p>
+    </div>
+    <script type="application/json" data-playground-config set:html={JSON.stringify(payload)} />
   </div>
-  {caption && <figcaption class="jdb-playground__caption">{caption}</figcaption>}
-  {table && (
-    <details class="jdb-playground__data">
-      <summary>View the data</summary>
-      <div class="jdb-playground__table">
-        <table>
-          <thead>
-            <tr>{table.columns.map((column) => <th scope="col">{column}</th>)}</tr>
-          </thead>
-          <tbody>
-            {table.rows.map((row) => (
-              <tr>{row.map((cell, index) => (index === 0 ? <th scope="row">{cell}</th> : <td>{cell}</td>))}</tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </details>
-  )}
-  <script type="application/json" data-playground-config set:html={JSON.stringify(payload)} />
-</figure>
+</ChartFrame>
 
 <style>
-  .jdb-playground {
+  :global(.jdb-playground) {
     margin: var(--jdb-s-6) 0;
-    padding: var(--jdb-s-4);
-    background: var(--jdb-surface);
-    border: 1px solid var(--jdb-line);
-    border-radius: var(--jdb-r-lg);
   }
 
   .jdb-playground__controls {
@@ -155,46 +146,7 @@ const payload = { config, plugins, patches: controls.map((control) => control.pa
     display: none;
   }
 
-  .jdb-playground__caption {
-    margin-top: var(--jdb-s-3);
-    font-size: var(--jdb-fs-sm);
-    color: var(--jdb-fg-dim);
-  }
 
-  .jdb-playground__data {
-    margin-top: var(--jdb-s-3);
-    font-size: var(--jdb-fs-sm);
-  }
-
-  .jdb-playground__data summary {
-    cursor: pointer;
-    font-family: var(--jdb-font-sans);
-    font-size: var(--jdb-fs-xs);
-    color: var(--jdb-fg-muted);
-  }
-
-  .jdb-playground__table {
-    overflow-x: auto;
-    margin-top: var(--jdb-s-2);
-  }
-
-  .jdb-playground__table table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  .jdb-playground__table th,
-  .jdb-playground__table td {
-    padding: var(--jdb-s-2) var(--jdb-s-3);
-    text-align: left;
-    border-bottom: 1px solid var(--jdb-line);
-  }
-
-  .jdb-playground__table thead th {
-    font-family: var(--jdb-font-sans);
-    font-size: var(--jdb-fs-xs);
-    color: var(--jdb-fg-muted);
-  }
 </style>
 
 <script>
@@ -243,7 +195,7 @@ const payload = { config, plugins, patches: controls.map((control) => control.pa
       if (status) status.hidden = true;
     } catch (error) {
       if (status) {
-        const hasTable = Boolean(figure.querySelector('.jdb-playground__data'));
+        const hasTable = Boolean(figure.closest('figure')?.querySelector('.jdb-chartframe__data'));
         status.textContent = `The interactive chart could not load.${hasTable ? ' Use “View the data” below.' : ''}`;
       }
       console.error(error);

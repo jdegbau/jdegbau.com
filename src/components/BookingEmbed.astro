@@ -1,0 +1,216 @@
+---
+/**
+ * A TidyCal booking calendar that never looks broken. Until the calendar
+ * arrives, a calendar-shaped placeholder holds its space; if it hasn't
+ * appeared after a few seconds (blocked script, slow network) the direct
+ * booking link is promoted, and the same link is always available below
+ * for people who'd rather book in a new tab.
+ */
+interface Props {
+  /** TidyCal booking path, e.g. "jdegbau/seo-helpline-consultation". */
+  path: string;
+  /** Text for the direct booking link. */
+  linkLabel?: string;
+  /** Show only the placeholder (no TidyCal script), for the components page. */
+  demo?: boolean;
+}
+
+const { path, linkLabel = 'Open the booking page', demo = false } = Astro.props;
+const url = `https://tidycal.com/${path}`;
+---
+
+<div class="jdb-booking" data-booking>
+  <div class="jdb-booking__frame">
+    <div class="jdb-booking__placeholder" aria-hidden="true">
+      <div class="jdb-booking__cal">
+        <span class="jdb-booking__bar jdb-booking__bar--title"></span>
+        <div class="jdb-booking__grid">
+          {Array.from({ length: 35 }, (_, i) => <span class:list={['jdb-booking__day', { 'is-open': [9, 11, 16, 18, 23, 25, 30].includes(i) }]} />)}
+        </div>
+      </div>
+      <div class="jdb-booking__slots">
+        <span class="jdb-booking__bar"></span>
+        <span class="jdb-booking__slot"></span>
+        <span class="jdb-booking__slot"></span>
+        <span class="jdb-booking__slot"></span>
+      </div>
+    </div>
+    <p class="jdb-booking__status" data-booking-status role="status">Loading available times…</p>
+    {!demo && <div id="tidycal-embed" data-path={path}></div>}
+  </div>
+
+  <p class="jdb-booking__fallback">
+    Prefer a new tab? <a href={url} target="_blank" rel="noopener noreferrer" data-jdb-track="booking-direct">{linkLabel}<span class="jdb-sr-only"> (opens in a new tab)</span></a>
+  </p>
+  <noscript>
+    <p class="jdb-booking__noscript">The calendar needs JavaScript. <a href={url}>{linkLabel}</a> to choose a time.</p>
+  </noscript>
+</div>
+
+{!demo && <script is:inline src="https://asset-tidycal.b-cdn.net//js/embed.js"></script>}
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-booking]').forEach((booking) => {
+    const frame = booking.querySelector('.jdb-booking__frame');
+    const embed = booking.querySelector('#tidycal-embed');
+    const status = booking.querySelector<HTMLElement>('[data-booking-status]');
+    if (!frame || !embed) return;
+
+    // Loaded once TidyCal has put anything in its container, or an iframe
+    // from TidyCal exists anywhere on the page (in case it renders elsewhere).
+    const hasCalendar = () => embed.children.length > 0 || Boolean(document.querySelector('iframe[src*="tidycal"]'));
+    const observer = new MutationObserver(() => check());
+    const check = () => {
+      if (!hasCalendar()) return;
+      booking.classList.add('is-loaded');
+      observer.disconnect();
+    };
+    observer.observe(document.body, { childList: true, subtree: true });
+    check();
+
+    // If the calendar hasn't shown up in time, say so and point to the link.
+    setTimeout(() => {
+      check();
+      if (booking.classList.contains('is-loaded')) return;
+      booking.classList.add('is-stalled');
+      if (status) status.textContent = 'The calendar is taking a while to load. You can book on TidyCal directly instead.';
+    }, 8000);
+  });
+</script>
+
+<style>
+  .jdb-booking__frame {
+    position: relative;
+    min-height: 34rem;
+    padding: var(--jdb-s-5);
+    background: var(--jdb-surface-card);
+    border: 1px solid var(--jdb-line);
+    border-radius: var(--jdb-r-xl);
+    overflow: hidden;
+  }
+
+  .jdb-booking.is-loaded .jdb-booking__frame {
+    min-height: 0;
+    padding: 0;
+    background: none;
+    border: 0;
+  }
+
+  .jdb-booking.is-loaded .jdb-booking__placeholder,
+  .jdb-booking.is-loaded .jdb-booking__status {
+    display: none;
+  }
+
+  /* Calendar-shaped placeholder: month grid on the left, time slots right. */
+  .jdb-booking__placeholder {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: var(--jdb-s-6);
+  }
+
+  @media (max-width: 40rem) {
+    .jdb-booking__placeholder { grid-template-columns: 1fr; }
+    .jdb-booking__slots { display: none; }
+  }
+
+  .jdb-booking__grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: var(--jdb-s-2);
+    margin-top: var(--jdb-s-5);
+  }
+
+  .jdb-booking__day {
+    aspect-ratio: 1;
+    border-radius: var(--jdb-r-md);
+    background: rgba(255, 255, 255, .03);
+  }
+
+  .jdb-booking__day.is-open {
+    background: rgba(255, 255, 255, .08);
+  }
+
+  .jdb-booking__bar {
+    display: block;
+    width: 45%;
+    height: .9rem;
+    border-radius: var(--jdb-r-pill);
+    background: rgba(255, 255, 255, .08);
+  }
+
+  .jdb-booking__bar--title {
+    width: 35%;
+  }
+
+  .jdb-booking__slots {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jdb-s-3);
+  }
+
+  .jdb-booking__slot {
+    display: block;
+    height: 3rem;
+    border-radius: var(--jdb-r-md);
+    border: 1px solid var(--jdb-line-strong);
+  }
+
+  .jdb-booking__slots .jdb-booking__bar {
+    margin-bottom: var(--jdb-s-3);
+  }
+
+  /* A slow shimmer says "loading" without spinning anything. */
+  .jdb-booking__placeholder {
+    -webkit-mask-image: linear-gradient(100deg, #000 30%, rgba(0, 0, 0, .55) 50%, #000 70%);
+            mask-image: linear-gradient(100deg, #000 30%, rgba(0, 0, 0, .55) 50%, #000 70%);
+    -webkit-mask-size: 250% 100%;
+            mask-size: 250% 100%;
+    animation: jdb-booking-shimmer 1.8s linear infinite;
+  }
+
+  .jdb-booking.is-stalled .jdb-booking__placeholder {
+    animation: none;
+    opacity: .5;
+  }
+
+  @keyframes jdb-booking-shimmer {
+    from { -webkit-mask-position: 150% 0; mask-position: 150% 0; }
+    to { -webkit-mask-position: -50% 0; mask-position: -50% 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .jdb-booking__placeholder { animation: none; }
+  }
+
+  .jdb-booking__status {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    max-width: 30ch;
+    margin: 0;
+    padding: var(--jdb-s-3) var(--jdb-s-4);
+    transform: translate(-50%, -50%);
+    font-size: var(--jdb-fs-sm);
+    text-align: center;
+    color: var(--jdb-fg-dim);
+    background: rgba(10, 21, 38, .85);
+    border: 1px solid var(--jdb-line-strong);
+    border-radius: var(--jdb-r-md);
+  }
+
+  .jdb-booking.is-stalled .jdb-booking__status {
+    color: var(--jdb-fg);
+    border-color: var(--jdb-orange-500);
+  }
+
+  .jdb-booking__fallback,
+  .jdb-booking__noscript {
+    margin: var(--jdb-s-4) 0 0;
+    font-size: var(--jdb-fs-sm);
+    color: var(--jdb-fg-muted);
+  }
+
+  .jdb-booking.is-stalled .jdb-booking__fallback a {
+    font-weight: var(--jdb-fw-semibold);
+  }
+</style>

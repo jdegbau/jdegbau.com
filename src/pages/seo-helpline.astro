@@ -3,6 +3,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Logos from '../components/Logos.astro';
 import Steps from '../components/Steps.astro';
 import FAQAccordion from '../components/FAQAccordion.astro';
+import BookingEmbed from '../components/BookingEmbed.astro';
+import TestimonialGroup from '../components/TestimonialGroup.astro';
+import { testimonials } from '../data/testimonials';
 
 const seoTitle = 'Schedule a Call';
 const description = 'Have an urgent SEO, content, or measurement question? Schedule a one-hour call with the SEO Helpline and get an expert consultation for just $100.';
@@ -34,8 +37,8 @@ const faq = [
           <h1>Get clear on your next SEO move.</h1>
           <p class="jdb-hero__lede">Bring the question you can’t quite solve. Leave with a sharper diagnosis and practical next steps.</p>
           <div class="jdb-hero__actions">
-            <a class="jdb-btn jdb-btn--primary jdb-btn--lg" href="#booking">Choose a time</a>
-            <a class="jdb-btn jdb-btn--ghost" href="/contact/">Ask a question first</a>
+            <a class="jdb-btn jdb-btn--primary jdb-btn--lg jdb-btn--arrow" href="#booking" data-jdb-track="helpline-choose-time">Choose a time</a>
+            <a class="jdb-btn jdb-btn--ghost" href="/contact/" data-jdb-track="helpline-ask-first">Ask a question first</a>
           </div>
         </div>
 
@@ -82,6 +85,8 @@ const faq = [
     </div>
   </section>
 
+  <TestimonialGroup items={testimonials} title="What clients say after a session" />
+
   <section class="jdb-section helpline-booking" id="booking">
     <div class="jdb-container jdb-container--wide">
       <header class="helpline-booking__header">
@@ -91,10 +96,7 @@ const faq = [
         </div>
         <p>Select an available slot below to book your session. If none are available, email <a href="mailto:josh@jdegbau.com">josh@jdegbau.com</a> and we can arrange a time.</p>
       </header>
-      <div class="helpline-booking__embed">
-        <div id="tidycal-embed" data-path="jdegbau/seo-helpline-consultation"></div>
-      </div>
-      <script src="https://asset-tidycal.b-cdn.net//js/embed.js"></script>
+      <BookingEmbed path="jdegbau/seo-helpline-consultation" />
     </div>
   </section>
 
@@ -191,13 +193,6 @@ const faq = [
   .helpline-booking__header h2 { margin: 0; }
   .helpline-booking__header p { max-width: 38ch; margin: 0; }
 
-  .helpline-booking__embed {
-    overflow: hidden;
-    border: 1px solid var(--jdb-line-strong);
-    border-radius: var(--jdb-r-md);
-    background: var(--jdb-navy-900);
-    box-shadow: var(--jdb-sh-md);
-  }
 
   @media (max-width: 52rem) {
     .helpline-hero__layout { grid-template-columns: 1fr; }

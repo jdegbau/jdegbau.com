@@ -1,5 +1,22 @@
 ---
+/**
+ * Page header. Variants:
+ *   intro  compact page heading
+ *   home   the home page's display-size headline (pairs with the cursor)
+ *   full   full-width, optionally over `backgroundImage`
+ *   split  text left, image (`imageSrc`) or the `media` slot right
+ * Any variant with content in the `media` slot gets the two-column layout.
+ */
 import Image from './Image.astro';
+
+interface Props {
+  variant?: 'intro' | 'home' | 'full' | 'split';
+  backgroundImage?: string;
+  imageSrc?: string;
+  imageAlt?: string;
+  containerWidth?: 'narrow' | 'wide';
+  class?: string;
+}
 
 const {
   variant = 'full',
@@ -10,13 +27,11 @@ const {
   containerWidth = 'wide',
 } = Astro.props;
 
-const classes = ['jdb-hero', `jdb-hero--${variant}`];
-if (className) {
-  classes.push(className);
-}
+const hasMediaSlot = Astro.slots.has('media');
+const hasMedia = hasMediaSlot || (variant === 'split' && imageSrc);
 ---
 
-<section class={classes.join(' ')}>
+<section class:list={['jdb-hero', `jdb-hero--${variant}`, { 'jdb-hero--has-media': hasMedia }, className]}>
   {backgroundImage && (
     <div class="jdb-hero__background" aria-hidden="true">
       <div class="jdb-hero__background-image" style={`background-image: url('${backgroundImage}');`}></div>
@@ -29,7 +44,11 @@ if (className) {
         <slot />
       </div>
 
-      {variant === 'split' && imageSrc && (
+      {hasMediaSlot ? (
+        <div class="jdb-hero__aside">
+          <slot name="media" />
+        </div>
+      ) : variant === 'split' && imageSrc && (
         <div class="jdb-hero__media">
           <Image src={imageSrc} alt={imageAlt} loading="eager" decoding="async" class="jdb-hero__image" />
         </div>

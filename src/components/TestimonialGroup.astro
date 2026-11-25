@@ -1,0 +1,38 @@
+---
+/**
+ * A section of client quotes. Renders nothing when `items` is empty, so it
+ * can sit on a page before any testimonials exist.
+ */
+import Section from './Section.astro';
+import Testimonial from './Testimonial.astro';
+import type { Testimonial as Item } from '../data/testimonials';
+
+interface Props {
+  items: Item[];
+  title?: string;
+  eyebrow?: string;
+  tone?: 'page' | 'band';
+}
+
+const { items, title = 'What clients say', eyebrow = 'In their words', tone = 'page' } = Astro.props;
+---
+
+{items.length > 0 && (
+  <Section title={title} eyebrow={eyebrow} tone={tone}>
+    <div class:list={['jdb-quotes', { 'jdb-quotes--single': items.length === 1 }]}>
+      {items.map((item) => <Testimonial {...item} />)}
+    </div>
+  </Section>
+)}
+
+<style>
+  .jdb-quotes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+    gap: var(--jdb-s-5);
+  }
+
+  .jdb-quotes--single {
+    max-width: 44rem;
+  }
+</style>

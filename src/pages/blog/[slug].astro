@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import AuthorBox from '../../components/AuthorBox.astro';
-import Hero from '../../components/Hero.astro';
+import ArticleHeader from '../../components/ArticleHeader.astro';
 import ChartTypeAssessment from '../../components/ChartTypeAssessment.astro';
 import ChartPickerQuiz from '../../components/ChartPickerQuiz.astro';
 import DataStoryBestPractices from '../../components/DataStoryBestPractices.astro';
@@ -44,9 +44,6 @@ const canonical = post.url;
 const keywords = post.keywords.length ? post.keywords : post.tags;
 const siteUrl = 'https://jdegbau.com';
 const pageUrl = `${siteUrl}${canonical}`;
-const wasUpdated = post.updated !== post.date;
-const formatDate = (value: string, month: 'short' | 'long') =>
-  new Date(`${value}T12:00:00Z`).toLocaleDateString('en-US', { month, day: 'numeric', year: 'numeric', timeZone: 'UTC' });
 
 // The data-viz guide gets interactive extras around its markdown.
 const isDataVizGuide = post.slug === 'seo-data-visualization-guide';
@@ -112,45 +109,18 @@ const schema = {
   authorName="Joshua DeGrasse-Baumann"
 >
   <article>
-    <Hero
-      variant="full"
-      class="jdb-hero--blog"
-      backgroundImage={post.featuredImage}
-    >
-      <nav class="jdb-crumbs" aria-label="Breadcrumb">
-        <a href="/">Home</a>
-        <span class="jdb-crumbs__sep" aria-hidden="true">/</span>
-        <a href="/blog/">Blog</a>
-      </nav>
-      <h1>{post.title}</h1>
-      <div class="jdb-postheader__meta">
-        <span class="jdb-postheader__metaitem">
-          <span class="jdb-icon jdb-icon--check" aria-hidden="true"></span>
-          <time datetime={post.date}>{formatDate(post.date, 'short')}</time>
-        </span>
-        <span class="jdb-postheader__metaitem">
-          <span class="jdb-icon jdb-icon--branch" aria-hidden="true"></span>
-          {post.readingTime ? `${post.readingTime} min read` : 'Read now'}
-        </span>
-      </div>
-    </Hero>
+    <ArticleHeader post={post} />
 
-    <PostMeta
-      date={formatDate(post.date, 'long')}
-      updated={wasUpdated ? formatDate(post.updated, 'long') : undefined}
-      readingTime={post.readingTime ? `${post.readingTime} min read` : 'Read now'}
-      url={`https://jdegbau.com${canonical}`}
-      title={post.title}
-    />
+    <PostMeta url={`https://jdegbau.com${canonical}`} title={post.title} />
 
     <section class="jdb-section">
       <div class="jdb-container jdb-container--wide">
         <div class="jdb-blog-layout">
-          <aside class="jdb-blog-layout__toc">
+          <div class="jdb-blog-layout__toc">
             <TableOfContents items={headings} />
-          </aside>
+          </div>
 
-          <div class="jdb-prose jdb-blog-layout__content">
+          <div class="jdb-prose jdb-prose--article jdb-blog-layout__content">
             {isDataVizGuide && <ChartPickerQuiz />}
             {isDataVizGuide && <QuickCompareMatrix />}
             <Content />

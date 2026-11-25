@@ -12,6 +12,7 @@ import { fileURLToPath } from 'node:url';
 import satori from 'satori';
 import { Resvg } from '@resvg/resvg-js';
 import { parse as parseYaml } from 'yaml';
+import { TOPICS, coverKind, coverSvg } from './cover-art.mjs';
 
 const require = createRequire(import.meta.url);
 const WIDTH = 1200;
@@ -49,14 +50,18 @@ async function loadFonts() {
   ];
 }
 
+// Sizes for the title column (it shares the card with the cover art).
 function titleSize(title) {
-  if (title.length <= 32) return 88;
-  if (title.length <= 52) return 74;
-  if (title.length <= 75) return 62;
-  return 52;
+  if (title.length <= 24) return 72;
+  if (title.length <= 40) return 62;
+  if (title.length <= 60) return 54;
+  return 46;
 }
 
-function card({ eyebrow, title, subtitle, footer, size }) {
+const ART_WIDTH = 520;
+const svgUri = (svg) => `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`;
+
+function card({ eyebrow, title, subtitle, footer, size, art }) {
   const content = h(
     'div',
     {
@@ -64,6 +69,7 @@ function card({ eyebrow, title, subtitle, footer, size }) {
       flexDirection: 'column',
       justifyContent: 'space-between',
       padding: '56px 72px 48px',
+      width: art ? WIDTH - ART_WIDTH + 80 : WIDTH,
     },
     // Logo: (jdegbau) => {}
     h(
@@ -83,17 +89,32 @@ function card({ eyebrow, title, subtitle, footer, size }) {
       h('span', { fontSize: 28, fontWeight: 500, color: colors.muted }, eyebrow),
       h(
         'span',
-        { fontWeight: 800, fontSize: size ?? titleSize(title), lineHeight: 1.02, letterSpacing: -2, color: colors.fg },
+        { fontWeight: 800, fontSize: size ?? titleSize(title), lineHeight: 1.04, letterSpacing: -2, color: colors.fg, maxWidth: art ? 560 : 1056 },
         title,
       ),
-      subtitle ? h('span', { fontSize: 28, lineHeight: 1.4, color: colors.dim }, subtitle) : [],
+      subtitle ? h('span', { fontSize: 28, lineHeight: 1.4, color: colors.dim, maxWidth: 1000 }, subtitle) : [],
     ),
     h('span', { fontSize: 24, fontWeight: 500, color: colors.muted }, footer),
   );
 
+  // The post's cover art fills the right side and fades into the canvas, so
+  // the share image matches the card readers see on the site.
+  const artPanel = art
+    ? h(
+        'div',
+        { position: 'absolute', top: 0, right: 0, width: ART_WIDTH, height: HEIGHT },
+        { type: 'img', props: { src: svgUri(art), width: ART_WIDTH, height: HEIGHT } },
+        h('div', {
+          position: 'absolute', top: 0, left: 0, width: 220, height: HEIGHT,
+          backgroundImage: `linear-gradient(to right, ${colors.canvas}, rgba(10,21,38,0))`,
+        }),
+      )
+    : [];
+
   return h(
     'div',
     {
+      position: 'relative',
       width: WIDTH,
       height: HEIGHT,
       flexDirection: 'column',
@@ -101,6 +122,7 @@ function card({ eyebrow, title, subtitle, footer, size }) {
       fontFamily: 'Schibsted Grotesk',
       color: colors.fg,
     },
+    artPanel,
     content,
   );
 }
@@ -111,14 +133,14 @@ async function render(element, fonts) {
 }
 
 async function readPosts(blogDir) {
-  const files = (await readdir(blogDir)).filter((file) => file.endsWith('.md'));
+  const files = (await readdir(blogDir)).filter((file) => /\.mdx?$/.test(file));
   return Promise.all(
     files.map(async (file) => {
       const source = await readFile(path.join(blogDir, file), 'utf8');
       const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---/);
       const data = (match && parseYaml(match[1])) || {};
-      const slug = String(data.slug ?? file.replace(/\.md$/, '')).replace(/^\/+|\/+$/g, '');
-      return { slug, title: String(data.title ?? slug) };
+      const slug = String(data.slug ?? file.replace(/\.mdx?$/, '')).replace(/^\/+|\/+$/g, '');
+      return { slug, title: String(data.title ?? slug), topic: data.topic, cover: data.cover };
     }),
   );
 }
@@ -130,8 +152,10 @@ export async function generateOgCards(root) {
   const fonts = await loadFonts();
   const posts = await readPosts(blogDir);
 
-  const jobs = posts.map(async ({ slug, title }) => {
-    const png = await render(card({ eyebrow: 'From the blog', title, footer: 'jdegbau.com/blog' }), fonts);
+  const jobs = posts.map(async ({ slug, title, topic, cover }) => {
+    const art = coverSvg({ seed: slug, kind: coverKind(topic, cover), aspect: ART_WIDTH / HEIGHT, mode: 'crop' });
+    const eyebrow = TOPICS[topic]?.label ?? 'From the blog';
+    const png = await render(card({ eyebrow, title, footer: 'jdegbau.com/blog', art }), fonts);
     await writeFile(path.join(outDir, `${slug}.png`), png);
   });
   jobs.push(

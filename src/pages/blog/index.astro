@@ -6,6 +6,7 @@ import CallToAction from '../../components/CallToAction.astro';
 import { getAllPosts } from '../../lib/posts';
 
 const posts = await getAllPosts();
+const [latest, ...rest] = posts;
 const seoTitle = "Josh's Blog";
 // Content mission statement: who the blog is for, what they get, and why it helps.
 const mission = 'This is where marketers and analysts get practical guides on content strategy, data visualization, measurement, and SEO, so they can make better decisions and prove the value of their work.';
@@ -27,13 +28,25 @@ const description = 'Insights, tips, and guides on content strategy, data visual
 
   <section class="jdb-section">
     <div class="jdb-container">
+      {latest && (
+        <div class="blog-lead">
+          <p class="jdb-eyebrow">Latest</p>
+          <BlogCard post={latest} variant="featured" headingLevel="h2" />
+        </div>
+      )}
+      <h2 class="blog-more__title">More guides</h2>
       <div class="jdb-postgrid">
-        {posts.map((post) => (
+        {rest.map((post) => (
           <BlogCard post={post} />
         ))}
       </div>
+    </div>
+  </section>
+
+  <section class="jdb-section">
+    <div class="jdb-container">
       <CallToAction
-        prompt="Need a second opinion?"
+        variant="closing"
         title="Want help applying this to your own content?"
         text="Book a one-hour call to talk through your content, reporting, or SEO question."
         primary={{ href: '/seo-helpline/', label: 'Book a consultation' }}
@@ -43,3 +56,14 @@ const description = 'Insights, tips, and guides on content strategy, data visual
   </section>
 
 </BaseLayout>
+
+<style>
+  .blog-lead {
+    margin-bottom: var(--jdb-s-9);
+  }
+
+  .blog-more__title {
+    margin-bottom: var(--jdb-s-6);
+    font-size: var(--jdb-fs-xl);
+  }
+</style>

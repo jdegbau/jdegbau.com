@@ -1,0 +1,116 @@
+---
+/**
+ * A short list of things offered or believed: services, principles,
+ * deliverables. Each item gets a ChartGlyph (or a two-digit number), a
+ * title, and a sentence or two. Items sit on a hairline, not in boxes,
+ * because they aren't clickable (unless given an href).
+ */
+import ChartGlyph from './ChartGlyph.astro';
+
+interface Item {
+  title: string;
+  text: string;
+  /** ChartGlyph name. Without one, the item is numbered. */
+  glyph?: 'trend' | 'compare' | 'search' | 'hierarchy' | 'code' | 'measure' | 'flow' | 'part' | 'scatter';
+  /** Makes the item a link (e.g. to the matching guide or page). */
+  href?: string;
+}
+
+interface Props {
+  items: Item[];
+  /** Columns on wide screens. Fewer columns are used when there isn't room. */
+  columns?: 2 | 3 | 4;
+  headingLevel?: 'h3' | 'h4';
+  class?: string;
+}
+
+const { items, columns = 4, headingLevel = 'h3', class: className } = Astro.props;
+const Heading = headingLevel;
+---
+
+<ul class:list={['jdb-features', `jdb-features--${columns}`, className]} role="list">
+  {items.map((item, index) => {
+    const Tag = item.href ? 'a' : 'div';
+    return (
+      <li class="jdb-features__item">
+        <Tag class:list={['jdb-features__inner', { 'jdb-features__inner--link': item.href }]} href={item.href}>
+          <span class="jdb-features__mark" aria-hidden="true">
+            {item.glyph ? <ChartGlyph name={item.glyph} size={28} /> : String(index + 1).padStart(2, '0')}
+          </span>
+          <Heading class="jdb-features__title">{item.title}</Heading>
+          <p class="jdb-features__text">{item.text}</p>
+        </Tag>
+      </li>
+    );
+  })}
+</ul>
+
+<style>
+  .jdb-features {
+    --_min: 13rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--_min)), 1fr));
+    gap: var(--jdb-s-7) var(--jdb-s-6);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .jdb-features--2 { --_min: 18rem; }
+  .jdb-features--3 { --_min: 15rem; }
+
+  @media (min-width: 62rem) {
+    .jdb-features--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .jdb-features--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .jdb-features--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  .jdb-features__inner {
+    display: block;
+    height: 100%;
+    padding-top: var(--jdb-s-5);
+    border-top: 1px solid var(--jdb-line-strong);
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .jdb-features__inner--link {
+    transition: border-color var(--jdb-t-fast);
+  }
+
+  .jdb-features__inner--link:hover {
+    border-top-color: var(--jdb-orange-500);
+  }
+
+  .jdb-features__inner--link:hover .jdb-features__title {
+    color: var(--jdb-orange-400);
+  }
+
+  .jdb-features__mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: var(--jdb-s-4);
+    color: var(--jdb-fg-dim);
+    background: var(--jdb-surface-band);
+    border: 1px solid var(--jdb-line);
+    border-radius: var(--jdb-r-md);
+    font-size: var(--jdb-fs-sm);
+    font-weight: var(--jdb-fw-bold);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .jdb-features__title {
+    margin: 0 0 var(--jdb-s-2);
+    font-size: var(--jdb-fs-lg);
+    line-height: 1.2;
+    transition: color var(--jdb-t-fast);
+  }
+
+  .jdb-features__text {
+    margin: 0;
+    font-size: var(--jdb-fs-base);
+  }
+</style>

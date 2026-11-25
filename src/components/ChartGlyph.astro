@@ -1,0 +1,94 @@
+---
+/**
+ * Small chart symbols in the site's chart style: lines in the current text
+ * color for context, one orange mark for the story. They're the icon set for
+ * topics and services, and they match the generated post covers
+ * (src/lib/cover-art.mjs), which draw the same chart types at full size.
+ *
+ * Decorative by default. Pass `label` when the glyph carries meaning on its own.
+ */
+interface Props {
+  name: 'trend' | 'compare' | 'search' | 'hierarchy' | 'code' | 'measure' | 'flow' | 'part' | 'scatter';
+  /** Rendered size in px (square). */
+  size?: number;
+  label?: string;
+  class?: string;
+}
+
+const { name, size = 24, label, class: className } = Astro.props;
+
+// Each entry: [context markup in currentColor, accent markup in orange].
+const glyphs: Record<Props['name'], [string, string]> = {
+  trend: [
+    '<path d="M3 20.5h18"/><path d="M3 16.5 7 13l4 2.5"/>',
+    '<path d="m11 15.5 4-5 4.5-4"/><circle cx="19.5" cy="6.5" r="1.9" fill="currentColor" stroke="none"/>',
+  ],
+  compare: [
+    '<path d="M2.5 20.5h19"/><rect x="4" y="12" width="3" height="8.5" rx=".6"/><rect x="9" y="8" width="3" height="12.5" rx=".6"/><rect x="14" y="14" width="3" height="6.5" rx=".6"/>',
+    '<rect x="19" y="4.5" width="3" height="16" rx=".6" fill="currentColor"/>',
+  ],
+  search: [
+    '<circle cx="10" cy="10" r="6.5"/><path d="m15 15 5.5 5.5"/>',
+    '<path d="m7 12 2.2-2.4 1.8 1.4 2.3-3" />',
+  ],
+  hierarchy: [
+    '<rect x="3" y="3.5" width="10" height="9" rx="1"/><rect x="14.5" y="10.5" width="6.5" height="10" rx="1"/><rect x="3" y="14" width="10" height="6.5" rx="1"/>',
+    '<rect x="14.5" y="3.5" width="6.5" height="5.5" rx="1" fill="currentColor"/>',
+  ],
+  code: [
+    '<path d="M8 4.5c-1.6 0-2.4.7-2.4 2.2v2.6c0 1.3-.6 2-1.9 2 1.3 0 1.9.7 1.9 2v2.6c0 1.5.8 2.2 2.4 2.2"/><path d="M16 4.5c1.6 0 2.4.7 2.4 2.2v2.6c0 1.3.6 2 1.9 2-1.3 0-1.9.7-1.9 2v2.6c0 1.5-.8 2.2-2.4 2.2"/>',
+    '<rect x="10.3" y="6.5" width="3.4" height="10" rx=".5" fill="currentColor" stroke="none"/>',
+  ],
+  measure: [
+    '<path d="M3.5 18a8.5 8.5 0 0 1 17 0"/><path d="m12 18 3.2-5"/><circle cx="12" cy="18" r="1.2" fill="currentColor"/>',
+    '<path d="M3.5 18a8.5 8.5 0 0 1 12.4-7.55"/>',
+  ],
+  flow: [
+    '<path d="M4 4v6M4 14v6M20 5v14"/><path d="M5 7c7 0 7 2.5 14 2.5"/>',
+    '<path d="M5 17c7 0 7-3.5 14-3.5"/>',
+  ],
+  part: [
+    '<path d="M12 4a8 8 0 1 0 8 8"/>',
+    '<path d="M12 4a8 8 0 0 1 8 8"/>',
+  ],
+  scatter: [
+    '<path d="M3 20.5h18M3.5 3.5v17" /><circle cx="7" cy="16" r="1.1" fill="currentColor"/><circle cx="10" cy="13.5" r="1.1" fill="currentColor"/><circle cx="9" cy="17" r="1.1" fill="currentColor"/><circle cx="13.5" cy="12" r="1.1" fill="currentColor"/><circle cx="15" cy="14.5" r="1.1" fill="currentColor"/>',
+    '<circle cx="18.5" cy="7" r="2" fill="currentColor" stroke="none"/>',
+  ],
+};
+
+const [context, accent] = glyphs[name];
+const a11y = label ? { role: 'img', 'aria-label': label } : { 'aria-hidden': 'true', focusable: 'false' };
+---
+
+<svg
+  class:list={['jdb-glyph', className]}
+  viewBox="0 0 24 24"
+  width={size}
+  height={size}
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.75"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  {...a11y}
+>
+  <g class="jdb-glyph__context" set:html={context} />
+  <g class="jdb-glyph__accent" set:html={accent} />
+</svg>
+
+<style>
+  .jdb-glyph {
+    flex: 0 0 auto;
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  .jdb-glyph__context {
+    opacity: .75;
+  }
+
+  .jdb-glyph__accent {
+    color: var(--jdb-orange-500);
+  }
+</style>

@@ -27,6 +27,20 @@ import VideoEmbed from '../components/VideoEmbed.astro';
 import PostSeriesNav from '../components/PostSeriesNav.astro';
 import RelatedPosts from '../components/RelatedPosts.astro';
 import ChartPlayground from '../components/ChartPlayground.astro';
+import Section from '../components/Section.astro';
+import ChartGlyph from '../components/ChartGlyph.astro';
+import PostCover from '../components/PostCover.astro';
+import Portrait from '../components/Portrait.astro';
+import TrendChart from '../components/TrendChart.astro';
+import ChartFrame from '../components/ChartFrame.astro';
+import FeatureList from '../components/FeatureList.astro';
+import ArticleHeader from '../components/ArticleHeader.astro';
+import Sidenote from '../components/Sidenote.astro';
+import Testimonial from '../components/Testimonial.astro';
+import TestimonialGroup from '../components/TestimonialGroup.astro';
+import StatRow from '../components/StatRow.astro';
+import CaseStudyCard from '../components/CaseStudyCard.astro';
+import BookingEmbed from '../components/BookingEmbed.astro';
 import Spec from './_components/Spec.astro';
 import { getAllPosts } from '../lib/posts';
 
@@ -49,6 +63,16 @@ const sampleFaqs = [
     answer:
       '<p>Context helps stakeholders understand whether a number is good or bad by comparing it against benchmarks, seasonal patterns, or YoY change.</p>',
   },
+];
+
+// Sample series for the TrendChart demo (illustrative).
+const sampleTrend = [42, 44, 41, 43, 40, 42, 41, 47, 52, 55, 61, 64, 70, 73];
+
+const sampleFeatures = [
+  { glyph: 'hierarchy' as const, title: 'Content strategy', text: 'Audits, editorial planning, and governance.' },
+  { glyph: 'compare' as const, title: 'Data visualization', text: 'Charts built around the question being asked.' },
+  { glyph: 'trend' as const, title: 'Measurement strategy', text: 'KPIs, measurement plans, and tracking.' },
+  { glyph: 'search' as const, title: 'SEO', text: 'Audits and search-informed planning.' },
 ];
 
 const sampleTocItems = [
@@ -109,12 +133,17 @@ const explorer = [
       { id: 'component-icon', label: 'Icon' },
       { id: 'component-image', label: 'Image' },
       { id: 'component-logos', label: 'Logos' },
+      { id: 'component-chartglyph', label: 'ChartGlyph' },
+      { id: 'component-postcover', label: 'PostCover' },
+      { id: 'component-portrait', label: 'Portrait' },
     ],
   },
   {
     folder: 'page sections',
     files: [
+      { id: 'component-section', label: 'Section' },
       { id: 'component-hero', label: 'Hero' },
+      { id: 'component-featurelist', label: 'FeatureList' },
       { id: 'component-calltoaction', label: 'CallToAction' },
       { id: 'component-contactform', label: 'ContactForm' },
       { id: 'component-faqaccordion', label: 'FAQAccordion' },
@@ -124,9 +153,21 @@ const explorer = [
     ],
   },
   {
+    folder: 'proof',
+    files: [
+      { id: 'component-testimonial', label: 'Testimonial' },
+      { id: 'component-testimonialgroup', label: 'TestimonialGroup' },
+      { id: 'component-statrow', label: 'StatRow' },
+      { id: 'component-casestudycard', label: 'CaseStudyCard' },
+      { id: 'component-bookingembed', label: 'BookingEmbed' },
+    ],
+  },
+  {
     folder: 'posts',
     files: [
+      { id: 'component-articleheader', label: 'ArticleHeader' },
       { id: 'component-summarycard', label: 'SummaryCard' },
+      { id: 'component-sidenote', label: 'Sidenote' },
       { id: 'component-callout', label: 'Callout' },
       { id: 'component-steps', label: 'Steps' },
       { id: 'component-tabs', label: 'Tabs' },
@@ -141,6 +182,8 @@ const explorer = [
   {
     folder: 'data viz',
     files: [
+      { id: 'component-chartframe', label: 'ChartFrame' },
+      { id: 'component-trendchart', label: 'TrendChart' },
       { id: 'component-chartplayground', label: 'ChartPlayground' },
       { id: 'component-quickcomparematrix', label: 'QuickCompareMatrix' },
       { id: 'component-charttypeassessment', label: 'ChartTypeAssessment' },
@@ -344,15 +387,52 @@ const sampleMatrixRows = [
             </div>
           </Spec>
 
-          <Spec name="Logos" id="component-logos" what="Client logos in one row, becoming a marquee when the container is too narrow to fit them." props="logos, label" flush>
+          <Spec name="Logos" id="component-logos" what="One-color client logos sized to equal visual weight, in one row that becomes a marquee when there isn't room." props="logos, label, caption" flush>
             <Logos />
+          </Spec>
+
+          <Spec name="ChartGlyph" id="component-chartglyph" what="Small chart symbols in the site's chart style: context in the text color, one orange mark. The icon set for topics and services." props="name, size, label, class">
+            <div class="glyph-grid">
+              {(['trend', 'compare', 'search', 'hierarchy', 'code', 'measure', 'flow', 'part', 'scatter'] as const).map((name) => (
+                <div class="glyph-grid__item">
+                  <ChartGlyph name={name} size={32} />
+                  <code>{name}</code>
+                </div>
+              ))}
+            </div>
+          </Spec>
+
+          <Spec name="PostCover" id="component-postcover" what="Generated cover art: a chart picked by topic, with data seeded from the post's slug. Cards, article headers, and share images all use it." props="seed, kind, label, ratio, class" file="src/components/PostCover.astro + src/lib/cover-art.mjs">
+            <div class="cover-grid">
+              <PostCover seed="demo-trend" kind="trend" label="Measurement" />
+              <PostCover seed="demo-compare" kind="compare" label="Data visualization" />
+              <PostCover seed="demo-search" kind="search" label="SEO" />
+              <PostCover seed="demo-hierarchy" kind="hierarchy" label="Content strategy" />
+              <PostCover seed="demo-code" kind="code" label="Web development" />
+              <PostCover seed="demo-flow" kind="flow" />
+            </div>
+          </Spec>
+
+          <Spec name="Portrait" id="component-portrait" what="Josh's photo as AVIF, WebP, and JPEG with the site's graded photo treatment, as a rectangle or a circle." props="crop, photo, alt, shape, treatment, sizes, caption, loading, class">
+            <div class="portrait-demo">
+              <Portrait sizes="14rem" caption={'crop="portrait" (graded)'} />
+              <Portrait sizes="14rem" treatment="natural" caption={'treatment="natural"'} />
+              <Portrait crop="avatar" shape="circle" sizes="6rem" alt="" class="portrait-demo__avatar" caption={'crop="avatar" shape="circle"'} />
+            </div>
           </Spec>
         </div>
 
         <div class="folder" id="folder-page-sections">
           <p class="folder__name">page sections</p>
 
-          <Spec name="Hero" id="component-hero" what="Page header in three layouts: a compact intro, a full-width hero with an optional background image, and a split hero with an image beside the text." props="variant, backgroundImage, imageSrc, imageAlt, containerWidth, class" flush>
+          <Spec name="Section" id="component-section" what="A page section with an optional eyebrow, title, and lede. Split puts the header in a left column that stays in view while the content scrolls." props="title, eyebrow, lede, layout, tone, width, tight, headingLevel, id, class (slots: default, actions)" flush>
+            <Section layout="split" tone="band" eyebrow={'layout="split"'} title="Header on the left, content on the right" lede="Stacks on narrow screens. Use it to break up a run of stacked sections.">
+              <p>Section content goes in the default slot. On wide screens the header column stays in view while this column scrolls past.</p>
+              <p>Other layouts: <code>stacked</code> (the default) and <code>center</code>.</p>
+            </Section>
+          </Spec>
+
+          <Spec name="Hero" id="component-hero" what="Page header: a compact intro, the home page's display headline, a full-width hero with an optional background image, or a split hero. Anything in the media slot sits beside the text." props="variant, backgroundImage, imageSrc, imageAlt, containerWidth, class (slots: default, media)" flush>
             <div class="variant">
               <p class="variant__label"><code>variant="intro"</code></p>
               <Hero variant="intro" containerWidth="narrow">
@@ -385,7 +465,13 @@ const sampleMatrixRows = [
             </div>
           </Spec>
 
-          <Spec name="CallToAction" id="component-calltoaction" what="The one clear next step that ends every page." props="title, primary, secondary, text, prompt, price, headingLevel">
+          <Spec name="FeatureList" id="component-featurelist" what="A short list of services, principles, or deliverables on hairlines, each with a ChartGlyph or a number." props="items, columns, headingLevel, class">
+            <FeatureList items={sampleFeatures} columns={4} />
+            <p class="demo-label">Without glyphs, items are numbered</p>
+            <FeatureList items={sampleFeatures.map(({ title, text }) => ({ title, text }))} columns={4} />
+          </Spec>
+
+          <Spec name="CallToAction" id="component-calltoaction" what="The one clear next step that ends every page. The closing variant is the page's last word, on graph paper with Josh's photo." props="title, primary, secondary, text, prompt, price, note, variant, headingLevel">
             <CallToAction
               title="Stuck on a content or measurement question?"
               text="Book a focused one-hour call and leave with practical next steps."
@@ -394,20 +480,31 @@ const sampleMatrixRows = [
               price={{ amount: '$100', unit: 'per 60-minute call' }}
               headingLevel="h3"
             />
+            <p class="demo-label"><code>variant="closing"</code></p>
+            <CallToAction
+              variant="closing"
+              title="Have a content or measurement question?"
+              text="Book a focused one-hour call and leave with practical next steps."
+              primary={{ href: '/seo-helpline/', label: 'Book a consultation' }}
+              secondary={{ href: '/contact/', label: 'Send a note first' }}
+              headingLevel="h3"
+            />
           </Spec>
 
           <Spec name="ContactForm" id="component-contactform" what="Three-field contact form with autofill hints, errors shown only after interaction, and a double-submit guard." props="action, demo">
             <ContactForm demo />
           </Spec>
 
-          <Spec name="FAQAccordion" id="component-faqaccordion" what="Questions and answers on native details/summary. On posts, set faq in front matter instead and the template adds FAQPage schema." props="items, title, eyebrow" flush>
+          <Spec name="FAQAccordion" id="component-faqaccordion" what="Questions and answers on native details/summary. On posts, set faq in front matter instead and the template adds FAQPage schema." props="items, title, eyebrow, lede, layout" flush>
             <FAQAccordion items={sampleFaqs} />
           </Spec>
 
-          <Spec name="BlogCard" id="component-blogcard" what="Post teaser where the whole card is one link and one tab stop." props="post">
+          <Spec name="BlogCard" id="component-blogcard" what="Post teaser with its generated cover, where the whole card is one link and one tab stop. The featured variant sits side by side when there's room." props="post, variant, headingLevel">
             <div class="demo-narrow">
               <BlogCard post={samplePost} />
             </div>
+            <p class="demo-label"><code>variant="featured"</code></p>
+            <BlogCard post={samplePost} variant="featured" />
           </Spec>
 
           <Spec name="RelatedPosts" id="component-relatedposts" what="Three posts ranked by shared tags, falling back to the newest. Renders BlogCard." props="current, tags, limit, title">
@@ -419,9 +516,61 @@ const sampleMatrixRows = [
           </Spec>
         </div>
 
+        <div class="folder" id="folder-proof">
+          <p class="folder__name">proof</p>
+          <p class="folder__note">Evidence and booking. Real quotes and numbers only: these demos use bracketed placeholders, and the live testimonial sections stay hidden until <code>src/data/testimonials.ts</code> has entries.</p>
+
+          <Spec name="Testimonial" id="component-testimonial" what="One client quote with name, role, and photo or initials." props="quote, name, role, photo, class">
+            <div class="demo-narrow">
+              <Testimonial quote="[The client's words, exactly as they said them, with permission.]" name="[Client Name]" role="[Role, Company]" />
+            </div>
+          </Spec>
+
+          <Spec name="TestimonialGroup" id="component-testimonialgroup" what="A section of quotes that renders nothing until there are quotes to show." props="items, title, eyebrow, tone" flush>
+            <TestimonialGroup
+              items={[
+                { quote: '[First quote.]', name: '[Client Name]', role: '[Role, Company]' },
+                { quote: '[Second quote.]', name: '[Client Name]', role: '[Role, Company]' },
+              ]}
+            />
+          </Spec>
+
+          <Spec name="StatRow" id="component-statrow" what="Proof-point numbers in a row. Unknown numbers stay bracketed until they're confirmed." props="items, class">
+            <StatRow
+              items={[
+                { value: '[N]', unit: '%', label: '[What the number counts]', note: '[Source and period]' },
+                { value: '[N]', label: '[What the number counts]', note: '[Source and period]' },
+                { value: '[N]', unit: 'x', label: '[What the number counts]' },
+              ]}
+            />
+          </Spec>
+
+          <Spec name="CaseStudyCard" id="component-casestudycard" what="Problem, what I did, and the result, with one headline number. The whole card links to the write-up." props="title, client, problem, approach, result, metric, glyph, href, headingLevel, class">
+            <div class="demo-narrow">
+              <CaseStudyCard
+                glyph="trend"
+                client="[Client or context]"
+                title="[Outcome-first title]"
+                metric={{ value: '[N]%', label: '[what changed]' }}
+                problem="[What was going wrong, in one sentence.]"
+                approach="[What you did about it.]"
+                result="[What happened, with the number and the period.]"
+              />
+            </div>
+          </Spec>
+
+          <Spec name="BookingEmbed" id="component-bookingembed" what="TidyCal calendar with a calendar-shaped placeholder while it loads, a direct link if it stalls, and a no-JavaScript fallback." props="path, linkLabel, demo">
+            <BookingEmbed path="jdegbau/seo-helpline-consultation" demo />
+          </Spec>
+        </div>
+
         <div class="folder" id="folder-posts">
           <p class="folder__name">posts</p>
           <p class="folder__note">Generic pieces for long-form posts, used in <code>.mdx</code> files.</p>
+
+          <Spec name="ArticleHeader" id="component-articleheader" what="The top of a blog post: breadcrumbs, topic, title, subtitle, byline, and the post's cover. The post template renders it." props="post" flush>
+            <ArticleHeader post={samplePost} />
+          </Spec>
 
           <Spec name="SummaryCard" id="component-summarycard" what="At-a-glance block: a title, a one-line definition, and labeled rows colored by status." props="title, definition, eyebrow, items">
             <div class="demo-narrow">
@@ -437,6 +586,16 @@ const sampleMatrixRows = [
             </div>
           </Spec>
 
+          <Spec name="Sidenote" id="component-sidenote" what="A margin note: in the empty space right of the text on wide post pages, an indented aside everywhere else." props="label (slot: the note)">
+            <div class="jdb-prose demo-narrow">
+              <p>Organic clicks dropped 18% in March, but impressions held steady, so the problem was the snippet, not the ranking.</p>
+              <Sidenote label="Definition">
+                <p>An impression counts each time a link to your page appears in search results, whether or not anyone scrolls to it.</p>
+              </Sidenote>
+              <p>Rewriting the title tags on the ten biggest pages brought click-through back within a month.</p>
+            </div>
+          </Spec>
+
           <Spec name="Callout" id="component-callout" what="Aside for insights, tips, warnings, and notes. Markdown works inside it." props="type, title">
             <div class="demo-narrow">
               <Callout type="insight">
@@ -447,7 +606,7 @@ const sampleMatrixRows = [
             </div>
           </Spec>
 
-          <Spec name="Steps" id="component-steps" what="Numbered how-to steps on a connecting rail. Wrap a normal ordered list." props="label">
+          <Spec name="Steps" id="component-steps" what="Numbered how-to steps on a connecting rail. Wrap a normal ordered list." props="label, layout">
             <div class="demo-narrow">
               <Steps label="How to read a Sankey chart">
                 <ol>
@@ -457,6 +616,14 @@ const sampleMatrixRows = [
                 </ol>
               </Steps>
             </div>
+            <p class="demo-label"><code>layout="row"</code></p>
+            <Steps label="Steps in a row" layout="row">
+              <ol>
+                <li><strong>Ask.</strong> Start with the question.</li>
+                <li><strong>Measure.</strong> Track what answers it.</li>
+                <li><strong>Show.</strong> Chart the answer plainly.</li>
+              </ol>
+            </Steps>
           </Spec>
 
           <Spec name="Tabs" id="component-tabs" what="Accessible tabs that sync across groups and remember the reader's choice. Each panel is a TabPanel." props="label, group (TabPanel: label)">
@@ -558,6 +725,25 @@ const sampleMatrixRows = [
         <div class="folder" id="folder-data-viz">
           <p class="folder__name">data viz</p>
           <p class="folder__note">Built for chart content. ChartPlayground is reusable; the rest belong to the SEO data visualization guide.</p>
+
+          <Spec name="ChartFrame" id="component-chartframe" what="The wrapper for every chart: a title that states the takeaway, one line on what's plotted, the chart, a source, and an optional data table." props="title, dek, source, table, titleAs, surface, class">
+            <div class="demo-narrow">
+              <ChartFrame
+                title="Signups grew 74% after the pricing page rewrite"
+                dek="Weekly signups, 14 weeks."
+                source="Illustrative data for this demo."
+                table={{ columns: ['Week', 'Signups'], rows: sampleTrend.map((v, i) => [`Week ${i + 1}`, v]) }}
+              >
+                <TrendChart values={sampleTrend} event={{ index: 6, label: 'Rewrite shipped' }} valueLabel="+74%" startLabel="Week 1" endLabel="Week 14" label="Line chart: weekly signups hover near 42 for seven weeks, then climb to 73 after the rewrite." />
+              </ChartFrame>
+            </div>
+          </Spec>
+
+          <Spec name="TrendChart" id="component-trendchart" what="A line chart with one annotated event, in SVG with no library. Gray before the event, orange after; it draws itself in once." props="values, label, event, valueLabel, startLabel, endLabel, animate, class">
+            <div class="demo-narrow">
+              <TrendChart values={sampleTrend} event={{ index: 6, label: 'Rewrite shipped' }} valueLabel="+74%" label="Line chart: weekly signups hover near 42, then climb to 73." />
+            </div>
+          </Spec>
 
           <Spec name="ChartPlayground" id="component-chartplayground" what="A live Chart.js chart with toggles that show what one design choice does." props="id, type, data, options, plugins, controls, alt, caption, table, height">
             <ChartPlayground
@@ -770,6 +956,59 @@ const sampleMatrixRows = [
   }
 
   /* ---- Folders ---- */
+  .glyph-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr));
+    gap: var(--jdb-s-3);
+  }
+
+  .glyph-grid__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--jdb-s-2);
+    padding: var(--jdb-s-4) var(--jdb-s-2);
+    color: var(--jdb-fg-dim);
+    border: 1px solid var(--jdb-line);
+    border-radius: var(--jdb-r-md);
+  }
+
+  .glyph-grid__item code {
+    font-size: var(--jdb-fs-xs);
+  }
+
+  .cover-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+    gap: var(--jdb-s-4);
+  }
+
+  .cover-grid > :global(*) {
+    border-radius: var(--jdb-r-md);
+    border: 1px solid var(--jdb-line);
+  }
+
+  .portrait-demo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--jdb-s-5);
+  }
+
+  .portrait-demo > :global(*) {
+    width: 12rem;
+  }
+
+  .portrait-demo > :global(.portrait-demo__avatar) {
+    width: 6rem;
+  }
+
+  .demo-label {
+    margin: var(--jdb-s-6) 0 var(--jdb-s-3);
+    font-size: var(--jdb-fs-xs);
+    color: var(--jdb-fg-muted);
+  }
+
   .folder {
     margin-top: var(--jdb-s-10);
     scroll-margin-top: calc(var(--jdb-header-h) + var(--jdb-s-4));
