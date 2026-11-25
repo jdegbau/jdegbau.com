@@ -1,100 +1,144 @@
 ---
+/**
+ * Slim bar for long posts: the post title, share links, and reading
+ * progress. It stays out of the way until the reader scrolls past the
+ * article header (the element marked `data-article-header`), then slides
+ * in under the site header.
+ */
 import Icon from './Icon.astro';
-const { date, updated, readingTime, url } = Astro.props;
+
+interface Props {
+  title: string;
+  /** Absolute URL of the post. */
+  url: string;
+}
+
+const { title, url } = Astro.props;
+const encodedUrl = encodeURIComponent(url);
 ---
+
+<div class="post-bar" data-post-bar>
+  <div class="jdb-container post-bar__inner">
+    <p class="post-bar__title" aria-hidden="true">{title}</p>
+    <div class="post-bar__share" role="group" aria-label="Share this post">
+      <span class="post-bar__label">Share</span>
+      <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodedUrl}`} target="_blank" rel="noopener noreferrer" aria-label="Share on X" data-jdb-track="share-x">
+        <Icon name="x-twitter" />
+      </a>
+      <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`} target="_blank" rel="noopener noreferrer" aria-label="Share on LinkedIn" data-jdb-track="share-linkedin">
+        <Icon name="linkedin" />
+      </a>
+      <a href={`mailto:?subject=${encodeURIComponent(title)}&body=${encodedUrl}`} aria-label="Share by email" data-jdb-track="share-email">
+        <Icon name="envelope" />
+      </a>
+      <button type="button" class="post-bar__copy" data-copy-url={url} data-jdb-track="share-copy">
+        <span class="jdb-icon jdb-icon--copy" aria-hidden="true"></span>
+        <span data-copy-label>Copy link</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="post-meta__progress" aria-hidden="true">
+    <div class="post-meta__progress-bar" id="progress-bar"></div>
+  </div>
+</div>
+
 <style>
-  .post-meta {
-    position: sticky;
-    top: var(--jdb-header-h);
+  .post-bar {
+    position: fixed;
+    /* The site header is 8px shorter once the page has scrolled. */
+    top: calc(var(--jdb-header-h) - 8px);
+    left: 0;
+    right: 0;
     z-index: 70;
-    border-top: 1px solid var(--jdb-line);
+    background: rgba(10, 21, 38, .88);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
     border-bottom: 1px solid var(--jdb-line);
-    background: rgba(10, 21, 38, 0.82);
-    backdrop-filter: blur(12px) saturate(140%);
-    -webkit-backdrop-filter: blur(12px) saturate(140%);
-    box-shadow: 0 1px 0 rgba(255,255,255,0.05);
+    transform: translateY(-100%);
+    opacity: 0;
+    visibility: hidden;
+    transition: transform var(--jdb-dur-slow) var(--jdb-ease), opacity var(--jdb-dur) ease, visibility 0s linear var(--jdb-dur-slow);
   }
 
-  .post-meta__row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: stretch;
-    width: 100%;
+  .post-bar.is-visible {
+    transform: none;
+    opacity: 1;
+    visibility: visible;
+    transition: transform var(--jdb-dur-slow) var(--jdb-ease), opacity var(--jdb-dur) ease, visibility 0s;
   }
 
-  .post-meta__group,
-  .post-meta__share {
-    flex: 1 1 50%;
-    min-width: 0;
-  }
-
-  .post-meta__group {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: stretch;
-    border-right: 1px solid var(--jdb-line);
-  }
-
-  .post-meta__item {
+  .post-bar__inner {
     display: flex;
     align-items: center;
-    justify-content: center;
-    flex: 1 1 0;
+    justify-content: space-between;
+    gap: var(--jdb-s-4);
     min-height: 3rem;
-    padding: var(--jdb-s-3) var(--jdb-s-4);
-    font-family: var(--jdb-font-sans);
+  }
+
+  .post-bar__title {
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
+    font-size: var(--jdb-fs-sm);
+    font-weight: var(--jdb-fw-semibold);
+    color: var(--jdb-fg);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .post-bar__share {
+    display: flex;
+    align-items: center;
+    gap: var(--jdb-s-1);
+    flex: 0 0 auto;
+  }
+
+  .post-bar__label {
+    margin-right: var(--jdb-s-1);
     font-size: var(--jdb-fs-xs);
     color: var(--jdb-fg-muted);
-
   }
 
-  .post-meta__item + .post-meta__item {
-    border-left: 1px solid var(--jdb-line);
-  }
-
-  .post-meta__share {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--jdb-s-3);
-    padding: var(--jdb-s-3) var(--jdb-s-4);
-    flex-wrap: wrap;
-  }
-
-  .post-meta__share-label {
-    font-family: var(--jdb-font-sans);
-    font-size: var(--jdb-fs-sm);
-    font-weight: var(--jdb-fw-medium);
-    color: var(--jdb-fg-muted);
-  }
-
-  .post-meta__share a {
+  .post-bar__share a,
+  .post-bar__copy {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 2.5rem;
+    gap: .4em;
+    min-width: 2.5rem;
     height: 2.5rem;
-    margin-block: -.25rem;
-    color: var(--jdb-orange-400);
+    padding: 0 .5rem;
+    font: inherit;
+    font-size: var(--jdb-fs-xs);
+    color: var(--jdb-fg-dim);
     text-decoration: none;
-    border-radius: var(--jdb-r-sm);
+    background: transparent;
+    border: 0;
+    border-radius: var(--jdb-r-md);
+    cursor: pointer;
     transition: background var(--jdb-t-fast), color var(--jdb-t-fast);
   }
 
-  .post-meta__share a:hover,
-  .post-meta__share a:focus-visible {
-    background: rgba(255,255,255,.06);
+  .post-bar__share a:hover,
+  .post-bar__copy:hover {
     color: #fff;
+    background: rgba(255, 255, 255, .06);
+  }
+
+  .post-bar__copy.is-copied {
+    color: var(--jdb-good);
   }
 
   .post-meta__progress {
     position: relative;
     width: 100%;
-    height: 4px;
-    background: rgba(255,255,255,.06);
+    height: 3px;
+    background: rgba(255, 255, 255, .06);
     overflow: hidden;
   }
 
+  /* Grows from the center out. */
   .post-meta__progress-bar {
     position: absolute;
     left: 50%;
@@ -105,72 +149,48 @@ const { date, updated, readingTime, url } = Astro.props;
     transform: translateX(-50%);
   }
 
-  @media (max-width: 48rem) {
-    .post-meta {
-      top: calc(var(--jdb-header-h) - 1px);
-      border-top: none;
-      margin-top: -1px;
+  @media (max-width: 36rem) {
+    .post-bar__title,
+    .post-bar__label {
+      display: none;
     }
 
-    .post-meta__group {
-      flex-basis: 100%;
-      border-right: none;
-      border-bottom: 1px solid var(--jdb-line);
-    }
-
-    .post-meta__item {
-      flex-basis: 50%;
-      min-height: 2.5rem;
-      padding: var(--jdb-s-2) var(--jdb-s-3);
-    }
-
-    .post-meta__item + .post-meta__item {
-      border-left: 1px solid var(--jdb-line);
-    }
-
-    .post-meta__share {
-      flex-basis: 100%;
-      min-height: 2.5rem;
-      padding: var(--jdb-s-2) var(--jdb-s-3);
-    }
-
-    .post-meta__share a {
-      width: 2.5rem;
-      height: 2.5rem;
+    .post-bar__inner {
+      justify-content: center;
     }
   }
+
+  @media print {
+    .post-bar { display: none; }
+  }
 </style>
-<div class="post-meta" role="group" aria-label="Post metadata">
-  <div class="post-meta__row">
-    <div class="post-meta__group">
-      <div class="post-meta__item">
-        <span><Icon name="calendar-days" /> {date}</span>
-      </div>
-      {updated ? (
-        <div class="post-meta__item">
-          <span>Updated {updated}</span>
-        </div>
-      ) : null}
-      <div class="post-meta__item">
-        <span><Icon name="clock" /> {readingTime}</span>
-      </div>
-    </div>
 
-    <div class="post-meta__share">
-      <span class="post-meta__share-label">Share</span>
-      <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(Astro.props.title)}&url=${url}`} target="_blank" rel="noopener noreferrer" aria-label="Share on X">
-        <Icon name="x-twitter" />
-      </a>
-      <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${url}`} target="_blank" rel="noopener noreferrer" aria-label="Share on LinkedIn">
-        <Icon name="linkedin" />
-      </a>
-      <a href={`mailto:?subject=${encodeURIComponent(Astro.props.title)}&body=${url}`} aria-label="Share by email">
-        <Icon name="envelope" />
-      </a>
-    </div>
-  </div>
+<script>
+  const bar = document.querySelector<HTMLElement>('[data-post-bar]');
+  const header = document.querySelector('[data-article-header]');
 
-  <div class="post-meta__progress" aria-hidden="true">
-    <div class="post-meta__progress-bar" id="progress-bar"></div>
-  </div>
-</div>
+  if (bar && header && 'IntersectionObserver' in window) {
+    // Show the bar once the article header has scrolled up out of view.
+    new IntersectionObserver(([entry]) => {
+      const past = !entry.isIntersecting && entry.boundingClientRect.top < 0;
+      bar.classList.toggle('is-visible', past);
+    }).observe(header);
+  }
+
+  const copy = document.querySelector<HTMLButtonElement>('[data-copy-url]');
+  copy?.addEventListener('click', async () => {
+    const label = copy.querySelector('[data-copy-label]');
+    try {
+      await navigator.clipboard.writeText(copy.dataset.copyUrl ?? location.href);
+      copy.classList.add('is-copied');
+      if (label) label.textContent = 'Copied';
+      setTimeout(() => {
+        copy.classList.remove('is-copied');
+        if (label) label.textContent = 'Copy link';
+      }, 2000);
+    } catch {
+      // Clipboard blocked (permissions, older browser): let them copy by hand.
+      window.prompt('Copy this link:', copy.dataset.copyUrl ?? location.href);
+    }
+  });
+</script>

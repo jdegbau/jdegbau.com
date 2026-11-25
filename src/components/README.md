@@ -71,7 +71,8 @@ Purpose: Reusable FAQ accordion for post-level or site-wide Q&A sections.
 Location: `src/components/FAQAccordion.astro`
 Notes:
 - Accepts an `items` prop with `question` and `answer` fields.
-- Optional `title` and `eyebrow` props set the heading text (defaults keep the data-viz guide wording).
+- Optional `title`, `eyebrow`, and `lede` props set the heading text (defaults keep the data-viz guide wording). `layout="split"` puts the heading beside the questions on wide screens (built on `Section`).
+- A round +/− toggle marks each question. Answers slide open in browsers that can animate to `height: auto` and open instantly elsewhere.
 - Uses native `<details>/<summary>` for accessible, theme-consistent expansion.
 - On blog posts, prefer the `faq` front matter field: the template renders this component and the FAQPage schema from the same items.
 
@@ -79,8 +80,9 @@ Notes:
 Purpose: End-of-page call to action with a headline, one line of context, and one or two buttons.
 Location: `src/components/CallToAction.astro`
 Notes:
-- Props: `title`, `primary: { href, label }`, optional `secondary`, `text`, `prompt` (short sentence-case line, default "Next step"), `price: { amount, unit }`, `headingLevel` (`h2` default or `h3`).
-- Uses the shared `.jdb-cta` styles in `main.css` (section 31). `prompt` is a short sentence-case line above the headline ("Next step").
+- Props: `title`, `primary: { href, label }`, optional `secondary`, `text`, `prompt` (short sentence-case line, default "Next step"), `price: { amount, unit }`, `note` (closing variant only; default "I usually reply within two business days."), `variant?: default | closing`, `headingLevel` (`h2` default or `h3`).
+- `closing` is the page's last word: centered on graph paper (it bookends the hero), with Josh's photo, name, and `note` above a display-size headline. Use it once per page, as the final section. `default` is a navy panel for the end of a post or inside a section.
+- The primary button carries the arrow (`jdb-btn--arrow`). Both buttons have `data-jdb-track` attributes for Tag Manager.
 - Every page should end with a clear next step; use this instead of hand-building a CTA section.
 
 ### CodeBlock
@@ -127,12 +129,16 @@ Notes:
 Purpose: Site-wide footer with navigation and newsletter signup.
 Location: `src/components/Footer.astro`
 Notes:
-- Shared across pages.
+- Shared across pages. The newsletter signup leads (`#newsletter`, the target of every "Subscribe by email" link), with the logotype, blurb, and social links beside it, then the link columns and the status bar.
+- Keep social icons to one row.
 
 ### Hero
-Purpose: Reusable hero section with intro, full-width, and split variants.
+Purpose: Reusable hero section with intro, home, full-width, and split variants.
 Location: `src/components/Hero.astro`
 Notes:
+- Props: `variant?: intro | home | full | split`, `backgroundImage?`, `imageSrc?`, `imageAlt?`, `containerWidth?`, `class?`. Slots: default (text) and `media`.
+- Anything in the `media` slot (a `ChartFrame`, a `Portrait`) sits beside the text on wide screens and below it on narrow ones, on any variant. The home page puts a `TrendChart` there; About puts Josh's portrait.
+- `home` is the display-size headline used once, on the home page, with the blinking cursor (`<span class="jdb-cursor">`).
 - Supports an intro variant for compact page headings, with `containerWidth="narrow"` or `containerWidth="wide"`.
 - Supports a full-width variant with optional `backgroundImage` (works on any variant). The overlay darkens the left side, so pick a darker image or one with a quiet left edge; text on a bright image won't meet contrast.
 - Supports a split hero variant with text on the left and an image on the right via `variant="split"` and `imageSrc`. It stacks (text, then image) until the hero is at least 48rem wide; this is a container query, so it also stacks inside narrow wrappers.
@@ -171,6 +177,31 @@ Notes:
 - Each logo is sized to the same visual area, not the same height, so wide wordmarks and compact marks look equally weighted. `weight` (default 1) gives a logo with thin, small lettering a bit more room.
 - Shows a single row on wide containers. When the container is too narrow to fit every logo on one line (≤ 46rem, via a container query), it becomes an auto-scrolling marquee that pauses on hover/focus. With `prefers-reduced-motion`, it becomes a swipeable horizontal row instead.
 
+### TrendChart
+Purpose: A line chart with one annotated event, drawn in SVG with no chart library.
+Location: `src/components/TrendChart.astro`
+Notes:
+- Props: `values` (oldest first), `label` (required text alternative stating the point), `event?: { index, label }`, `valueLabel?` (e.g. "+65%"), `startLabel?`, `endLabel?`, `animate?` (default true), `class?`.
+- Gray before the event, orange after it: the story is the change. Labels are HTML over the SVG, so they stay readable at any width.
+- Draws itself in once when it scrolls into view; under `prefers-reduced-motion` it just appears. Without JavaScript it draws on load.
+- Wrap it in `ChartFrame`. For interactive or non-line charts, use `ChartPlayground`.
+
+### ChartFrame
+Purpose: The standard wrapper for every chart: takeaway title, explanation, chart, source, data table.
+Location: `src/components/ChartFrame.astro`
+Notes:
+- Props: `title` (the takeaway as a sentence), `dek?` (what's plotted: measure, unit, period), `source?`, `table?: { columns, rows }` (adds a "View the data" disclosure), `titleAs?: p | h2 | h3 | h4` (use `h3` in posts), `surface?: card | plain`, `class?`.
+- Write titles as findings ("Clicks rose 65% after the refresh"), not labels ("Clicks by week").
+- Illustrative or sample data must say so in `source`.
+
+### FeatureList
+Purpose: A short list of services, principles, or deliverables.
+Location: `src/components/FeatureList.astro`
+Notes:
+- Props: `items: { title, text, glyph?, href? }[]`, `columns?: 2 | 3 | 4`, `headingLevel?`, `class?`.
+- Items sit on a hairline, not in boxes (they aren't clickable unless given `href`). Each gets its `ChartGlyph`, or a two-digit number when there's no glyph.
+- Services use the same glyph as their blog topic: content `hierarchy`, data visualization `compare`, measurement `trend`, SEO `search`.
+
 ### ChartGlyph
 Purpose: Small chart symbols used as the icon set for topics and services.
 Location: `src/components/ChartGlyph.astro`
@@ -207,11 +238,20 @@ Notes:
 - The drawer sets `aria-expanded` on the menu button, closes with Escape, and moves focus into the panel and back to the button.
 
 ### PostMeta
-Purpose: Metadata display for posts.
+Purpose: Slim share and progress bar for long posts.
 Location: `src/components/PostMeta.astro`
 Notes:
-- Intended for article metadata sections.
-- Props: `date`, `readingTime`, `url`, `title`, and optional `updated` (a formatted date shown as "Updated …" when the post was revised).
+- Props: `title`, `url` (absolute).
+- Hidden until the reader scrolls past the element marked `data-article-header` (`ArticleHeader`), then slides in under the site header with the post title, share links (X, LinkedIn, email, copy link), and the reading-progress bar (`#progress-bar`, driven by `progress-bar.min.js`, growing from the center).
+- Dates and reading time live in `ArticleHeader`, so they aren't repeated here.
+
+### ArticleHeader
+Purpose: The top of a blog post.
+Location: `src/components/ArticleHeader.astro`
+Notes:
+- Props: `post`.
+- Breadcrumbs, topic chip, title, the excerpt as a subtitle, a byline (photo, name linking to About, published and updated dates, reading time), and the post's `PostCover`, on the hero's graph paper. Marked `data-article-header` so `PostMeta` knows when to appear.
+- `featured_image` isn't shown here: every post uses its generated cover so headers match. Put screenshots in the post body, next to the text that discusses them.
 
 ### SEO
 Purpose: Shared SEO metadata component.
@@ -251,6 +291,7 @@ Notes:
 Purpose: Numbered how-to steps on a connecting rail.
 Location: `src/components/Steps.astro`
 Notes:
+- `layout="row"` puts short steps side by side, with the rail running across, once the container is at least 52rem wide. Use it for three to five short steps; long steps read better in the default column.
 - Wrap a normal ordered list (a markdown `1.` list in MDX). A bold phrase at the start of an item reads as the step title.
 - Optional `label` names the group for screen readers.
 - Images inside items get spacing and rounded corners.

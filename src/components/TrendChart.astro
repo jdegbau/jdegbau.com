@@ -1,0 +1,303 @@
+---
+/**
+ * A line chart with one annotated event, drawn as inline SVG (no chart
+ * library). The line is gray before the event and orange after it, so the
+ * story is the change. It draws itself in once when it scrolls into view;
+ * with reduced motion it simply appears.
+ *
+ * Wrap it in ChartFrame for the title, source, and data table.
+ */
+interface Props {
+  /** The series, oldest first. */
+  values: number[];
+  /** Text alternative describing the chart's point. Required. */
+  label: string;
+  /** The moment the story turns: index into `values` and a short label. */
+  event?: { index: number; label: string };
+  /** Label for the last point, e.g. "+65%". */
+  valueLabel?: string;
+  /** X-axis labels for the first and last point. */
+  startLabel?: string;
+  endLabel?: string;
+  /** Draw-in animation. */
+  animate?: boolean;
+  class?: string;
+}
+
+const { values, label, event, valueLabel, startLabel, endLabel, animate = true, class: className } = Astro.props;
+
+// Labels are HTML laid over the SVG (positioned in %), so their text stays a
+// readable size however wide the chart renders.
+const W = 600;
+const H = 280;
+const pad = { top: 44, right: valueLabel ? 64 : 14, bottom: startLabel || endLabel ? 30 : 10, left: 4 };
+const plotW = W - pad.left - pad.right;
+const plotH = H - pad.top - pad.bottom;
+const min = Math.min(...values);
+const max = Math.max(...values);
+const span = max - min || 1;
+const lo = min - span * 0.25;
+const hi = max + span * 0.08;
+
+const x = (i: number) => pad.left + (i / (values.length - 1)) * plotW;
+const y = (v: number) => pad.top + plotH - ((v - lo) / (hi - lo)) * plotH;
+const r = (n: number) => Math.round(n * 10) / 10;
+const path = (from: number, to: number) =>
+  values.slice(from, to + 1).map((v, i) => `${i ? 'L' : 'M'}${r(x(from + i))} ${r(y(v))}`).join(' ');
+
+const last = values.length - 1;
+const splitAt = event ? Math.min(Math.max(event.index, 0), last) : 0;
+const before = event ? path(0, splitAt) : '';
+const after = path(splitAt, last);
+const area = `${after} L${r(x(last))} ${pad.top + plotH} L${r(x(splitAt))} ${pad.top + plotH} Z`;
+const grid = [0.2, 0.5, 0.8].map((f) => r(pad.top + plotH * f));
+const eventX = r(x(splitAt));
+// Put the event label on whichever side of the marker has more room.
+const eventAnchor = eventX > W * 0.6 ? 'end' : 'start';
+const pct = (value: number, of: number) => `${r((value / of) * 100)}%`;
+const id = `trend-${Math.abs([...label].reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 7)).toString(36)}`;
+---
+
+<div
+  class:list={['jdb-trend', { 'jdb-trend--animate': animate }, className]}
+  style={`aspect-ratio: ${W} / ${H}`}
+  role="img"
+  aria-label={label}
+  data-jdb-draw={animate ? '' : undefined}
+>
+  <svg viewBox={`0 0 ${W} ${H}`} aria-hidden="true" focusable="false">
+    <defs>
+      <linearGradient id={`${id}-area`} x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color: var(--jdb-orange-500); stop-opacity: .22" />
+        <stop offset="1" style="stop-color: var(--jdb-orange-500); stop-opacity: 0" />
+      </linearGradient>
+    </defs>
+
+    {grid.map((gy) => <line class="jdb-trend__grid" x1={pad.left} x2={W - pad.right} y1={gy} y2={gy} />)}
+    <line class="jdb-trend__base" x1={pad.left} x2={W - pad.right} y1={pad.top + plotH} y2={pad.top + plotH} />
+
+    <path class="jdb-trend__area" d={area} fill={`url(#${id}-area)`} />
+
+    {event && (
+      <line class="jdb-trend__event" x1={eventX} x2={eventX} y1={pad.top - 14} y2={pad.top + plotH} />
+    )}
+
+    {event && <path class="jdb-trend__before" d={before} pathLength="1" />}
+    <path class="jdb-trend__after" d={after} pathLength="1" />
+
+    <g class="jdb-trend__end">
+      <circle class="jdb-trend__halo" cx={r(x(last))} cy={r(y(values[last]))} r="11" />
+      <circle class="jdb-trend__dot" cx={r(x(last))} cy={r(y(values[last]))} r="5.5" />
+    </g>
+  </svg>
+
+  {event && (
+    <span
+      class:list={['jdb-trend__label', 'jdb-trend__label--event', `jdb-trend__label--${eventAnchor}`]}
+      style={`left: ${pct(eventX, W)}; top: ${pct(pad.top - 14, H)}`}
+      aria-hidden="true"
+    >{event.label}</span>
+  )}
+  {valueLabel && (
+    <span
+      class="jdb-trend__label jdb-trend__label--value"
+      style={`left: ${pct(x(last), W)}; top: ${pct(y(values[last]), H)}`}
+      aria-hidden="true"
+    >{valueLabel}</span>
+  )}
+  {startLabel && <span class="jdb-trend__label jdb-trend__label--axis" style={`left: ${pct(pad.left, W)}`} aria-hidden="true">{startLabel}</span>}
+  {endLabel && <span class="jdb-trend__label jdb-trend__label--axis jdb-trend__label--end" style={`left: ${pct(W - pad.right, W)}`} aria-hidden="true">{endLabel}</span>}
+</div>
+
+<style>
+  .jdb-trend {
+    position: relative;
+    width: 100%;
+    font-family: var(--jdb-font-sans);
+    container: jdb-trend / inline-size;
+  }
+
+  .jdb-trend svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .jdb-trend__label {
+    position: absolute;
+    font-size: var(--jdb-fs-xs);
+    line-height: 1.2;
+    white-space: nowrap;
+    color: var(--jdb-fg-muted);
+  }
+
+  .jdb-trend__label--event {
+    transform: translate(.5rem, -100%);
+    color: var(--jdb-fg-dim);
+    font-weight: var(--jdb-fw-medium);
+  }
+
+  .jdb-trend__label--event.jdb-trend__label--end {
+    transform: translate(calc(-100% - .5rem), -100%);
+  }
+
+  .jdb-trend__label--value {
+    transform: translate(.9rem, -50%);
+    font-size: var(--jdb-fs-md);
+    font-weight: var(--jdb-fw-black);
+    letter-spacing: -0.02em;
+    color: var(--jdb-fg);
+  }
+
+  /* On narrow charts there's no room right of the last point; put the
+     value above it instead. */
+  @container jdb-trend (max-width: 30rem) {
+    .jdb-trend__label--value {
+      transform: translate(calc(-100% - .35rem), .35rem);
+      font-size: var(--jdb-fs-base);
+    }
+  }
+
+  .jdb-trend__label--axis {
+    bottom: 0;
+  }
+
+  .jdb-trend__label--axis.jdb-trend__label--end {
+    transform: translateX(-100%);
+  }
+
+  .jdb-trend__grid {
+    stroke: var(--jdb-line-strong);
+    stroke-dasharray: 2 6;
+  }
+
+  .jdb-trend__base {
+    stroke: var(--jdb-navy-600);
+    stroke-width: 1.5;
+  }
+
+  .jdb-trend__before,
+  .jdb-trend__after {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .jdb-trend__before {
+    stroke: var(--jdb-fg-muted);
+    stroke-width: 2.5;
+  }
+
+  .jdb-trend__after {
+    stroke: var(--jdb-orange-500);
+    stroke-width: 3.5;
+  }
+
+  .jdb-trend__event {
+    stroke: var(--jdb-orange-400);
+    stroke-opacity: .6;
+    stroke-width: 1.5;
+    stroke-dasharray: 4 5;
+  }
+
+  .jdb-trend__dot {
+    fill: var(--jdb-orange-500);
+  }
+
+  .jdb-trend__halo {
+    fill: var(--jdb-orange-500);
+    fill-opacity: .2;
+  }
+
+  /* Draw-in: the gray line, then the orange line, then the end point.
+     A small script holds charts that start below the fold until they scroll
+     into view (is-waiting); without it they draw on load. */
+  .jdb-trend--animate .jdb-trend__before,
+  .jdb-trend--animate .jdb-trend__after {
+    stroke-dasharray: 1;
+    animation: jdb-trend-draw var(--jdb-dur-draw) var(--jdb-ease) both;
+  }
+
+  .jdb-trend--animate .jdb-trend__before {
+    animation-duration: 700ms;
+    animation-timing-function: linear;
+  }
+
+  .jdb-trend--animate .jdb-trend__after {
+    animation-delay: 650ms;
+  }
+
+  .jdb-trend--animate .jdb-trend__area,
+  .jdb-trend--animate .jdb-trend__event,
+  .jdb-trend--animate .jdb-trend__label--event {
+    animation: jdb-trend-fade var(--jdb-dur-slow) ease both;
+    animation-delay: 600ms;
+  }
+
+  .jdb-trend--animate .jdb-trend__area {
+    animation-duration: 1200ms;
+    animation-delay: 900ms;
+  }
+
+  .jdb-trend--animate .jdb-trend__label--value {
+    animation: jdb-trend-fade var(--jdb-dur-slow) ease both;
+    animation-delay: 2000ms;
+  }
+
+  .jdb-trend--animate .jdb-trend__end {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: jdb-trend-pop var(--jdb-dur-slow) var(--jdb-ease) both;
+    animation-delay: 1900ms;
+  }
+
+  .jdb-trend--animate.is-waiting * {
+    animation-play-state: paused !important;
+  }
+
+  @keyframes jdb-trend-draw {
+    from { stroke-dashoffset: 1; }
+    to { stroke-dashoffset: 0; }
+  }
+
+  @keyframes jdb-trend-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes jdb-trend-pop {
+    from { opacity: 0; transform: scale(.6); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .jdb-trend--animate * {
+      animation: none !important;
+    }
+  }
+</style>
+
+<script>
+  // Charts that start below the fold wait until they're in view to draw.
+  const charts = document.querySelectorAll<HTMLElement>('[data-jdb-draw]');
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          entry.target.classList.remove('is-waiting');
+          observer.unobserve(entry.target);
+        }
+      },
+      { rootMargin: '0px 0px -15% 0px' },
+    );
+    charts.forEach((chart) => {
+      if (chart.getBoundingClientRect().top > window.innerHeight * 0.85) {
+        chart.classList.add('is-waiting');
+        observer.observe(chart);
+      }
+    });
+  }
+</script>

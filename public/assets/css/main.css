@@ -217,6 +217,14 @@
   --jdb-target: 44px;
   --jdb-lift:   -2px;
 
+  /* The photo treatment ("graded"): slightly cooler and calmer, with a navy
+     shade at the bottom, so photos sit in the dark page. Used by
+     Portrait.astro and article header images. */
+  --jdb-photo-filter: saturate(.72) contrast(1.06) brightness(.96);
+  --jdb-photo-shade:
+    linear-gradient(to top, rgba(10, 21, 38, .6), rgba(10, 21, 38, 0) 45%),
+    linear-gradient(135deg, rgba(21, 42, 73, .35), rgba(255, 77, 0, .08));
+
   /* Graph paper and orange wash behind heroes (section 9). */
   --jdb-hero-wash: rgba(255, 77, 0, .08);
   --jdb-grid-line: rgba(255, 255, 255, .045);
@@ -364,7 +372,9 @@ hr { border: 0; border-top: 1px solid var(--jdb-line); margin: var(--jdb-s-7) 0;
 .jdb-grid--3 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); }
 .jdb-grid--4 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); }
 
-.jdb-prose { max-width: 68ch; font-family: var(--jdb-font-body); }
+.jdb-prose { max-width: 68ch; font-family: var(--jdb-font-body); overflow-wrap: break-word; }
+/* Long URLs and code break instead of pushing the page sideways on phones. */
+.jdb-prose a, .jdb-prose :not(pre) > code { overflow-wrap: anywhere; }
 .jdb-prose :where(h2, h3) { margin-top: var(--jdb-s-7); }
 .jdb-prose :where(h2, h3):first-child { margin-top: 0; }
 .jdb-prose ul, .jdb-prose ol { padding-left: 1.35em; margin: 0 0 var(--jdb-s-4); color: var(--jdb-fg-dim); }
@@ -419,6 +429,7 @@ hr { border: 0; border-top: 1px solid var(--jdb-line); margin: var(--jdb-s-7) 0;
   --jdb-icon-search: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14z'/%3E%3C/svg%3E");
   --jdb-icon-menu: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z'/%3E%3C/svg%3E");
   --jdb-icon-close: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M18.3 5.71 12 12l6.3 6.29-1.41 1.42L10.59 13.4 4.3 19.7l-1.41-1.42L9.17 12 2.89 5.71 4.3 4.29l6.29 6.3 6.29-6.3z'/%3E%3C/svg%3E");
+  --jdb-icon-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M13.2 5.3 11.8 6.7l4.3 4.3H4v2h12.1l-4.3 4.3 1.4 1.4L20 12z'/%3E%3C/svg%3E");
   --jdb-icon-branch: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 3a3 3 0 0 0-1 5.83v6.34a3 3 0 1 0 2 0V13a5 5 0 0 0 2 .42h3.17a3 3 0 1 0 0-2H9a3 3 0 0 1-3-3V8.83A3 3 0 0 0 6 3z'/%3E%3C/svg%3E");
 }
 .jdb-icon { width: 1em; height: 1em; display: inline-block; background: currentColor; flex: 0 0 auto; }
@@ -488,6 +499,19 @@ hr { border: 0; border-top: 1px solid var(--jdb-line); margin: var(--jdb-s-7) 0;
 .jdb-btn--lg { font-size: var(--jdb-fs-base); padding: 1.1rem 2rem; min-height: 56px; }
 .jdb-btn--sm { font-size: var(--jdb-fs-xs); padding: 0.55rem 0.9rem; min-height: var(--jdb-target); }
 .jdb-btn--block { display: flex; width: 100%; }
+
+/* Arrow mode: the main action gets an arrow that nudges forward on hover,
+   a small promise that this is the way on. One per view. */
+.jdb-btn--arrow::after {
+  content: "";
+  width: 1em; height: 1em;
+  flex: 0 0 auto;
+  background: currentColor;
+  -webkit-mask: var(--jdb-icon-arrow) center / contain no-repeat;
+          mask: var(--jdb-icon-arrow) center / contain no-repeat;
+  transition: transform var(--jdb-t);
+}
+.jdb-btn--arrow:hover::after { transform: translateX(3px); }
 
 /* Outbound mode — links off jdegbau.com (LinkedIn, GitHub, the store subdomain) */
 .jdb-btn--outbound::after {
@@ -742,10 +766,6 @@ hr { border: 0; border-top: 1px solid var(--jdb-line); margin: var(--jdb-s-7) 0;
     linear-gradient(90deg, rgba(10, 16, 31, 0.82) 0%, rgba(10, 16, 31, 0.54) 28%, rgba(10, 16, 31, 0.18) 52%, rgba(10, 16, 31, 0.38) 100%),
     linear-gradient(180deg, rgba(10, 16, 31, 0.7) 0%, rgba(10, 16, 31, 0.2) 42%, rgba(10, 16, 31, 0.08) 68%, rgba(10, 16, 31, 0.25) 82%, rgba(10, 16, 31, 0.9) 100%);
 }
-.jdb-hero--blog .jdb-hero__background {
-  top: -1.5rem;
-  bottom: -3.5rem;
-}
 .jdb-hero__layout { position: relative; z-index: 1; display: grid; gap: var(--jdb-s-6); align-items: center; }
 .jdb-hero__content { position: relative; z-index: 1; max-width: 64ch; }
 .jdb-hero__content > :first-child { margin-top: 0; }
@@ -765,6 +785,7 @@ hr { border: 0; border-top: 1px solid var(--jdb-line); margin: var(--jdb-s-7) 0;
   margin-bottom: var(--jdb-s-4);
 }
 .jdb-hero--home h1 { font-size: var(--jdb-fs-4xl); max-width: 14ch; margin-bottom: var(--jdb-s-6); }
+.jdb-hero--home.jdb-hero--has-media h1 { font-size: clamp(2.75rem, 1.6rem + 3.2vw, 4.125rem); max-width: 16ch; }
 .jdb-hero--home h1 .jdb-cursor {
   display: inline-block; width: .5ch; height: .85em; background: var(--jdb-orange-500);
   margin-left: .1em; animation: jdb-blink 1.05s steps(1) infinite; vertical-align: -0.1em;
@@ -775,6 +796,10 @@ hr { border: 0; border-top: 1px solid var(--jdb-line); margin: var(--jdb-s-7) 0;
 .jdb-hero__actions {
   display: flex; flex-wrap: wrap; align-items: center; gap: var(--jdb-s-3);
   margin-top: var(--jdb-s-6);
+}
+/* On phones, hero buttons stack at full width: bigger targets, cleaner edge. */
+@media (max-width: 30rem) {
+  .jdb-hero__actions { flex-direction: column; align-items: stretch; }
 }
 
 .jdb-hero--full .jdb-hero__layout {
@@ -792,26 +817,7 @@ hr { border: 0; border-top: 1px solid var(--jdb-line); margin: var(--jdb-s-7) 0;
   line-height: 1;
   margin-bottom: var(--jdb-s-4);
 }
-.jdb-hero--full .jdb-hero__content .jdb-postheader__meta {
-  margin-top: 0;
-}
 
-.jdb-hero--blog + .jdb-section {
-  position: relative;
-  z-index: 2;
-  margin-top: -3.5rem;
-  border-top: none;
-  padding-top: var(--jdb-s-7);
-  background: linear-gradient(180deg, rgba(12, 20, 34, 0.96), rgba(12, 20, 34, 0.98));
-  border: 1px solid var(--jdb-line-strong);
-  border-bottom: 0;
-  border-radius: var(--jdb-r-xl) var(--jdb-r-xl) 0 0;
-  box-shadow: 0 -1rem 3rem rgba(3, 7, 18, 0.42);
-}
-.jdb-hero--blog + .jdb-section > .jdb-container {
-  position: relative;
-  z-index: 1;
-}
 
 .jdb-hero--split {
   border-bottom: 1px solid var(--jdb-line);
@@ -819,17 +825,23 @@ hr { border: 0; border-top: 1px solid var(--jdb-line); margin: var(--jdb-s-7) 0;
 /* Split stacks (text first, image below) until the hero itself is wide
    enough for two columns. A container query, so it also behaves inside
    narrow wrappers, not just narrow screens. */
-.jdb-hero--split .jdb-hero__layout {
+.jdb-hero--has-media .jdb-hero__layout {
   grid-template-columns: minmax(0, 1fr);
 }
 @container jdb-hero (min-width: 48rem) {
-  .jdb-hero--split .jdb-hero__layout {
+  .jdb-hero--has-media .jdb-hero__layout {
     grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
   }
 }
-.jdb-hero--split .jdb-hero__content {
+/* Home and about put more weight on the text column. */
+@container jdb-hero (min-width: 62rem) {
+  .jdb-hero--home.jdb-hero--has-media .jdb-hero__layout { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: var(--jdb-s-9); }
+  .jdb-hero--intro.jdb-hero--has-media .jdb-hero__layout { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: var(--jdb-s-9); }
+}
+.jdb-hero--has-media .jdb-hero__content {
   max-width: none;
 }
+.jdb-hero__aside { position: relative; z-index: 1; min-width: 0; }
 .jdb-hero--split h2 {
   font-size: clamp(2rem, 6cqi, 3rem);
 }
@@ -881,6 +893,7 @@ hr { border: 0; border-top: 1px solid var(--jdb-line); margin: var(--jdb-s-7) 0;
   background: rgba(79, 214, 138, .12); color: var(--jdb-good); border: 1px solid rgba(79, 214, 138, .3);
 }
 .jdb-badge__dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.jdb-badge--muted { background: rgba(255,255,255,.04); color: var(--jdb-fg-muted); border-color: var(--jdb-line-strong); }
 .jdb-timeline__item p { margin: 0; font-size: var(--jdb-fs-sm); max-width: 60ch; }
 
 /* --------------------------------------------------------------------------
@@ -935,14 +948,6 @@ a.jdb-tag:hover { background: var(--jdb-orange-a20); color: #fff; }
    per line. */
 .jdb-authorcard__body { flex: 1 1 16rem; min-width: 0; }
 .jdb-authorcard .jdb-btn { flex: 0 0 auto; white-space: nowrap; }
-
-/* --------------------------------------------------------------------------
-   19. BLOG POST HEADER  (title / meta / share)
-   -------------------------------------------------------------------------- */
-.jdb-postheader { padding-block: var(--jdb-s-7); border-bottom: 1px solid var(--jdb-line); }
-.jdb-postheader h1 { font-size: var(--jdb-fs-3xl); max-width: 24ch; }
-.jdb-postheader__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--jdb-s-5); margin-top: var(--jdb-s-4); }
-.jdb-postheader__metaitem { display: flex; align-items: center; gap: .5ch; font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-sm); color: var(--jdb-fg-muted); }
 
 /* --------------------------------------------------------------------------
    20. TABLE OF CONTENTS  (new — guides run 30+ minutes; needs a map)
@@ -1057,8 +1062,6 @@ a.jdb-tag:hover { background: var(--jdb-orange-a20); color: #fff; }
   font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-md); color: var(--jdb-fg);
 }
 .jdb-faq__item summary::-webkit-details-marker { display: none; }
-.jdb-faq__item summary .jdb-icon { color: var(--jdb-orange-500); transition: transform var(--jdb-t); flex: 0 0 auto; }
-.jdb-faq__item[open] summary .jdb-icon { transform: rotate(90deg); }
 .jdb-faq__item .jdb-faq__a { padding: 0 0 var(--jdb-s-5); max-width: 68ch; color: var(--jdb-fg-dim); font-size: var(--jdb-fs-base); }
 
 /* --------------------------------------------------------------------------
@@ -1079,12 +1082,7 @@ a.jdb-tag:hover { background: var(--jdb-orange-a20); color: #fff; }
 /* --------------------------------------------------------------------------
    30. NEWSLETTER SIGNUP
    -------------------------------------------------------------------------- */
-.jdb-newsletter { background: var(--jdb-navy-900); border: 1px solid var(--jdb-line); border-radius: var(--jdb-r-lg); padding: var(--jdb-s-6); }
-.jdb-footer .jdb-newsletter { margin-bottom: var(--jdb-s-5); }
-.jdb-newsletter__title { font-size: var(--jdb-fs-lg); margin-bottom: var(--jdb-s-2); }
-.jdb-newsletter p { font-size: var(--jdb-fs-sm); margin-bottom: var(--jdb-s-4); }
-.jdb-newsletter__row { display: flex; gap: var(--jdb-s-3); flex-wrap: wrap; margin-top: var(--jdb-s-4); }
-.jdb-newsletter__row .jdb-input { flex: 1; min-width: 12rem; }
+/* The newsletter signup lives in src/components/Footer.astro. */
 
 /* --------------------------------------------------------------------------
    31. CONSULTATION / HELPLINE CTA BLOCK

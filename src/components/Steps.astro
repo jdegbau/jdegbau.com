@@ -7,14 +7,18 @@
 interface Props {
   /** Accessible name for the steps, e.g. "How to read a Sankey chart". */
   label?: string;
+  /** `row` lays short steps side by side when there's room (rail runs across). */
+  layout?: 'column' | 'row';
   class?: string;
 }
 
-const { label, class: className } = Astro.props;
+const { label, layout = 'column', class: className } = Astro.props;
 ---
 
-<div class:list={['jdb-steps', className]} role={label ? 'group' : undefined} aria-label={label}>
-  <slot />
+<div class:list={['jdb-steps-wrap', `jdb-steps-wrap--${layout}`]}>
+  <div class:list={['jdb-steps', `jdb-steps--${layout}`, className]} role={label ? 'group' : undefined} aria-label={label}>
+    <slot />
+  </div>
 </div>
 
 <style>
@@ -77,6 +81,41 @@ const { label, class: className } = Astro.props;
 
   .jdb-steps > :global(ol > li strong:first-child) {
     color: var(--jdb-fg);
+  }
+
+  /* Row: steps side by side once each gets ~13rem; the rail runs across
+     from one badge to the next. */
+  .jdb-steps-wrap--row {
+    container: jdb-steps / inline-size;
+  }
+
+  @container jdb-steps (min-width: 52rem) {
+    .jdb-steps--row > :global(ol) {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+      grid-auto-flow: column;
+      gap: var(--jdb-s-6);
+    }
+
+    .jdb-steps--row > :global(ol > li) {
+      padding: 3.5rem 0 0;
+    }
+
+    .jdb-steps--row > :global(ol > li:not(:last-child)::after) {
+      left: 3rem;
+      right: calc(var(--jdb-s-6) * -1 + .75rem);
+      top: calc(1.125rem - 1px);
+      bottom: auto;
+      width: auto;
+      height: 2px;
+    }
+
+    .jdb-steps--row > :global(ol > li strong:first-child) {
+      display: block;
+      margin-bottom: var(--jdb-s-2);
+      font-size: var(--jdb-fs-md);
+      line-height: 1.25;
+    }
   }
 
   .jdb-steps > :global(ol > li img) {

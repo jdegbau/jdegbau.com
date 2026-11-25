@@ -21,7 +21,9 @@ interface Props {
 }
 
 const { seed, kind = 'trend', label, ratio = '16/9', class: className } = Astro.props;
-const svg = coverSvg({ seed, kind });
+const [rw, rh] = ratio.split('/').map(Number);
+// Taller boxes get a taller canvas, so the whole chart stays in view.
+const svg = coverSvg({ seed, kind, aspect: rw / rh });
 ---
 
 <div class:list={['jdb-cover', className]} style={`aspect-ratio: ${ratio}`}>

@@ -108,7 +108,7 @@ const Wrapper = caption ? 'figure' : 'div';
 
   /* Graded: cooler, calmer color, plus a navy shade at the bottom. */
   .jdb-portrait--graded img {
-    filter: saturate(.72) contrast(1.06) brightness(.96);
+    filter: var(--jdb-photo-filter);
   }
 
   .jdb-portrait--graded .jdb-portrait__frame::after {
@@ -116,9 +116,7 @@ const Wrapper = caption ? 'figure' : 'div';
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background:
-      linear-gradient(to top, rgba(10, 21, 38, .6), rgba(10, 21, 38, 0) 45%),
-      linear-gradient(135deg, rgba(21, 42, 73, .35), rgba(255, 77, 0, .08));
+    background: var(--jdb-photo-shade);
     mix-blend-mode: multiply;
   }
 

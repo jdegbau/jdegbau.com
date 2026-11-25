@@ -5,8 +5,24 @@ const currentYear = new Date().getFullYear();
 ---
 <footer class="jdb-footer">
   <div class="jdb-container">
-    <div class="jdb-footer__main">
-      <div>
+    <div class="jdb-footer__top">
+      <div class="jdb-footer__signup" id="newsletter">
+        <h2 class="jdb-footer__signup-title">Get practical content and measurement tips by email</h2>
+        <p>New guides on content strategy, data visualization, measurement, and SEO, sent when they’re published. No spam, and you can unsubscribe anytime.</p>
+        <form method="post" action="https://sendfox.com/form/3odzg9/mp8k5q" class="sendfox-form jdb-footer__form" id="mp8k5q" data-async="true" data-recaptcha="true" data-jdb-track="newsletter">
+          <div class="jdb-field">
+            <label for="sendfox_form_name">First name</label>
+            <input class="jdb-input" type="text" id="sendfox_form_name" placeholder="First name" name="first_name" autocomplete="given-name" autocapitalize="words" required />
+          </div>
+          <div class="jdb-field">
+            <label for="sendfox_form_email">Email</label>
+            <input class="jdb-input" type="email" id="sendfox_form_email" placeholder="you@example.com" name="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" required />
+          </div>
+          <button class="jdb-btn jdb-btn--primary" type="submit">Send me new guides</button>
+        </form>
+      </div>
+
+      <div class="jdb-footer__brand">
         <Logotype />
         <p class="jdb-footer__blurb">
           I help teams plan content with purpose, measure what matters, and present data in ways people can act on.
@@ -32,7 +48,9 @@ const currentYear = new Date().getFullYear();
           </a>
         </div>
       </div>
+    </div>
 
+    <nav class="jdb-footer__main" aria-label="Footer">
       <div>
         <h3 class="jdb-footer__heading">Explore</h3>
         <ul class="jdb-footer__list">
@@ -60,29 +78,7 @@ const currentYear = new Date().getFullYear();
           <li><a class="jdb-footer__link" href="#newsletter">Subscribe by email</a></li>
         </ul>
       </div>
-    </div>
-  </div>
-
-  <div class="jdb-container">
-    <div class="jdb-newsletter" id="newsletter">
-      <h3 class="jdb-newsletter__title">Get practical content and measurement tips by email</h3>
-      <p>New guides on content strategy, data visualization, measurement, and SEO, sent when they’re published. No spam, and you can unsubscribe anytime.</p>
-      <form method="post" action="https://sendfox.com/form/3odzg9/mp8k5q" class="sendfox-form" id="mp8k5q" data-async="true" data-recaptcha="true">
-        <div class="jdb-form__row">
-          <div class="jdb-field">
-            <label for="sendfox_form_name">First name</label>
-            <input class="jdb-input" type="text" id="sendfox_form_name" placeholder="First name" name="first_name" autocomplete="given-name" autocapitalize="words" required />
-          </div>
-          <div class="jdb-field">
-            <label for="sendfox_form_email">Email</label>
-            <input class="jdb-input" type="email" id="sendfox_form_email" placeholder="you@example.com" name="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" required />
-          </div>
-        </div>
-        <div class="jdb-newsletter__row">
-          <button class="jdb-btn jdb-btn--primary" type="submit">Send me new guides</button>
-        </div>
-      </form>
-    </div>
+    </nav>
   </div>
 
   <div class="jdb-statusbar">
@@ -97,3 +93,81 @@ const currentYear = new Date().getFullYear();
     </div>
   </div>
 </footer>
+
+<style>
+  .jdb-footer__top {
+    display: grid;
+    gap: var(--jdb-s-8);
+    padding-block: var(--jdb-s-9) var(--jdb-s-8);
+    border-bottom: 1px solid var(--jdb-line);
+  }
+
+  @media (min-width: 62rem) {
+    .jdb-footer__top {
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+      gap: var(--jdb-s-10);
+      align-items: start;
+    }
+  }
+
+  .jdb-footer__signup-title {
+    max-width: 22ch;
+    margin-bottom: var(--jdb-s-3);
+    font-size: var(--jdb-fs-2xl);
+  }
+
+  .jdb-footer__signup > p {
+    max-width: 56ch;
+    font-size: var(--jdb-fs-base);
+  }
+
+  .jdb-footer__form {
+    display: grid;
+    gap: var(--jdb-s-3);
+    margin-top: var(--jdb-s-5);
+  }
+
+  @media (min-width: 40rem) {
+    .jdb-footer__form {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) auto;
+      align-items: end;
+    }
+
+    .jdb-footer__form .jdb-btn {
+      min-height: 3.125rem;
+    }
+  }
+
+  .jdb-footer__brand {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jdb-s-4);
+  }
+
+  @media (min-width: 62rem) {
+    .jdb-footer__brand {
+      padding-left: var(--jdb-s-8);
+      border-left: 1px solid var(--jdb-line);
+    }
+  }
+
+  .jdb-footer__brand .jdb-footer__blurb {
+    margin: 0;
+  }
+
+  .jdb-footer__brand .jdb-footer__social {
+    flex-wrap: nowrap;
+    margin-top: var(--jdb-s-1);
+  }
+
+  .jdb-footer__main {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    padding-block: var(--jdb-s-8);
+  }
+
+  @media (max-width: 36rem) {
+    .jdb-footer__main {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

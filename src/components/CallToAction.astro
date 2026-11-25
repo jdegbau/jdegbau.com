@@ -3,8 +3,15 @@
  * End-of-page call to action: a short prompt, a headline, one sentence of
  * context, and one or two buttons. Every page should end with a clear next
  * step (see "Content guidelines" in src/components/README.md).
- * Uses the shared `.jdb-cta` styles in main.css (section 31).
+ *
+ * Variants:
+ *   default  a navy panel, for the end of a post or inside a section
+ *   closing  the page's last word: graph paper behind it (bookending the
+ *            hero), Josh's photo, and a reply-time promise. Use once per page.
  */
+import { author } from '../data/author';
+import Portrait from './Portrait.astro';
+
 interface Action {
   href: string;
   label: string;
@@ -22,6 +29,9 @@ interface Props {
   secondary?: Action;
   /** Optional price line, e.g. { amount: '$100', unit: 'per 60-minute call' }. */
   price?: { amount: string; unit: string };
+  /** Short promise under Josh's name in the closing variant. */
+  note?: string;
+  variant?: 'default' | 'closing';
   /** Heading level for `title`. Defaults to h2. */
   headingLevel?: 'h2' | 'h3';
   class?: string;
@@ -34,24 +44,37 @@ const {
   primary,
   secondary,
   price,
+  note = 'I usually reply within two business days.',
+  variant = 'default',
   headingLevel = 'h2',
   class: className,
 } = Astro.props;
 const Heading = headingLevel;
+const closing = variant === 'closing';
 ---
 
-<aside class:list={['jdb-cta', 'jdb-cta-block', className]} aria-label={title}>
-  <div>
-    {prompt && <p class="jdb-cta__prompt">{prompt}</p>}
+<aside class:list={['jdb-cta', 'jdb-cta-block', `jdb-cta-block--${variant}`, className]} aria-label={title}>
+  <div class="jdb-cta-block__copy">
+    {closing ? (
+      <div class="jdb-cta-block__person">
+        <Portrait crop="avatar" shape="circle" alt="" sizes="3rem" class="jdb-cta-block__avatar" />
+        <div>
+          <p class="jdb-cta-block__name">{author.name}</p>
+          <p class="jdb-cta-block__note">{note}</p>
+        </div>
+      </div>
+    ) : (
+      prompt && <p class="jdb-cta__prompt">{prompt}</p>
+    )}
     <Heading class="jdb-cta-block__title">{title}</Heading>
-    {text && <p>{text}</p>}
+    {text && <p class="jdb-cta-block__text">{text}</p>}
     {price && (
       <p class="jdb-cta__price"><strong>{price.amount}</strong> {price.unit}</p>
     )}
   </div>
   <div class="jdb-cta-block__actions">
-    <a class="jdb-btn jdb-btn--primary jdb-btn--lg" href={primary.href}>{primary.label}</a>
-    {secondary && <a class="jdb-btn jdb-btn--outline jdb-btn--lg" href={secondary.href}>{secondary.label}</a>}
+    <a class="jdb-btn jdb-btn--primary jdb-btn--lg jdb-btn--arrow" href={primary.href} data-jdb-track="cta-primary">{primary.label}</a>
+    {secondary && <a class="jdb-btn jdb-btn--outline jdb-btn--lg" href={secondary.href} data-jdb-track="cta-secondary">{secondary.label}</a>}
   </div>
 </aside>
 
@@ -72,9 +95,104 @@ const Heading = headingLevel;
     gap: var(--jdb-s-3);
   }
 
+  /* Closing: graph paper and a soft orange glow, the hero's texture, so the
+     page ends the way it began. */
+  .jdb-cta-block--closing {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--jdb-s-7);
+    margin: 0;
+    padding: var(--jdb-s-9) var(--jdb-s-5);
+    text-align: center;
+    background: var(--jdb-surface-band);
+    border-color: var(--jdb-line-strong);
+    border-radius: var(--jdb-r-xl);
+  }
+
+  .jdb-cta-block--closing::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      radial-gradient(ellipse 60% 70% at 50% 0%, rgba(255, 77, 0, .14), transparent 70%),
+      linear-gradient(to right, var(--jdb-grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--jdb-grid-line) 1px, transparent 1px);
+    background-size: 100% 100%, var(--jdb-grid-size) var(--jdb-grid-size), var(--jdb-grid-size) var(--jdb-grid-size);
+    background-position: 0 0, center top, center top;
+    -webkit-mask-image: radial-gradient(ellipse 90% 90% at 50% 20%, #000 40%, transparent 100%);
+            mask-image: radial-gradient(ellipse 90% 90% at 50% 20%, #000 40%, transparent 100%);
+  }
+
+  .jdb-cta-block--closing .jdb-cta-block__copy {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 40rem;
+  }
+
+  .jdb-cta-block--closing .jdb-cta-block__title {
+    max-width: 20ch;
+    font-size: var(--jdb-fs-3xl);
+    font-weight: var(--jdb-fw-black);
+    line-height: var(--jdb-lh-display);
+    letter-spacing: var(--jdb-track-display);
+    margin-bottom: var(--jdb-s-4);
+  }
+
+  .jdb-cta-block--closing .jdb-cta-block__text {
+    max-width: 48ch;
+    font-size: var(--jdb-fs-md);
+  }
+
+  .jdb-cta-block--closing .jdb-cta-block__actions {
+    justify-content: center;
+  }
+
+  .jdb-cta-block__person {
+    display: flex;
+    align-items: center;
+    gap: var(--jdb-s-3);
+    margin-bottom: var(--jdb-s-6);
+    padding: var(--jdb-s-2) var(--jdb-s-4) var(--jdb-s-2) var(--jdb-s-2);
+    text-align: left;
+    background: rgba(10, 21, 38, .6);
+    border: 1px solid var(--jdb-line-strong);
+    border-radius: var(--jdb-r-pill);
+  }
+
+  :global(.jdb-cta-block__avatar) {
+    width: 3rem;
+    flex: 0 0 auto;
+  }
+
+  .jdb-cta-block__name {
+    margin: 0;
+    font-size: var(--jdb-fs-sm);
+    font-weight: var(--jdb-fw-semibold);
+    color: var(--jdb-fg);
+    line-height: 1.3;
+  }
+
+  .jdb-cta-block__note {
+    margin: 0;
+    font-size: var(--jdb-fs-xs);
+    color: var(--jdb-fg-muted);
+    line-height: 1.4;
+  }
+
   @media (max-width: 36rem) {
     .jdb-cta-block {
       padding: var(--jdb-s-6);
+    }
+
+    .jdb-cta-block--closing {
+      padding: var(--jdb-s-8) var(--jdb-s-4);
     }
 
     .jdb-cta-block__actions,

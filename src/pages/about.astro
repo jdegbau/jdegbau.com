@@ -1,6 +1,9 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
+import Section from '../components/Section.astro';
+import FeatureList from '../components/FeatureList.astro';
+import Portrait from '../components/Portrait.astro';
 import Logos from '../components/Logos.astro';
 import BlogCard from '../components/BlogCard.astro';
 import CallToAction from '../components/CallToAction.astro';
@@ -9,130 +12,93 @@ import { getAllPosts } from '../lib/posts';
 const posts = (await getAllPosts()).slice(0, 3);
 const seoTitle = "About Joshua DeGrasse-Baumann";
 const description = 'About Joshua DeGrasse-Baumann, including his work in content strategy, data visualization, measurement strategy, and SEO.';
+
+const services = [
+  { glyph: 'hierarchy' as const, title: 'Content strategy', text: 'Content audits, editorial planning, and frameworks that help teams publish fewer, better pieces with a clear purpose.' },
+  { glyph: 'compare' as const, title: 'Data visualization', text: 'Charts, dashboards, and reports built for the audience reading them, with the right chart for each question.' },
+  { glyph: 'trend' as const, title: 'Measurement strategy', text: 'KPI definitions, measurement plans, and GA4 and GTM event design that help teams understand what’s really working.' },
+  { glyph: 'search' as const, title: 'SEO', text: 'Technical audits and search-informed content planning for teams that want sustainable organic visibility.' },
+];
+
+const principles = [
+  { title: 'Start with the audience’s questions', text: 'The best content answers what people are already asking. Research comes before writing, every time.' },
+  { title: 'Publish fewer, better pieces', text: 'One genuinely useful guide beats ten thin posts. Depth, original insight, and clear visuals are what earn attention and links.' },
+  { title: 'Measure what matters', text: 'Decide what success looks like before you publish, then track it honestly, even when the numbers aren’t flattering.' },
+  { title: 'Show the data plainly', text: 'A report is only useful if people understand it. The right chart, clearly labeled, beats a crowded dashboard.' },
+];
 ---
 <BaseLayout seoTitle={seoTitle} description={description}>
-  <Hero variant="intro" containerWidth="narrow">
+  <Hero variant="intro" class="about-hero">
     <span class="jdb-eyebrow">About</span>
     <h1>Hello. I’m Josh.</h1>
     <p class="jdb-hero__lede">
       I’m a content strategist focused on data visualization and measurement strategy. I help teams decide what to make, how to measure it, and how to explain the results.
     </p>
-  </Hero>
-
-  <section class="jdb-section">
-    <div class="jdb-container jdb-container--narrow">
-      <div class="jdb-prose">
-        <p>My work sits where content, data, and decision-making meet. I build content strategies grounded in audience needs, measurement plans that capture the signals that matter, and visualizations that make performance easy to understand. SEO is still part of the toolkit, as one of several ways content earns attention.</p>
-        <p>At the moment, I work as a Content Marketing Strategist at Ellsworth Adhesives, where I focus on connecting content strategy, measurement, and reporting to business outcomes.</p>
-        <p>Before that, I spent years in agency SEO and analytics roles, helping clients improve search visibility, digital analytics, and content systems. That background shapes how I approach content today: start with a clear question, measure honestly, and show the answer plainly.</p>
-      </div>
+    <div class="jdb-prose about-hero__story">
+      <p>My work sits where content, data, and decision-making meet. I build content strategies grounded in audience needs, measurement plans that capture the signals that matter, and visualizations that make performance easy to understand. SEO is still part of the toolkit, as one of several ways content earns attention.</p>
+      <p>At the moment, I work as a Content Marketing Strategist at Ellsworth Adhesives, where I focus on connecting content strategy, measurement, and reporting to business outcomes.</p>
+      <p>Before that, I spent years in agency SEO and analytics roles, helping clients improve search visibility, digital analytics, and content systems. That background shapes how I approach content today: start with a clear question, measure honestly, and show the answer plainly.</p>
     </div>
-  </section>
+    <div class="jdb-hero__actions">
+      <a href="/seo-helpline/" class="jdb-btn jdb-btn--primary jdb-btn--arrow" data-jdb-track="about-primary">Book a consultation</a>
+      <a href="/contact/" class="jdb-btn jdb-btn--outline">Get in touch</a>
+    </div>
+
+    <Portrait slot="media" loading="eager" sizes="(min-width: 62rem) 26rem, 90vw" class="about-hero__photo" />
+  </Hero>
 
   <Logos />
 
-  <section class="jdb-section">
-    <div class="jdb-container">
-      <div class="jdb-section__head">
-        <span class="jdb-eyebrow">What I do</span>
-        <h2 class="jdb-section__title">A practical mix of strategy and execution</h2>
-      </div>
-      <div class="jdb-grid jdb-grid--4">
-        <article class="jdb-service">
-          <h3>Content Strategy</h3>
-          <p>Content audits, editorial planning, and frameworks that help teams publish fewer, better pieces with a clear purpose.</p>
-        </article>
-        <article class="jdb-service">
-          <h3>Data Visualization</h3>
-          <p>Charts, dashboards, and reports built for the audience reading them, with the right chart for each question.</p>
-        </article>
-        <article class="jdb-service">
-          <h3>Measurement Strategy</h3>
-          <p>KPI definitions, measurement plans, and GA4 and GTM event design that help teams understand what’s really working.</p>
-        </article>
-        <article class="jdb-service">
-          <h3>SEO</h3>
-          <p>Technical audits and search-informed content planning for teams that want sustainable organic visibility.</p>
-        </article>
-      </div>
-    </div>
-  </section>
+  <Section layout="split" eyebrow="What I do" title="A practical mix of strategy and execution">
+    <FeatureList items={services} columns={2} />
+  </Section>
 
-  <section class="jdb-section jdb-section--raised">
-    <div class="jdb-container">
-      <div class="jdb-section__head">
-        <span class="jdb-eyebrow">How I think about content</span>
-        <h2 class="jdb-section__title">Four principles behind the work</h2>
-      </div>
-      <div class="jdb-grid jdb-grid--4">
-        <article class="jdb-service">
-          <h3>Start with the audience’s questions</h3>
-          <p>The best content answers what people are already asking. Research comes before writing, every time.</p>
-        </article>
-        <article class="jdb-service">
-          <h3>Publish fewer, better pieces</h3>
-          <p>One genuinely useful guide beats ten thin posts. Depth, original insight, and clear visuals are what earn attention and links.</p>
-        </article>
-        <article class="jdb-service">
-          <h3>Measure what matters</h3>
-          <p>Decide what success looks like before you publish, then track it honestly, even when the numbers aren’t flattering.</p>
-        </article>
-        <article class="jdb-service">
-          <h3>Show the data plainly</h3>
-          <p>A report is only useful if people understand it. The right chart, clearly labeled, beats a crowded dashboard.</p>
-        </article>
-      </div>
+  <Section tone="band" eyebrow="How I think about content" title="Four principles behind the work">
+    <FeatureList items={principles} columns={4} />
+  </Section>
+
+  <Section layout="split" eyebrow="Experience" title="Where I’ve been">
+    <ul class="jdb-timeline">
+      <li class="jdb-timeline__item jdb-timeline__item--current">
+        <div class="jdb-timeline__role">Content Marketing Strategist</div>
+        <div class="jdb-timeline__meta">
+          <strong>Ellsworth Adhesives</strong>
+          <span class="jdb-badge"><span class="jdb-badge__dot"></span> Current</span>
+        </div>
+        <p>Leading content strategy and digital marketing efforts that support brand growth, customer education, and measurable demand generation.</p>
+      </li>
+      <li class="jdb-timeline__item">
+        <div class="jdb-timeline__role">Lead SEO Strategist</div>
+        <div class="jdb-timeline__meta">
+          <strong>Fire&amp;Spark</strong>
+          <span class="jdb-badge jdb-badge--muted">Previously</span>
+        </div>
+        <p>Built SEO strategies, analytics systems, and digital growth programs that improved visibility, measurement, and cross-functional execution.</p>
+      </li>
+      <li class="jdb-timeline__item">
+        <div class="jdb-timeline__role">SEO Manager &amp; Analytics Specialist</div>
+        <div class="jdb-timeline__meta">
+          <strong>Rocket Clicks</strong>
+          <span class="jdb-badge jdb-badge--muted">Previously</span>
+        </div>
+        <p>Delivered SEO solutions and digital marketing strategy for diverse client portfolios with a strong focus on measurement and implementation.</p>
+      </li>
+    </ul>
+  </Section>
+
+  <Section eyebrow="Recent articles" title="A few recent notes">
+    <a slot="actions" href="/blog/" class="jdb-btn jdb-btn--outline">Browse all posts</a>
+    <div class="jdb-postgrid">
+      {posts.map((post) => (
+        <BlogCard post={post} />
+      ))}
     </div>
-  </section>
+  </Section>
 
   <section class="jdb-section">
     <div class="jdb-container">
-      <div class="jdb-section__head">
-        <span class="jdb-eyebrow">Experience</span>
-        <h2 class="jdb-section__title">Where I’ve been</h2>
-      </div>
-      <ul class="jdb-timeline">
-        <li class="jdb-timeline__item jdb-timeline__item--current">
-          <div class="jdb-timeline__role">Content Marketing Strategist</div>
-          <div class="jdb-timeline__meta">
-            <strong>Ellsworth Adhesives</strong>
-            <span class="jdb-badge"><span class="jdb-badge__dot"></span> Current</span>
-          </div>
-          <p>Leading content strategy and digital marketing efforts that support brand growth, customer education, and measurable demand generation.</p>
-        </li>
-        <li class="jdb-timeline__item">
-          <div class="jdb-timeline__role">Lead SEO Strategist</div>
-          <div class="jdb-timeline__meta">
-            <strong>Fire&amp;Spark</strong>
-            <span class="jdb-badge"><span class="jdb-badge__dot"></span> Prior</span>
-          </div>
-          <p>Built SEO strategies, analytics systems, and digital growth programs that improved visibility, measurement, and cross-functional execution.</p>
-        </li>
-        <li class="jdb-timeline__item">
-          <div class="jdb-timeline__role">SEO Manager &amp; Analytics Specialist</div>
-          <div class="jdb-timeline__meta">
-            <strong>Rocket Clicks</strong>
-            <span class="jdb-badge"><span class="jdb-badge__dot"></span> Prior</span>
-          </div>
-          <p>Delivered SEO solutions and digital marketing strategy for diverse client portfolios with a strong focus on measurement and implementation.</p>
-        </li>
-      </ul>
-    </div>
-  </section>
-
-  <section class="jdb-section">
-    <div class="jdb-container">
-      <div class="jdb-section__head">
-        <span class="jdb-eyebrow">Recent articles</span>
-        <h2 class="jdb-section__title">A few recent notes</h2>
-      </div>
-      <div class="jdb-postgrid">
-        {posts.map((post) => (
-          <BlogCard post={post} />
-        ))}
-      </div>
       <CallToAction
-        prompt="Let's talk"
+        variant="closing"
         title="Want to work through a content or measurement problem together?"
         text="Book a focused one-hour call, or send a short note about what you’re working on."
         primary={{ href: '/seo-helpline/', label: 'Book a consultation' }}
@@ -142,3 +108,18 @@ const description = 'About Joshua DeGrasse-Baumann, including his work in conten
   </section>
 
 </BaseLayout>
+
+<style>
+  .about-hero__story {
+    margin-top: var(--jdb-s-6);
+  }
+
+  :global(.about-hero__photo) {
+    max-width: 26rem;
+    margin-inline: auto;
+  }
+
+  :global(.about-hero__photo .jdb-portrait__frame) {
+    box-shadow: var(--jdb-sh-lg);
+  }
+</style>

@@ -153,7 +153,7 @@ export async function generateOgCards(root) {
   const posts = await readPosts(blogDir);
 
   const jobs = posts.map(async ({ slug, title, topic, cover }) => {
-    const art = coverSvg({ seed: slug, kind: coverKind(topic, cover), aspect: ART_WIDTH / HEIGHT });
+    const art = coverSvg({ seed: slug, kind: coverKind(topic, cover), aspect: ART_WIDTH / HEIGHT, mode: 'crop' });
     const eyebrow = TOPICS[topic]?.label ?? 'From the blog';
     const png = await render(card({ eyebrow, title, footer: 'jdegbau.com/blog', art }), fonts);
     await writeFile(path.join(outDir, `${slug}.png`), png);

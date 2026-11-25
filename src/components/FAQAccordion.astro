@@ -1,38 +1,113 @@
 ---
+/**
+ * Questions and answers on native <details>/<summary>. Answers slide open
+ * where the browser supports animating to `auto` height, and simply open
+ * everywhere else.
+ */
+import Section from './Section.astro';
+
 interface Props {
   items?: { question: string; answer: string }[];
   /** Section heading. */
   title?: string;
   /** Small label above the heading. */
   eyebrow?: string;
+  /** One line under the heading. */
+  lede?: string;
+  /** `split` puts the heading in a column beside the questions on wide screens. */
+  layout?: 'stacked' | 'split';
 }
 
 const {
   items = [],
   title = 'Data visualization & storytelling FAQs',
   eyebrow = 'Common questions',
+  lede,
+  layout = 'stacked',
 } = Astro.props;
 ---
 
-<section class="jdb-section jdb-section--tight">
-  <div class="jdb-container jdb-container--narrow">
-    <div class="jdb-section__head">
-      {eyebrow && <p class="jdb-eyebrow">{eyebrow}</p>}
-      <h2 class="jdb-section__title">{title}</h2>
+<Section
+  title={title}
+  eyebrow={eyebrow}
+  lede={lede}
+  layout={layout}
+  width={layout === 'split' ? 'default' : 'narrow'}
+  tight={layout !== 'split'}
+  class="jdb-faq-section"
+>
+  {items.length > 0 && (
+    <div class="jdb-faq">
+      {items.map((item, index) => (
+        <details class="jdb-faq__item" open={index === 0}>
+          <summary>
+            <span>{item.question}</span>
+            <span class="jdb-faq__toggle" aria-hidden="true"></span>
+          </summary>
+          <div class="jdb-faq__a" set:html={item.answer} />
+        </details>
+      ))}
     </div>
+  )}
+</Section>
 
-    {items.length > 0 && (
-      <div class="jdb-faq">
-        {items.map((item, index) => (
-          <details class="jdb-faq__item" open={index === 0}>
-            <summary>
-              <span>{item.question}</span>
-              <span class="jdb-icon jdb-icon--chevron" aria-hidden="true"></span>
-            </summary>
-            <div class="jdb-faq__a" set:html={item.answer} />
-          </details>
-        ))}
-      </div>
-    )}
-  </div>
-</section>
+<style>
+  .jdb-faq__item summary:hover {
+    color: #fff;
+  }
+
+  /* Plus that turns into a minus when the answer is open. */
+  .jdb-faq__toggle {
+    position: relative;
+    flex: 0 0 auto;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid var(--jdb-line-strong);
+    border-radius: 50%;
+    transition: border-color var(--jdb-t-fast), background var(--jdb-t-fast);
+  }
+
+  .jdb-faq__toggle::before,
+  .jdb-faq__toggle::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: .75rem;
+    height: 2px;
+    margin: -1px 0 0 -.375rem;
+    border-radius: 1px;
+    background: var(--jdb-orange-500);
+    transition: transform var(--jdb-t);
+  }
+
+  .jdb-faq__toggle::after {
+    transform: rotate(90deg);
+  }
+
+  .jdb-faq__item[open] .jdb-faq__toggle::after {
+    transform: rotate(0deg);
+  }
+
+  .jdb-faq__item summary:hover .jdb-faq__toggle {
+    border-color: var(--jdb-orange-500);
+    background: var(--jdb-orange-a10);
+  }
+
+  /* Smooth open/close where supported (animating to height: auto). */
+  @supports (interpolate-size: allow-keywords) {
+    .jdb-faq {
+      interpolate-size: allow-keywords;
+    }
+
+    .jdb-faq__item::details-content {
+      height: 0;
+      overflow: clip;
+      transition: height var(--jdb-dur-slow) var(--jdb-ease), content-visibility var(--jdb-dur-slow) allow-discrete;
+    }
+
+    .jdb-faq__item[open]::details-content {
+      height: auto;
+    }
+  }
+</style>

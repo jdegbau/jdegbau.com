@@ -31,6 +31,10 @@ import Section from '../components/Section.astro';
 import ChartGlyph from '../components/ChartGlyph.astro';
 import PostCover from '../components/PostCover.astro';
 import Portrait from '../components/Portrait.astro';
+import TrendChart from '../components/TrendChart.astro';
+import ChartFrame from '../components/ChartFrame.astro';
+import FeatureList from '../components/FeatureList.astro';
+import ArticleHeader from '../components/ArticleHeader.astro';
 import Spec from './_components/Spec.astro';
 import { getAllPosts } from '../lib/posts';
 
@@ -53,6 +57,16 @@ const sampleFaqs = [
     answer:
       '<p>Context helps stakeholders understand whether a number is good or bad by comparing it against benchmarks, seasonal patterns, or YoY change.</p>',
   },
+];
+
+// Sample series for the TrendChart demo (illustrative).
+const sampleTrend = [42, 44, 41, 43, 40, 42, 41, 47, 52, 55, 61, 64, 70, 73];
+
+const sampleFeatures = [
+  { glyph: 'hierarchy' as const, title: 'Content strategy', text: 'Audits, editorial planning, and governance.' },
+  { glyph: 'compare' as const, title: 'Data visualization', text: 'Charts built around the question being asked.' },
+  { glyph: 'trend' as const, title: 'Measurement strategy', text: 'KPIs, measurement plans, and tracking.' },
+  { glyph: 'search' as const, title: 'SEO', text: 'Audits and search-informed planning.' },
 ];
 
 const sampleTocItems = [
@@ -123,6 +137,7 @@ const explorer = [
     files: [
       { id: 'component-section', label: 'Section' },
       { id: 'component-hero', label: 'Hero' },
+      { id: 'component-featurelist', label: 'FeatureList' },
       { id: 'component-calltoaction', label: 'CallToAction' },
       { id: 'component-contactform', label: 'ContactForm' },
       { id: 'component-faqaccordion', label: 'FAQAccordion' },
@@ -134,6 +149,7 @@ const explorer = [
   {
     folder: 'posts',
     files: [
+      { id: 'component-articleheader', label: 'ArticleHeader' },
       { id: 'component-summarycard', label: 'SummaryCard' },
       { id: 'component-callout', label: 'Callout' },
       { id: 'component-steps', label: 'Steps' },
@@ -149,6 +165,8 @@ const explorer = [
   {
     folder: 'data viz',
     files: [
+      { id: 'component-chartframe', label: 'ChartFrame' },
+      { id: 'component-trendchart', label: 'TrendChart' },
       { id: 'component-chartplayground', label: 'ChartPlayground' },
       { id: 'component-quickcomparematrix', label: 'QuickCompareMatrix' },
       { id: 'component-charttypeassessment', label: 'ChartTypeAssessment' },
@@ -397,7 +415,7 @@ const sampleMatrixRows = [
             </Section>
           </Spec>
 
-          <Spec name="Hero" id="component-hero" what="Page header in three layouts: a compact intro, a full-width hero with an optional background image, and a split hero with an image beside the text." props="variant, backgroundImage, imageSrc, imageAlt, containerWidth, class" flush>
+          <Spec name="Hero" id="component-hero" what="Page header: a compact intro, the home page's display headline, a full-width hero with an optional background image, or a split hero. Anything in the media slot sits beside the text." props="variant, backgroundImage, imageSrc, imageAlt, containerWidth, class (slots: default, media)" flush>
             <div class="variant">
               <p class="variant__label"><code>variant="intro"</code></p>
               <Hero variant="intro" containerWidth="narrow">
@@ -430,7 +448,13 @@ const sampleMatrixRows = [
             </div>
           </Spec>
 
-          <Spec name="CallToAction" id="component-calltoaction" what="The one clear next step that ends every page." props="title, primary, secondary, text, prompt, price, headingLevel">
+          <Spec name="FeatureList" id="component-featurelist" what="A short list of services, principles, or deliverables on hairlines, each with a ChartGlyph or a number." props="items, columns, headingLevel, class">
+            <FeatureList items={sampleFeatures} columns={4} />
+            <p class="demo-label">Without glyphs, items are numbered</p>
+            <FeatureList items={sampleFeatures.map(({ title, text }) => ({ title, text }))} columns={4} />
+          </Spec>
+
+          <Spec name="CallToAction" id="component-calltoaction" what="The one clear next step that ends every page. The closing variant is the page's last word, on graph paper with Josh's photo." props="title, primary, secondary, text, prompt, price, note, variant, headingLevel">
             <CallToAction
               title="Stuck on a content or measurement question?"
               text="Book a focused one-hour call and leave with practical next steps."
@@ -439,13 +463,22 @@ const sampleMatrixRows = [
               price={{ amount: '$100', unit: 'per 60-minute call' }}
               headingLevel="h3"
             />
+            <p class="demo-label"><code>variant="closing"</code></p>
+            <CallToAction
+              variant="closing"
+              title="Have a content or measurement question?"
+              text="Book a focused one-hour call and leave with practical next steps."
+              primary={{ href: '/seo-helpline/', label: 'Book a consultation' }}
+              secondary={{ href: '/contact/', label: 'Send a note first' }}
+              headingLevel="h3"
+            />
           </Spec>
 
           <Spec name="ContactForm" id="component-contactform" what="Three-field contact form with autofill hints, errors shown only after interaction, and a double-submit guard." props="action, demo">
             <ContactForm demo />
           </Spec>
 
-          <Spec name="FAQAccordion" id="component-faqaccordion" what="Questions and answers on native details/summary. On posts, set faq in front matter instead and the template adds FAQPage schema." props="items, title, eyebrow" flush>
+          <Spec name="FAQAccordion" id="component-faqaccordion" what="Questions and answers on native details/summary. On posts, set faq in front matter instead and the template adds FAQPage schema." props="items, title, eyebrow, lede, layout" flush>
             <FAQAccordion items={sampleFaqs} />
           </Spec>
 
@@ -469,6 +502,10 @@ const sampleMatrixRows = [
         <div class="folder" id="folder-posts">
           <p class="folder__name">posts</p>
           <p class="folder__note">Generic pieces for long-form posts, used in <code>.mdx</code> files.</p>
+
+          <Spec name="ArticleHeader" id="component-articleheader" what="The top of a blog post: breadcrumbs, topic, title, subtitle, byline, and the post's cover. The post template renders it." props="post" flush>
+            <ArticleHeader post={samplePost} />
+          </Spec>
 
           <Spec name="SummaryCard" id="component-summarycard" what="At-a-glance block: a title, a one-line definition, and labeled rows colored by status." props="title, definition, eyebrow, items">
             <div class="demo-narrow">
@@ -494,7 +531,7 @@ const sampleMatrixRows = [
             </div>
           </Spec>
 
-          <Spec name="Steps" id="component-steps" what="Numbered how-to steps on a connecting rail. Wrap a normal ordered list." props="label">
+          <Spec name="Steps" id="component-steps" what="Numbered how-to steps on a connecting rail. Wrap a normal ordered list." props="label, layout">
             <div class="demo-narrow">
               <Steps label="How to read a Sankey chart">
                 <ol>
@@ -504,6 +541,14 @@ const sampleMatrixRows = [
                 </ol>
               </Steps>
             </div>
+            <p class="demo-label"><code>layout="row"</code></p>
+            <Steps label="Steps in a row" layout="row">
+              <ol>
+                <li><strong>Ask.</strong> Start with the question.</li>
+                <li><strong>Measure.</strong> Track what answers it.</li>
+                <li><strong>Show.</strong> Chart the answer plainly.</li>
+              </ol>
+            </Steps>
           </Spec>
 
           <Spec name="Tabs" id="component-tabs" what="Accessible tabs that sync across groups and remember the reader's choice. Each panel is a TabPanel." props="label, group (TabPanel: label)">
@@ -605,6 +650,25 @@ const sampleMatrixRows = [
         <div class="folder" id="folder-data-viz">
           <p class="folder__name">data viz</p>
           <p class="folder__note">Built for chart content. ChartPlayground is reusable; the rest belong to the SEO data visualization guide.</p>
+
+          <Spec name="ChartFrame" id="component-chartframe" what="The wrapper for every chart: a title that states the takeaway, one line on what's plotted, the chart, a source, and an optional data table." props="title, dek, source, table, titleAs, surface, class">
+            <div class="demo-narrow">
+              <ChartFrame
+                title="Signups grew 74% after the pricing page rewrite"
+                dek="Weekly signups, 14 weeks."
+                source="Illustrative data for this demo."
+                table={{ columns: ['Week', 'Signups'], rows: sampleTrend.map((v, i) => [`Week ${i + 1}`, v]) }}
+              >
+                <TrendChart values={sampleTrend} event={{ index: 6, label: 'Rewrite shipped' }} valueLabel="+74%" startLabel="Week 1" endLabel="Week 14" label="Line chart: weekly signups hover near 42 for seven weeks, then climb to 73 after the rewrite." />
+              </ChartFrame>
+            </div>
+          </Spec>
+
+          <Spec name="TrendChart" id="component-trendchart" what="A line chart with one annotated event, in SVG with no library. Gray before the event, orange after; it draws itself in once." props="values, label, event, valueLabel, startLabel, endLabel, animate, class">
+            <div class="demo-narrow">
+              <TrendChart values={sampleTrend} event={{ index: 6, label: 'Rewrite shipped' }} valueLabel="+74%" label="Line chart: weekly signups hover near 42, then climb to 73." />
+            </div>
+          </Spec>
 
           <Spec name="ChartPlayground" id="component-chartplayground" what="A live Chart.js chart with toggles that show what one design choice does." props="id, type, data, options, plugins, controls, alt, caption, table, height">
             <ChartPlayground

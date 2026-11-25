@@ -298,22 +298,32 @@ export function coverKind(topic, cover) {
 
 /**
  * The cover as an SVG string.
- * @param {{ seed: string, kind?: string, title?: string, aspect?: number }} options
+ * @param {{ seed: string, kind?: string, title?: string, aspect?: number, mode?: 'crop' | 'extend' }} options
  *   seed  — usually the post slug; same seed, same picture.
  *   kind  — one of KINDS.
  *   title — accessible name; omit for a decorative cover.
- *   aspect — width/height to crop the art to (e.g. 0.8 for a tall panel). The
- *           crop keeps the chart's story in view. Omit to keep 16:9 and let
- *           the browser crop with preserveAspectRatio.
+ *   aspect — width/height of the box the cover fills, when narrower than 16:9.
+ *   mode   — `extend` (default) grows the canvas taller so the whole chart
+ *           stays in view; `crop` trims the sides instead, keeping the
+ *           chart's story in view (for tall panels like the share image).
+ *           Without `aspect`, the browser crops with preserveAspectRatio.
  */
-export function coverSvg({ seed, kind = 'trend', title, aspect }) {
+export function coverSvg({ seed, kind = 'trend', title, aspect, mode = 'extend' }) {
   const focus = FOCUS[kind] ?? 'xMidYMid';
-  let viewBox = `0 0 ${W} ${H}`;
+  // The canvas: x, y, width, height in drawing units.
+  let box = [0, 0, W, H];
   if (aspect && aspect < W / H) {
-    const vw = Math.round(H * aspect);
-    const x = focus === 'xMaxYMid' ? W - vw - 40 : focus === 'xMinYMid' ? 60 : Math.round((W - vw) / 2);
-    viewBox = `${x} 0 ${vw} ${H}`;
+    if (mode === 'crop') {
+      const vw = Math.round(H * aspect);
+      const x = focus === 'xMaxYMid' ? W - vw - 40 : focus === 'xMinYMid' ? 60 : Math.round((W - vw) / 2);
+      box = [x, 0, vw, H];
+    } else {
+      const vh = Math.round(W / aspect);
+      box = [0, -Math.round((vh - H) / 2), W, vh];
+    }
   }
+  const viewBox = box.join(' ');
+  const bgRect = `x="${box[0]}" y="${box[1]}" width="${box[2]}" height="${box[3]}"`;
   const rand = rng(`${seed}:${kind}`);
   const id = `cv${rng(seed)().toString(36).slice(2, 8)}`;
   const art = (DRAW[kind] ?? trend)(rand, id);
@@ -336,9 +346,9 @@ export function coverSvg({ seed, kind = 'trend', title, aspect }) {
       <stop offset="1" stop-color="${C.bg}" stop-opacity=".85"/>
     </linearGradient>
   </defs>
-  <rect width="${W}" height="${H}" fill="${C.bg}"/>
-  <rect width="${W}" height="${H}" fill="url(#${id}-grid)"/>
+  <rect ${bgRect} fill="${C.bg}"/>
+  <rect ${bgRect} fill="url(#${id}-grid)"/>
   ${art}
-  <rect width="${W}" height="${H}" fill="url(#${id}-fade)"/>
+  <rect ${bgRect} fill="url(#${id}-fade)"/>
 </svg>`;
 }
