@@ -8,6 +8,8 @@
  *
  * `x` and `y` are percentages from the top-left corner of the visual.
  */
+import ChartFrame from './ChartFrame.astro';
+
 interface Callout {
   x: number;
   y: number;
@@ -21,11 +23,16 @@ interface Props {
   width?: number;
   height?: number;
   callouts?: Callout[];
+  /** The takeaway, as a sentence (ChartFrame title). */
+  title?: string;
+  /** One line on what's shown. */
   caption?: string;
+  /** Where the image or data comes from. */
+  source?: string;
   class?: string;
 }
 
-const { src, alt, width, height, callouts = [], caption, class: className } = Astro.props;
+const { src, alt, width, height, callouts = [], title, caption, source, class: className } = Astro.props;
 
 if (src && alt === undefined) {
   throw new Error(`AnnotatedFigure: add alt text for ${src}`);
@@ -34,7 +41,7 @@ if (src && alt === undefined) {
 const clamp = (value: number) => Math.min(100, Math.max(0, value));
 ---
 
-<figure class:list={['jdb-annotated', className]}>
+<ChartFrame title={title} dek={caption} source={source} class:list={['jdb-annotated', className]}>
   <div class="jdb-annotated__stage">
     {src ? <img src={src} alt={alt} width={width} height={height} loading="lazy" decoding="async" /> : <slot />}
     {callouts.map((callout, index) => (
@@ -58,16 +65,11 @@ const clamp = (value: number) => Math.min(100, Math.max(0, value));
       ))}
     </ol>
   )}
-  {caption && <figcaption class="jdb-annotated__caption">{caption}</figcaption>}
-</figure>
+</ChartFrame>
 
 <style>
-  .jdb-annotated {
+  :global(.jdb-annotated) {
     margin: var(--jdb-s-6) 0;
-    padding: var(--jdb-s-4);
-    background: var(--jdb-surface);
-    border: 1px solid var(--jdb-line);
-    border-radius: var(--jdb-r-lg);
   }
 
   .jdb-annotated__stage {
@@ -138,9 +140,4 @@ const clamp = (value: number) => Math.min(100, Math.max(0, value));
     color: var(--jdb-fg);
   }
 
-  .jdb-annotated__caption {
-    margin-top: var(--jdb-s-3);
-    font-size: var(--jdb-fs-xs);
-    color: var(--jdb-fg-muted);
-  }
 </style>

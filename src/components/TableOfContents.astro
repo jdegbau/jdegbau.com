@@ -6,7 +6,6 @@ const visibleItems = items.filter((item) => item.level === 2);
 <aside class="jdb-toc" aria-label="Table of contents">
   <div class="jdb-toc__title">
     <button class="jdb-toc__toggle" type="button" aria-expanded="true" aria-controls="jdb-toc-list">
-      <span class="jdb-icon jdb-icon--branch" aria-hidden="true"></span>
       <span>On this page</span>
       <span class="jdb-toc__toggle-caret" aria-hidden="true">▾</span>
     </button>
@@ -23,14 +22,17 @@ const visibleItems = items.filter((item) => item.level === 2);
 </aside>
 
 <style>
+  /* Wide screens: a quiet rail beside the article, no box. The section being
+     read is marked in orange on the rail. Narrow screens: a collapsible box
+     above the article. */
   .jdb-toc {
-    background: var(--jdb-surface);
-    border: 1px solid var(--jdb-line);
-    border-radius: var(--jdb-r-lg);
-    padding: var(--jdb-s-5);
     margin-bottom: var(--jdb-s-6);
-    overflow: visible;
-    max-height: none;
+    padding: 0;
+    background: none;
+    border: 0;
+    max-height: calc(100vh - var(--jdb-header-h) - var(--jdb-postmeta-h) - 2rem);
+    overflow-y: auto;
+    scrollbar-width: thin;
   }
 
   .jdb-toc__title {
@@ -47,12 +49,14 @@ const visibleItems = items.filter((item) => item.level === 2);
     color: var(--jdb-fg-muted);
     font-family: var(--jdb-font-sans);
     font-size: var(--jdb-fs-xs);
+    font-weight: var(--jdb-fw-medium);
     padding: 0;
     text-align: left;
-    cursor: pointer;
+    cursor: default;
   }
 
   .jdb-toc__toggle-caret {
+    display: none;
     margin-left: auto;
     transition: transform var(--jdb-t-fast);
   }
@@ -61,23 +65,20 @@ const visibleItems = items.filter((item) => item.level === 2);
     list-style: none;
     margin: 0;
     padding: 0;
-    border-left: 1px solid var(--jdb-line);
+    border-left: 1px solid var(--jdb-line-strong);
   }
 
   .jdb-toc__item {
     list-style: none;
   }
 
-  .jdb-toc__item + .jdb-toc__item {
-    margin-top: var(--jdb-s-1);
-  }
-
   .jdb-toc__item a {
     display: block;
-    padding: 0.4rem 0 0.4rem var(--jdb-s-4);
+    padding: 0.35rem 0 0.35rem var(--jdb-s-4);
     margin-left: -1px;
     border-left: 2px solid transparent;
     font-size: var(--jdb-fs-sm);
+    line-height: 1.35;
     color: var(--jdb-fg-muted);
     text-decoration: none;
     transition: color var(--jdb-t-fast), border-color var(--jdb-t-fast);
@@ -88,7 +89,7 @@ const visibleItems = items.filter((item) => item.level === 2);
   }
 
   .jdb-toc__item a.is-active {
-    color: var(--jdb-orange-400);
+    color: var(--jdb-fg);
     border-left-color: var(--jdb-orange-500);
     font-weight: var(--jdb-fw-medium);
   }
@@ -103,8 +104,32 @@ const visibleItems = items.filter((item) => item.level === 2);
   }
 
   @media (max-width: 64rem) {
+    .jdb-toc {
+      max-height: none;
+      padding: var(--jdb-s-4) var(--jdb-s-5);
+      background: var(--jdb-surface-card);
+      border: 1px solid var(--jdb-line);
+      border-radius: var(--jdb-r-lg);
+    }
+
+    .jdb-toc__toggle {
+      min-height: var(--jdb-target);
+      margin-block: calc(var(--jdb-s-2) * -1);
+      font-size: var(--jdb-fs-sm);
+      color: var(--jdb-fg);
+      cursor: pointer;
+    }
+
+    .jdb-toc__toggle-caret {
+      display: inline;
+    }
+
+    .jdb-toc__title {
+      margin-bottom: 0;
+    }
+
     .jdb-toc__list {
-      display: block;
+      margin-top: var(--jdb-s-3);
     }
 
     .jdb-toc.is-collapsed .jdb-toc__list {
@@ -115,7 +140,6 @@ const visibleItems = items.filter((item) => item.level === 2);
       transform: rotate(-90deg);
     }
   }
-
 </style>
 
 <script>

@@ -108,6 +108,15 @@ Location: `src/components/TableOfContents.astro`
 Notes:
 - Expects an `items` prop containing heading objects with `id`, `text`, and `level`.
 - Automatically highlights the current section as the page scrolls.
+- On wide screens it's a quiet rail with no box, scrolling on its own if it's taller than the window; the section being read gets the orange rail mark. Below 64rem it becomes a collapsible box above the article, collapsed by default.
+
+### Sidenote
+Purpose: A margin note for long posts.
+Location: `src/components/Sidenote.astro`
+Notes:
+- Props: `label?` (e.g. "Source", "Definition"); the note goes in the default slot (markdown works in MDX).
+- In a post (`.jdb-prose--article`) on screens 90rem and wider, it floats into the empty margin right of the text, beside the paragraph it follows. Everywhere else it's an indented aside in the text flow.
+- Use it for asides that would interrupt the sentence. Keep it to two or three sentences; longer asides belong in a `Callout`.
 
 ### QuickCompareMatrix
 Purpose: Reusable qualitative comparison table for chart-selection and decision-support content.
@@ -327,7 +336,8 @@ Notes:
 Purpose: Figure with numbered callout markers and a matching numbered legend.
 Location: `src/components/AnnotatedFigure.astro`
 Notes:
-- Props: `src` + `alt` (alt is required when `src` is set), or a default slot for inline SVG; `callouts: { x, y, title, text? }[]`; `caption?`.
+- Props: `src` + `alt` (alt is required when `src` is set), or a default slot for inline SVG; `callouts: { x, y, title, text? }[]`; `title?` (the takeaway); `caption?` (one line on what's shown); `source?`.
+- Renders inside `ChartFrame`.
 - `x` and `y` are percentages from the visual's top-left corner. The legend carries the meaning, so markers are decorative for screen readers.
 - Use for chart anatomy, UI teardowns, annotated screenshots.
 
@@ -365,12 +375,18 @@ Notes:
 Purpose: Live Chart.js chart with toggles that show what a design choice does. (Chart-specific.)
 Location: `src/components/ChartPlayground.astro`, loader in `src/lib/chart-loader.ts`
 Notes:
-- Props: `id`, `type`, `data`, `options?`, `plugins?: ('sankey' | 'treemap')[]`, `controls?: { label, patch, checked? }[]`, `alt` (required text description), `caption?`, `table?: { columns, rows }`, `height?` (px, default 360).
+- Props: `id`, `type`, `data`, `options?`, `plugins?: ('sankey' | 'treemap')[]`, `controls?: { label, patch, checked? }[]`, `alt` (required text description), `title?` (the takeaway), `dek?` (what's plotted; `caption` still works as an older name), `source?`, `table?: { columns, rows }`, `height?` (px, default 360).
+- Renders inside `ChartFrame`, so it shares the title, source line, and "View the data" table with every other chart.
 - Each control is a checkbox; when it's on, its `patch` is deep-merged into the config (objects merge, arrays replace, so patch a whole `datasets` array).
 - Config is plain JSON: no functions or scriptable options. Colors can be site tokens written as `"var(--jdb-orange-500)"`.
 - Chart.js 4.6.1 and plugins load once per page from jsDelivr with SRI, lazily when the chart nears the viewport. The site's dark theme defaults are applied, and animation is off for `prefers-reduced-motion`.
 - To upgrade a library, edit the pinned URL and hash in `src/lib/chart-loader.ts` (instructions are in the file).
 - `table` adds a "View the data" panel for screen readers, and as a fallback if the chart can't load.
+
+## Post body styles
+Post bodies get `jdb-prose jdb-prose--article` (in `src/pages/blog/[slug].astro`): 18px text at a 68ch measure, a larger first paragraph, a hairline and extra space above each H2 written in the post, and styled markdown tables, figures, and lists (`main.css` section 37).
+
+Older posts contain raw HTML from the site's previous CSS framework (`columns`, `card`, `notification`, `is-size-7`, `has-text-grey`, …). `main.css` section 38 maps that markup onto the current design so those posts match. Don't use those classes in new posts; use `ChartFrame`, `Callout`, and the other components instead.
 
 ## Brand and type
 The visual rules live in the tokens at the top of `public/assets/css/main.css`; the components page shows them.

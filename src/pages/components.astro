@@ -35,6 +35,7 @@ import TrendChart from '../components/TrendChart.astro';
 import ChartFrame from '../components/ChartFrame.astro';
 import FeatureList from '../components/FeatureList.astro';
 import ArticleHeader from '../components/ArticleHeader.astro';
+import Sidenote from '../components/Sidenote.astro';
 import Spec from './_components/Spec.astro';
 import { getAllPosts } from '../lib/posts';
 
@@ -151,6 +152,7 @@ const explorer = [
     files: [
       { id: 'component-articleheader', label: 'ArticleHeader' },
       { id: 'component-summarycard', label: 'SummaryCard' },
+      { id: 'component-sidenote', label: 'Sidenote' },
       { id: 'component-callout', label: 'Callout' },
       { id: 'component-steps', label: 'Steps' },
       { id: 'component-tabs', label: 'Tabs' },
@@ -518,6 +520,16 @@ const sampleMatrixRows = [
                   { label: 'Best alternative', value: 'A <strong>funnel</strong> for a single path, a stacked bar for shares.', tone: 'neutral' },
                 ]}
               />
+            </div>
+          </Spec>
+
+          <Spec name="Sidenote" id="component-sidenote" what="A margin note: in the empty space right of the text on wide post pages, an indented aside everywhere else." props="label (slot: the note)">
+            <div class="jdb-prose demo-narrow">
+              <p>Organic clicks dropped 18% in March, but impressions held steady, so the problem was the snippet, not the ranking.</p>
+              <Sidenote label="Definition">
+                <p>An impression counts each time a link to your page appears in search results, whether or not anyone scrolls to it.</p>
+              </Sidenote>
+              <p>Rewriting the title tags on the ten biggest pages brought click-through back within a month.</p>
             </div>
           </Spec>
 

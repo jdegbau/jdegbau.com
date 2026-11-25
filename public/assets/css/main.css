@@ -950,18 +950,8 @@ a.jdb-tag:hover { background: var(--jdb-orange-a20); color: #fff; }
 .jdb-authorcard .jdb-btn { flex: 0 0 auto; white-space: nowrap; }
 
 /* --------------------------------------------------------------------------
-   20. TABLE OF CONTENTS  (new — guides run 30+ minutes; needs a map)
+   20. TABLE OF CONTENTS — styled in src/components/TableOfContents.astro
    -------------------------------------------------------------------------- */
-.jdb-toc { background: var(--jdb-surface); border: 1px solid var(--jdb-line); border-radius: var(--jdb-r-lg); padding: var(--jdb-s-5); margin-bottom: var(--jdb-s-6); overflow: visible; max-height: none; }
-.jdb-toc__title { display: flex; align-items: center; gap: .5ch; font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted); margin-bottom: var(--jdb-s-3); }
-.jdb-toc__list { list-style: none; margin: 0; padding: 0; border-left: 1px solid var(--jdb-line); }
-.jdb-toc__list a {
-  display: block; padding: .4rem 0 .4rem var(--jdb-s-4); margin-left: -1px; border-left: 2px solid transparent;
-  font-size: var(--jdb-fs-sm); color: var(--jdb-fg-muted); text-decoration: none; transition: color var(--jdb-t-fast), border-color var(--jdb-t-fast);
-}
-.jdb-toc__list a:hover { color: var(--jdb-fg); }
-.jdb-toc__list a.is-active { color: var(--jdb-orange-400); border-left-color: var(--jdb-orange-500); font-weight: var(--jdb-fw-medium); }
-.jdb-toc__list li li a { padding-left: calc(var(--jdb-s-4) + var(--jdb-s-4)); font-size: var(--jdb-fs-xs); }
 
 /* --------------------------------------------------------------------------
    21. CODE BLOCK  (terminal-window chrome, language label, copy button)
@@ -1111,6 +1101,105 @@ a.jdb-tag:hover { background: var(--jdb-orange-a20); color: #fff; }
 .jdb-404 h1 { font-size: var(--jdb-fs-2xl); margin-bottom: var(--jdb-s-3); }
 .jdb-404__trace { color: var(--jdb-fg-muted); font-size: var(--jdb-fs-sm); line-height: 1.9; margin-bottom: var(--jdb-s-6); }
 .jdb-404__actions { display: flex; gap: var(--jdb-s-3); flex-wrap: wrap; }
+
+
+/* --------------------------------------------------------------------------
+   37. ARTICLE PROSE  (blog post body: .jdb-prose.jdb-prose--article)
+   -------------------------------------------------------------------------- */
+.jdb-prose--article { font-size: 1.125rem; line-height: 1.75; }
+.jdb-prose--article p, .jdb-prose--article li { color: var(--jdb-fg-dim); }
+.jdb-prose--article > p:first-of-type { font-size: var(--jdb-fs-md); line-height: 1.6; color: var(--jdb-fg); }
+/* Each H2 opens a new chapter: more air above it and a hairline to mark the
+   break. Only headings written in the post itself (direct children, or the
+   legacy `title is-3` headings) — components bring their own headings. */
+.jdb-prose--article > h2,
+.jdb-prose--article .container > h2.title,
+.jdb-prose--article .container > .content > h2.title {
+  margin-top: var(--jdb-s-10); padding-top: var(--jdb-s-6);
+  border-top: 1px solid var(--jdb-line);
+  font-size: var(--jdb-fs-2xl);
+}
+.jdb-prose--article > h3 { margin-top: var(--jdb-s-8); font-size: var(--jdb-fs-xl); }
+.jdb-prose--article > h4 { margin-top: var(--jdb-s-6); }
+.jdb-prose li::marker { color: var(--jdb-fg-muted); }
+.jdb-prose ol > li::marker { font-weight: var(--jdb-fw-semibold); }
+.jdb-prose img { border-radius: var(--jdb-r-md); border: 1px solid var(--jdb-line); }
+.jdb-prose figure { margin: var(--jdb-s-7) 0; }
+.jdb-prose figcaption { margin-top: var(--jdb-s-3); font-size: var(--jdb-fs-sm); color: var(--jdb-fg-muted); }
+.jdb-prose hr { margin: var(--jdb-s-9) 0; }
+
+/* Markdown tables: hairline rows, quiet header, scroll sideways on phones. */
+.jdb-prose table:not([class]) {
+  display: block; max-width: 100%; overflow-x: auto;
+  margin: var(--jdb-s-7) 0; border-collapse: collapse;
+  font-size: var(--jdb-fs-sm); line-height: 1.5;
+  border: 1px solid var(--jdb-line); border-radius: var(--jdb-r-lg);
+}
+.jdb-prose table:not([class]) th,
+.jdb-prose table:not([class]) td { padding: var(--jdb-s-3) var(--jdb-s-4); text-align: left; vertical-align: top; border-bottom: 1px solid var(--jdb-line); }
+.jdb-prose table:not([class]) thead th { background: var(--jdb-surface-band); color: var(--jdb-fg-muted); font-weight: var(--jdb-fw-medium); white-space: nowrap; }
+.jdb-prose table:not([class]) tbody tr:last-child > * { border-bottom: 0; }
+.jdb-prose table:not([class]) td { color: var(--jdb-fg-dim); }
+
+/* --------------------------------------------------------------------------
+   38. LEGACY POST MARKUP
+   Older posts (the data visualization guide especially) contain raw HTML
+   written for the site's previous CSS framework: columns, cards,
+   notifications, size and color helpers. These rules map that markup onto
+   the current design so those posts match the rest of the site without a
+   rewrite. New posts should use components (ChartFrame, Callout, …) instead.
+   -------------------------------------------------------------------------- */
+.jdb-prose .columns { display: grid; gap: var(--jdb-s-5) var(--jdb-s-6); margin: var(--jdb-s-6) 0; }
+.jdb-prose .columns.is-multiline { gap: var(--jdb-s-2); }
+/* Two short side-by-side lists ("Use a treemap if" / "Avoid … if"). */
+@media (min-width: 40rem) {
+  .jdb-prose .columns:not(.is-multiline) { grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); }
+}
+.jdb-prose .column { min-width: 0; }
+/* The chart card reads first, then the explanation. */
+.jdb-prose .is-order-1-mobile { order: 1; }
+.jdb-prose .is-order-2-mobile { order: 2; }
+
+.jdb-prose .card {
+  margin: var(--jdb-s-5) 0;
+  padding: var(--jdb-s-5) var(--jdb-s-5) var(--jdb-s-4);
+  background: var(--jdb-surface-card);
+  border: 1px solid var(--jdb-line);
+  border-radius: var(--jdb-r-lg);
+}
+.jdb-prose .card-header-title {
+  margin: 0 0 var(--jdb-s-4); font-size: var(--jdb-fs-md); font-weight: var(--jdb-fw-bold);
+  line-height: var(--jdb-lh-snug); color: var(--jdb-fg);
+}
+.jdb-prose .card hr { margin: var(--jdb-s-4) 0; }
+.jdb-prose .card p { font-size: var(--jdb-fs-sm); }
+
+.jdb-prose .level { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--jdb-s-2) var(--jdb-s-4); }
+.jdb-prose .level-left, .jdb-prose .level-right { display: flex; align-items: center; gap: var(--jdb-s-2); }
+
+/* Notifications become quiet callouts: "Decision this supports", "How to read this chart". */
+.jdb-prose .notification {
+  margin: var(--jdb-s-5) 0; padding: var(--jdb-s-4) var(--jdb-s-5);
+  background: rgba(255, 255, 255, .03);
+  border: 1px solid var(--jdb-line); border-left: 3px solid var(--jdb-orange-500);
+  border-radius: var(--jdb-r-md);
+}
+.jdb-prose .card .notification { border-left-color: var(--jdb-navy-600); }
+.jdb-prose .notification strong:first-child { color: var(--jdb-fg); }
+.jdb-prose .notification p { margin-bottom: 0; }
+
+.jdb-prose .title.is-5 { font-size: var(--jdb-fs-lg); margin-top: var(--jdb-s-7); }
+.jdb-prose .is-size-7 { font-size: var(--jdb-fs-xs); }
+.jdb-prose .is-size-4 { font-size: var(--jdb-fs-lg); }
+.jdb-prose .is-size-2 { font-size: var(--jdb-fs-2xl); }
+.jdb-prose .has-text-grey { color: var(--jdb-fg-muted); }
+.jdb-prose .has-text-success { color: var(--jdb-good); }
+.jdb-prose .has-text-weight-bold { font-weight: var(--jdb-fw-bold); }
+.jdb-prose .has-text-weight-semibold { font-weight: var(--jdb-fw-semibold); }
+.jdb-prose .mt-1 { margin-top: var(--jdb-s-1); }
+.jdb-prose .mb-2 { margin-bottom: var(--jdb-s-2); }
+.jdb-prose .mb-3 { margin-bottom: var(--jdb-s-3); }
+.jdb-prose .mb-5 { margin-bottom: var(--jdb-s-6); }
 
 }
 
