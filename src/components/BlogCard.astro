@@ -20,8 +20,9 @@ const published = new Date(`${post.date}T12:00:00Z`);
 <article class="jdb-postcard">
 <div class:list={['jdb-post', `jdb-post--${variant}`]}>
   <PostCover
-    seed={post.slug}
+    seed={post.coverSeed}
     kind={post.cover}
+    data={post.coverData}
     label={post.topicLabel}
     ratio={variant === 'featured' ? '4/3' : '16/9'}
     class="jdb-post__cover"

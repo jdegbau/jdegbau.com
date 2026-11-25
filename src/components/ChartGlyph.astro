@@ -8,7 +8,9 @@
  * Decorative by default. Pass `label` when the glyph carries meaning on its own.
  */
 interface Props {
-  name: 'trend' | 'compare' | 'search' | 'hierarchy' | 'code' | 'measure' | 'flow' | 'part' | 'scatter';
+  name:
+    | 'trend' | 'compare' | 'search' | 'hierarchy' | 'code' | 'measure' | 'flow' | 'part' | 'scatter'
+    | 'funnel' | 'heatmap' | 'slope' | 'dumbbell' | 'histogram';
   /** Rendered size in px (square). */
   size?: number;
   label?: string;
@@ -54,6 +56,26 @@ const glyphs: Record<Props['name'], [string, string]> = {
   scatter: [
     '<path d="M3 20.5h18M3.5 3.5v17" /><circle cx="7" cy="16" r="1.1" fill="currentColor"/><circle cx="10" cy="13.5" r="1.1" fill="currentColor"/><circle cx="9" cy="17" r="1.1" fill="currentColor"/><circle cx="13.5" cy="12" r="1.1" fill="currentColor"/><circle cx="15" cy="14.5" r="1.1" fill="currentColor"/>',
     '<circle cx="18.5" cy="7" r="2" fill="currentColor" stroke="none"/>',
+  ],
+  funnel: [
+    '<rect x="3" y="4" width="18" height="3" rx="1"/><rect x="8" y="14.5" width="8" height="3" rx="1"/><rect x="9.5" y="19.5" width="5" height="1.5" rx=".75"/>',
+    '<rect x="5.5" y="9.25" width="13" height="3" rx="1" fill="currentColor"/>',
+  ],
+  heatmap: [
+    '<rect x="3" y="3" width="4.5" height="4.5" rx="1"/><rect x="9.75" y="3" width="4.5" height="4.5" rx="1"/><rect x="16.5" y="3" width="4.5" height="4.5" rx="1"/><rect x="3" y="9.75" width="4.5" height="4.5" rx="1"/><rect x="16.5" y="9.75" width="4.5" height="4.5" rx="1"/><rect x="3" y="16.5" width="4.5" height="4.5" rx="1"/><rect x="9.75" y="16.5" width="4.5" height="4.5" rx="1"/><rect x="16.5" y="16.5" width="4.5" height="4.5" rx="1"/>',
+    '<rect x="9.75" y="9.75" width="4.5" height="4.5" rx="1" fill="currentColor"/>',
+  ],
+  slope: [
+    '<path d="M5 3.5v17M19 3.5v17"/><path d="m5 9 14 2"/><path d="m5 13 14-1.5"/>',
+    '<path d="m5 18 14-12"/><circle cx="19" cy="6" r="1.8" fill="currentColor" stroke="none"/>',
+  ],
+  dumbbell: [
+    '<path d="M6 5h7M9 19h6"/><circle cx="6" cy="5" r="1.6" fill="currentColor"/><circle cx="13" cy="5" r="1.6" fill="currentColor"/><circle cx="9" cy="19" r="1.6" fill="currentColor"/><circle cx="15" cy="19" r="1.6" fill="currentColor"/>',
+    '<path d="M4 12h15"/><circle cx="19.5" cy="12" r="1.9" fill="currentColor" stroke="none"/>',
+  ],
+  histogram: [
+    '<path d="M2.5 20.5h19"/><rect x="4" y="15" width="3" height="5.5" rx=".5"/><rect x="7.5" y="10" width="3" height="10.5" rx=".5"/><rect x="14.5" y="11" width="3" height="9.5" rx=".5"/><rect x="18" y="16" width="2.5" height="4.5" rx=".5"/>',
+    '<rect x="11" y="5" width="3" height="15.5" rx=".5" fill="currentColor"/>',
   ],
 };
 
