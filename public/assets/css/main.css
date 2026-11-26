@@ -635,6 +635,9 @@ hr { border: 0; border-top: 1px solid var(--jdb-line); margin: var(--jdb-s-7) 0;
   display: block; margin-bottom: .15rem; color: var(--jdb-fg);
 }
 .jdb-searchpanel__result--empty a { color: var(--jdb-orange-400); }
+.jdb-searchpanel__result--egg strong {
+  font-family: var(--jdb-font-mono); color: var(--jdb-orange-400); letter-spacing: .05em;
+}
 .jdb-searchpanel__label {
   padding: var(--jdb-s-3) var(--jdb-s-5) var(--jdb-s-2);
   font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-xs); color: var(--jdb-fg-muted);

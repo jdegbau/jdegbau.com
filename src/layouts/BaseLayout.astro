@@ -118,6 +118,19 @@ const {
     <script src="/assets/js/progress-bar.min.js" defer></script>
     <script src="https://instant.page/5.1.0" type="module" integrity="sha384-by67kQnR+pyfy8yWP4kPO12fHKRLHZPfEsiSXR8u2IKcTdxD805MGUXBzVPnkLHw" defer></script>
     <script>
+      // Easter egg hint for people who open DevTools. Logged once per tab.
+      (() => {
+        try {
+          if (sessionStorage.getItem('jdb-console-hint')) return;
+          sessionStorage.setItem('jdb-console-hint', '1');
+        } catch (e) {}
+        console.log(
+          '%c(jdegbau)=>{ ↑ ↑ ↓ ↓ ← → ← → B A }',
+          'font: 500 14px "JetBrains Mono", ui-monospace, monospace; color: #ff7a3d; background: #0b1626; padding: 6px 10px; border-radius: 4px;'
+        );
+      })();
+    </script>
+    <script>
       (() => {
         try {
           const imgs = document.querySelectorAll('img:not([loading])');
