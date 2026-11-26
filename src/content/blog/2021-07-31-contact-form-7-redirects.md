@@ -4,6 +4,19 @@ seo_title: (Solved) Redirecting Contact Form 7 Forms - Joshua DeGrasse-Baumann
 excerpt: Contact Form 7 has deprecated support for its built-in redirection solution. Learn how to recreate it with JavaScript and PHP.
 slug: /contact-form-7-redirects/
 topic: dev
+cover:
+  scene: editor
+  file: functions.php
+  lines:
+    - "add_action( 'wp_footer', 'redirect_cf7' );"
+    - "function redirect_cf7() {"
+    - "?>"
+    - "<script>"
+    - "document.addEventListener( 'wpcf7mailsent', function( event ) {"
+    - "  location = 'https://example.com/thank-you/';"
+    - "}, false );"
+    - "</script>"
+  highlight: 6
 ---
 
 > **Note:** This post originally appeared on [the Rocket Clicks blog](https://www.rocketclicks.com/client-education/contact-form-7-thank-page-redirects/). The version below has been slightly modified from that original version.

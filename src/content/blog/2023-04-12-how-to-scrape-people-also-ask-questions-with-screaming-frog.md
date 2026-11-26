@@ -4,6 +4,16 @@ seo_title: Scraping People Also Ask With Screaming Frog
 slug: /how-to-scrape-people-also-ask-questions-with-screaming-frog/
 topic: seo
 excerpt: Learn how to use Screaming Frog to scrape People Also Ask questions directly from SERPs.
+cover:
+  scene: serp
+  query: best dog food
+  questions:
+    - What is the healthiest dog food?
+    - What dog food do vets recommend?
+    - Is grain-free dog food better?
+    - How much should I feed my dog?
+  highlight: 1
+  note: .related-question-pair
 ---
 
 ## Configuring Screaming Frog

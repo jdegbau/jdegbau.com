@@ -41,7 +41,7 @@ import TestimonialGroup from '../components/TestimonialGroup.astro';
 import StatRow from '../components/StatRow.astro';
 import CaseStudyCard from '../components/CaseStudyCard.astro';
 import BookingEmbed from '../components/BookingEmbed.astro';
-import { KIND_USES, TOPICS } from '../lib/cover-art.mjs';
+import { KIND_USES, SCENES, TOPICS } from '../lib/cover-art.mjs';
 import Spec from './_components/Spec.astro';
 import { getAllPosts } from '../lib/posts';
 
@@ -49,6 +49,16 @@ import { getAllPosts } from '../lib/posts';
 const allPosts = await getAllPosts();
 const [samplePost] = allPosts;
 const coverKinds = Object.entries(KIND_USES) as [string, string][];
+// One sample of each cover scene, with made-up details.
+const sceneDemos: [string, { scene: string; [key: string]: unknown }][] = [
+  ['browser', { scene: 'browser', url: 'example.com/shoes/?utm_source=newsletter', highlight: 'utm_source', note: 'campaign tag' }],
+  ['serp', { scene: 'serp', query: 'how long should a blog post be', questions: ['What is the ideal blog post length?', 'Do longer posts rank better?', 'How many words is a 5-minute read?'], highlight: 1 }],
+  ['editor', { scene: 'editor', file: 'tracking.js', lines: ["window.dataLayer = window.dataLayer || [];", "dataLayer.push({", "  event: 'generate_lead',", "  form_id: 'contact'", "});"], highlight: 3 }],
+  ['timeline', { scene: 'timeline', ticks: ['9:00', '9:30', '10:00', '10:30', '11:00'], marker: '30 min idle', marker_at: 0.5 }],
+  ['document', { scene: 'document', title: 'Content brief', headings: ['Audience', 'Search intent', 'Key questions', 'Evidence', 'Next step'], highlight: 2 }],
+  ['checklist', { scene: 'checklist', title: 'Launch checklist', items: ['Redirect map approved', 'Canonicals updated', 'Analytics firing on new templates', 'Sitemaps resubmitted'], highlight: 2 }],
+  ['chart', { scene: 'chart', kind: 'trend', data: [120, 118, 104, 98, 110, 160, 210, 240] }],
+];
 
 const sampleFaqs = [
   {
@@ -405,18 +415,28 @@ const sampleMatrixRows = [
             </div>
           </Spec>
 
-          <Spec name="PostCover" id="component-postcover" what="Generated cover art: a chart in the brand's chart style. Posts in a topic take the topic's charts in turn, so neighbors don't repeat; the data is seeded from the slug, or real numbers from cover_data." props="seed, kind, data, label, ratio, class" file="src/components/PostCover.astro + src/lib/cover-art.mjs">
-            <p class="demo-label">Covers in use, newest first. Look here for repeats before publishing; set <code>cover</code> or <code>cover_seed</code> in a post's front matter to change one.</p>
+          <Spec name="PostCover" id="component-postcover" what="Generated cover art in the brand's chart style: a scene filled with details from the post (its URL, query, code, questions), or a chart for posts about data. Set it with cover in the post's front matter; posts without one get their topic's default." props="seed, cover, kind, data, label, ratio, class" file="src/components/PostCover.astro + src/lib/cover-scenes.mjs + src/lib/cover-art.mjs">
+            <p class="demo-label">Covers in use, newest first. Look here for repeats before publishing; set <code>cover</code> in a post's front matter to change one (see "Post covers" in the components README).</p>
             <div class="cover-grid">
               {allPosts.map((post) => (
                 <div class="cover-grid__item">
-                  <PostCover seed={post.coverSeed} kind={post.cover} data={post.coverData} label={post.topicLabel} />
-                  <p><strong>{post.title}</strong><br /><code>{post.cover}</code>{post.coverData && ' · real data'}</p>
+                  <PostCover seed={post.coverSeed} cover={post.cover} label={post.topicLabel} />
+                  <p><strong>{post.title}</strong><br /><code>{post.cover.scene}{post.cover.kind ? `: ${post.cover.kind}` : ''}</code>{post.cover.data && ' · real data'}</p>
                 </div>
               ))}
             </div>
 
-            <p class="demo-label">Every chart, and the story it fits. Each topic rotates through its own set:</p>
+            <p class="demo-label">Every scene, and the story it fits. Fill it with details from the post; these use sample details:</p>
+            <div class="cover-grid">
+              {sceneDemos.map(([scene, cover]) => (
+                <div class="cover-grid__item">
+                  <PostCover seed={`demo-${scene}`} cover={cover} />
+                  <p><code>{scene}</code><br />{SCENES[scene as keyof typeof SCENES]}</p>
+                </div>
+              ))}
+            </div>
+
+            <p class="demo-label">Every chart (<code>scene: chart</code>), and the story it fits. Chart covers without a <code>kind</code> rotate through their topic's set:</p>
             <ul class="cover-topics">
               {Object.entries(TOPICS).map(([key, topic]) => (
                 <li><strong>{topic.label}</strong> (<code>{key}</code>): {topic.kinds.map((kind) => <code>{kind}</code>)}</li>

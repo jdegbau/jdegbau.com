@@ -29,3 +29,4 @@ _posts/.obsidian/plugins/templater-obsidian/styles.css
 .env*
 !.env.example
 public/assets/img/og/
+cover-previews/

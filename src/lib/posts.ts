@@ -1,7 +1,10 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
-import { TOPICS, assignCovers } from './cover-art.mjs';
+import { TOPICS, assignCovers, coverIcon, normalizeCover } from './cover-art.mjs';
 
 export type BlogEntry = CollectionEntry<'blog'>;
+
+/** A cover scene, e.g. `{ scene: 'browser', url: '…', highlight: '…' }`. See src/lib/cover-scenes.mjs. */
+export type CoverSpec = { scene: string; [key: string]: unknown };
 
 export interface Post {
   /** URL slug, e.g. `site-search-bookmarklet`. */
@@ -23,12 +26,12 @@ export interface Post {
   topic: keyof typeof TOPICS;
   /** Reader-facing topic name, e.g. "Data visualization". */
   topicLabel: string;
-  /** Chart type drawn on the generated cover (see assignCovers). */
-  cover: string;
+  /** The generated cover: a scene object from `cover` front matter or the topic default (see assignCovers). */
+  cover: CoverSpec;
+  /** Chart kind shown as the icon on the cover's label. */
+  coverIcon: string;
   /** Seed for the cover's made-up data: the slug unless `cover_seed` is set. */
   coverSeed: string;
-  /** Real numbers for the cover chart, from `cover_data`. */
-  coverData?: number[];
   /** Generated 1200×630 social share card (see src/lib/og-cards.mjs). */
   ogImage: string;
   url: string;
@@ -70,9 +73,9 @@ function toPost(entry: BlogEntry): Post {
     topic: data.topic,
     topicLabel: TOPICS[data.topic].label,
     // Filled in by getAllPosts, which needs every post to rotate charts.
-    cover: data.cover ?? TOPICS[data.topic].kinds[0],
+    cover: normalizeCover(data.cover) ?? { scene: 'chart', kind: TOPICS[data.topic].kinds[0] },
+    coverIcon: TOPICS[data.topic].kinds[0],
     coverSeed: data.cover_seed ?? slug,
-    coverData: data.cover_data,
     ogImage: `/assets/img/og/${slug}.png`,
     url: `/blog/${slug}/`,
     tags: data.tags,
@@ -89,8 +92,13 @@ function toPost(entry: BlogEntry): Post {
 export async function getAllPosts(): Promise<Post[]> {
   const entries = await getCollection('blog');
   const posts = entries.map(toPost).sort((a, b) => b.date.localeCompare(a.date));
-  const covers = assignCovers(posts.map(({ slug, date, topic, entry }) => ({ slug, date, topic, cover: entry.data.cover })));
-  for (const post of posts) post.cover = covers.get(post.slug) ?? post.cover;
+  const covers = assignCovers(
+    posts.map(({ slug, date, topic, title, entry }) => ({ slug, date, topic, title, cover: entry.data.cover, coverData: entry.data.cover_data })),
+  );
+  for (const post of posts) {
+    post.cover = covers.get(post.slug) ?? post.cover;
+    post.coverIcon = coverIcon(post.cover);
+  }
   return posts;
 }
 

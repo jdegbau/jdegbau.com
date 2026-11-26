@@ -32,7 +32,7 @@ const wasUpdated = post.updated !== post.date;
         </nav>
 
         <p class="jdb-article-header__topic">
-          <ChartGlyph name={post.cover as any} size={18} />
+          <ChartGlyph name={post.coverIcon as any} size={18} />
           {post.topicLabel}
         </p>
 
@@ -63,7 +63,7 @@ const wasUpdated = post.updated !== post.date;
           <img src={post.featuredImage} alt={post.featuredImageAlt ?? ''} loading="eager" fetchpriority="high" decoding="async" />
         </div>
       ) : (
-        <PostCover seed={post.coverSeed} kind={post.cover} data={post.coverData} ratio="4/3" class="jdb-article-header__cover" />
+        <PostCover seed={post.coverSeed} cover={post.cover} ratio="4/3" class="jdb-article-header__cover" />
       )}
     </div>
   </div>

@@ -1,10 +1,12 @@
 /**
  * Generated cover art for blog posts.
  *
- * Every post gets a small chart drawn in the brand's chart style: navy for
- * context, one orange mark for the story. The chart type comes from the
- * post's topic, and the data is seeded from the post's slug, so each cover
- * is unique but every cover belongs to the same set. No photos, no text.
+ * Every cover is drawn in the brand's chart style: navy for context, one
+ * orange mark for the story, on the grid with a soft glow. A post's `cover`
+ * front matter picks a scene (see src/lib/cover-scenes.mjs) and fills it with
+ * details from the post: the URL, the query, the code, the questions. Charts
+ * are one scene among several; use them when the post is about data.
+ * Posts without a `cover` get their topic's default (see TOPICS).
  *
  * Used by src/components/PostCover.astro (inline SVG on the site) and
  * src/lib/og-cards.mjs (social share images), so the two always match.
@@ -17,12 +19,21 @@
  * assignCovers), so two posts on the same subject don't get the same picture.
  * The first kind is the topic's icon.
  */
+import { SCENES, SCENE_DRAW } from './cover-scenes.mjs';
+
+export { SCENES };
+
+/**
+ * `scene` is the default cover for a post with no `cover` front matter;
+ * SEO posts get a search for their title, content posts an outline with
+ * their title, dev posts an editor.
+ */
 export const TOPICS = {
-  content: { label: 'Content strategy', kinds: ['hierarchy', 'heatmap', 'part', 'dumbbell'] },
-  dataviz: { label: 'Data visualization', kinds: ['compare', 'flow', 'scatter', 'slope', 'histogram', 'part'] },
-  measurement: { label: 'Measurement', kinds: ['trend', 'funnel', 'measure', 'dumbbell'] },
-  seo: { label: 'SEO', kinds: ['search', 'slope', 'scatter', 'trend'] },
-  dev: { label: 'Web development', kinds: ['code', 'flow'] },
+  content: { label: 'Content strategy', scene: 'document', kinds: ['hierarchy', 'heatmap', 'part', 'dumbbell'] },
+  dataviz: { label: 'Data visualization', scene: 'chart', kinds: ['compare', 'flow', 'scatter', 'slope', 'histogram', 'part'] },
+  measurement: { label: 'Measurement', scene: 'chart', kinds: ['trend', 'funnel', 'measure', 'dumbbell'] },
+  seo: { label: 'SEO', scene: 'serp', kinds: ['search', 'slope', 'scatter', 'trend'] },
+  dev: { label: 'Web development', scene: 'editor', kinds: ['code', 'flow'] },
 };
 
 /** What each chart says, so a post can pick the one that fits its story. */
@@ -475,71 +486,112 @@ export function topicKind(topic) {
   return TOPICS[topic]?.kinds[0] ?? 'trend';
 }
 
+/** The small icon on a cover's label: the chart kind, or the closest one for a scene. */
+const SCENE_ICON = { browser: 'search', serp: 'search', editor: 'code', timeline: 'trend', document: 'hierarchy', checklist: 'measure' };
+export function coverIcon(cover) {
+  return cover?.scene === 'chart' ? cover.kind ?? 'trend' : SCENE_ICON[cover?.scene] ?? 'trend';
+}
+
+/** A post's `cover` front matter as a scene object: a chart kind string becomes a chart scene. */
+export function normalizeCover(cover) {
+  if (!cover) return undefined;
+  if (typeof cover === 'string') return DRAW[cover] ? { scene: 'chart', kind: cover } : undefined;
+  return cover.scene ? { ...cover } : undefined;
+}
+
 /**
- * Picks every post's cover chart. Posts are taken oldest first; each takes
- * the next chart in its topic's set, skipping one that the previous post
- * (in any topic) already used. A post's explicit `cover` always wins.
- * Because older posts come first, publishing a new post never changes the
- * covers of the posts before it.
+ * Picks every post's cover. A post's `cover` front matter always wins.
+ * Without it, the post gets its topic's default scene. Chart covers without
+ * a `kind` take the topic's charts in turn: posts are taken oldest first,
+ * each takes the next chart in its topic's set, skipping one that the
+ * previous chart post already used. Because older posts come first,
+ * publishing a new post never changes the covers of the posts before it.
  *
- * @param {{ slug: string, date: string, topic: string, cover?: string }[]} posts
- * @returns {Map<string, string>} slug → chart kind
+ * @param {{ slug: string, date: string, topic: string, title?: string, cover?: string | object, coverData?: number[] }[]} posts
+ * @returns {Map<string, object>} slug → cover scene object
  */
 export function assignCovers(posts) {
-  const kinds = new Map();
+  const covers = new Map();
   const turn = {};
   let previous;
   for (const post of [...posts].sort((a, b) => a.date.localeCompare(b.date) || a.slug.localeCompare(b.slug))) {
-    let kind = post.cover && DRAW[post.cover] ? post.cover : undefined;
-    if (!kind) {
-      const pool = TOPICS[post.topic]?.kinds ?? ['trend'];
-      let i = turn[post.topic] ?? 0;
-      if (pool.length > 1 && pool[i % pool.length] === previous) i += 1;
-      kind = pool[i % pool.length];
-      turn[post.topic] = i + 1;
+    const topic = TOPICS[post.topic] ?? TOPICS.content;
+    let cover = normalizeCover(post.cover);
+    if (!cover) {
+      const title = post.title ?? '';
+      if (topic.scene === 'serp') cover = { scene: 'serp', query: title.toLowerCase().replace(/[?!.:]+$/, '') };
+      else if (topic.scene === 'document') cover = { scene: 'document', title };
+      else cover = { scene: topic.scene };
     }
-    kinds.set(post.slug, kind);
-    previous = kind;
+    if (cover.scene === 'chart') {
+      if (!cover.kind || !DRAW[cover.kind]) {
+        const pool = topic.kinds;
+        let i = turn[post.topic] ?? 0;
+        if (pool.length > 1 && pool[i % pool.length] === previous) i += 1;
+        cover.kind = pool[i % pool.length];
+        turn[post.topic] = i + 1;
+      }
+      if (!cover.data && post.coverData) cover.data = post.coverData;
+      previous = cover.kind;
+    }
+    covers.set(post.slug, cover);
   }
-  return kinds;
+  return covers;
 }
 
 /**
  * The cover as an SVG string.
- * @param {{ seed: string, kind?: string, data?: number[], title?: string, aspect?: number, mode?: 'crop' | 'extend' }} options
- *   seed  — usually the post slug; same seed, same picture.
- *   kind  — one of KINDS.
- *   data  — real numbers from the post, for trend, compare, funnel, and
- *           histogram covers. Other kinds ignore it.
- *   title — accessible name; omit for a decorative cover.
+ * @param {{ seed: string, cover?: object | string, kind?: string, data?: number[], title?: string, aspect?: number, mode?: 'crop' | 'extend' }} options
+ *   seed   — usually the post slug; same seed, same picture.
+ *   cover  — a scene object (see cover-scenes.mjs) or a chart kind.
+ *   kind, data — shorthand for a chart cover: one of KINDS, and real
+ *           numbers from the post (trend, compare, funnel, histogram).
+ *   title  — accessible name; omit for a decorative cover.
  *   aspect — width/height of the box the cover fills, when narrower than 16:9.
- *   mode   — `extend` (default) grows the canvas taller so the whole chart
+ *   mode   — `extend` (default) grows the canvas taller so the whole picture
  *           stays in view; `crop` trims the sides instead, keeping the
- *           chart's story in view (for tall panels like the share image).
+ *           story in view (for tall panels like the share image).
  *           Without `aspect`, the browser crops with preserveAspectRatio.
  */
-export function coverSvg({ seed, kind = 'trend', data, title, aspect, mode = 'extend' }) {
-  const focus = FOCUS[kind] ?? 'xMidYMid';
+export function coverSvg({ seed, cover, kind = 'trend', data, title, aspect, mode = 'extend' }) {
+  const spec = normalizeCover(cover) ?? { scene: 'chart', kind, data };
+  const isChart = spec.scene === 'chart' || !SCENE_DRAW[spec.scene];
+  const chartKind = isChart ? (DRAW[spec.kind] ? spec.kind : 'trend') : null;
+  const rand = rng(`${seed}:${isChart ? chartKind : spec.scene}`);
+  const id = `cv${rng(seed)().toString(36).slice(2, 8)}`;
+  let art;
+  let focusX;
+  let align;
+  if (isChart) {
+    const series = Array.isArray(spec.data) && spec.data.length >= 3 ? spec.data.map(Number).filter(Number.isFinite) : undefined;
+    art = DRAW[chartKind](rand, id, series);
+    align = FOCUS[chartKind] ?? 'xMidYMid';
+  } else {
+    const drawn = SCENE_DRAW[spec.scene](rand, id, spec);
+    art = drawn.art;
+    focusX = drawn.focus?.[0];
+    // Windowed scenes keep their top (the address bar, the tab) in view.
+    align = spec.scene === 'timeline' ? 'xMidYMid' : 'xMidYMin';
+  }
   // The canvas: x, y, width, height in drawing units.
   let box = [0, 0, W, H];
   if (aspect && aspect < W / H) {
     if (mode === 'crop') {
       const vw = Math.round(H * aspect);
-      const x = focus === 'xMaxYMid' ? W - vw - 40 : focus === 'xMinYMid' ? 60 : Math.round((W - vw) / 2);
+      let x;
+      if (focusX !== undefined) x = Math.round(Math.min(Math.max(focusX - vw / 2, 0), W - vw));
+      else x = align === 'xMaxYMid' ? W - vw - 40 : align === 'xMinYMid' ? 60 : Math.round((W - vw) / 2);
       box = [x, 0, vw, H];
     } else {
       const vh = Math.round(W / aspect);
-      box = [0, -Math.round((vh - H) / 2), W, vh];
+      const share = align === 'xMidYMin' ? 0.3 : 0.5;
+      box = [0, -Math.round((vh - H) * share), W, vh];
     }
   }
   const viewBox = box.join(' ');
   const bgRect = `x="${box[0]}" y="${box[1]}" width="${box[2]}" height="${box[3]}"`;
-  const rand = rng(`${seed}:${kind}`);
-  const id = `cv${rng(seed)().toString(36).slice(2, 8)}`;
-  const series = Array.isArray(data) && data.length >= 3 ? data.map(Number).filter(Number.isFinite) : undefined;
-  const art = (DRAW[kind] ?? trend)(rand, id, series);
   const a11y = title ? `role="img" aria-label="${title.replace(/"/g, '&quot;')}"` : 'aria-hidden="true" focusable="false"';
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" preserveAspectRatio="${focus} slice" ${a11y}>
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" preserveAspectRatio="${align} slice" ${a11y}>
   <defs>
     <pattern id="${id}-grid" width="48" height="48" patternUnits="userSpaceOnUse">
       <path d="M48 0H0V48" fill="none" stroke="${C.grid}" stroke-width="2"/>
@@ -553,9 +605,12 @@ export function coverSvg({ seed, kind = 'trend', data, title, aspect, mode = 'ex
       <stop offset="1" stop-color="${C.ink}" stop-opacity="0"/>
     </linearGradient>
     <linearGradient id="${id}-fade" x1="0" y1="0" x2="0" y2="1">
-      <stop offset=".55" stop-color="${C.bg}" stop-opacity="0"/>
+      <stop offset="${isChart ? '.55' : '.7'}" stop-color="${C.bg}" stop-opacity="0"/>
       <stop offset="1" stop-color="${C.bg}" stop-opacity=".85"/>
     </linearGradient>
+    <filter id="${id}-shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feGaussianBlur stdDeviation="22"/>
+    </filter>
   </defs>
   <rect ${bgRect} fill="${C.bg}"/>
   <rect ${bgRect} fill="url(#${id}-grid)"/>
