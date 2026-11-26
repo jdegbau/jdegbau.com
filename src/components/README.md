@@ -305,6 +305,7 @@ Notes:
 - Serves AVIF and WebP with a JPEG fallback from `public/assets/img/josh/`. The crops and sizes are listed in `src/data/author.ts` (`photo`).
 - `graded` (default) is slightly cooler and calmer with a navy shade at the bottom, so the photo sits in the dark page. Use it for every photo so they read as one set.
 - Pass `alt=""` when the name is printed right beside the photo.
+- Preparing a new photo file: keep the person natural (the CSS applies the grade, so don't bake it in), but quiet the background before export: blur it and darken and desaturate it so it reads as a dim, neutral backdrop like the about portrait. Busy or colorful backgrounds fight the navy page. Avatars are square, with the face centered and the eyes in the upper third; export every listed width as AVIF, WebP, and JPEG under the same file names.
 
 ### Navigation
 Purpose: Site-wide header and mobile menu.
