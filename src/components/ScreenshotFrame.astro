@@ -1,0 +1,216 @@
+---
+/**
+ * A screenshot of an app or site in a simple device frame, on the brand's
+ * graph-paper stage.
+ *
+ * Devices:
+ *   browser  a window with three dots and an address bar (`url`)
+ *   phone    a rounded phone outline for tall, phone-width shots
+ *   panel    a side panel or extension popup: tall and narrow, no chrome
+ *
+ * Pass `src` + `alt` for an image, or put an inline SVG in the default slot
+ * (then `alt` labels the figure). `clip` caps the visible height of a tall
+ * shot (e.g. "22rem") and fades out its bottom edge, which keeps cards in a
+ * row the same height. Without `stage` the frame sits on the page as is.
+ */
+interface Props {
+  src?: string;
+  alt: string;
+  width?: number;
+  height?: number;
+  device?: 'browser' | 'phone' | 'panel';
+  /** Address bar text for the browser frame. */
+  url?: string;
+  caption?: string;
+  /** Max visible height of the screenshot, as a CSS length. */
+  clip?: string;
+  /** Graph-paper backdrop behind the frame (default true). */
+  stage?: boolean;
+  loading?: 'lazy' | 'eager';
+  sizes?: string;
+  class?: string;
+}
+
+const {
+  src,
+  alt,
+  width,
+  height,
+  device = 'browser',
+  url,
+  caption,
+  clip,
+  stage = true,
+  loading = 'lazy',
+  class: className,
+} = Astro.props;
+
+const hasSlot = Astro.slots.has('default');
+---
+
+<figure class:list={['jdb-shot', `jdb-shot--${device}`, { 'jdb-shot--stage': stage, 'jdb-shot--clipped': clip }, className]}>
+  <div class="jdb-shot__stage">
+    <div class="jdb-shot__device">
+      {device === 'browser' && (
+        <div class="jdb-shot__bar" aria-hidden="true">
+          <span class="jdb-shot__dots"><span></span><span></span><span></span></span>
+          {url && <span class="jdb-shot__url">{url}</span>}
+        </div>
+      )}
+      <div class="jdb-shot__screen" style={clip ? `--_clip: ${clip}` : undefined}>
+        {hasSlot ? (
+          <div class="jdb-shot__art" role="img" aria-label={alt}><slot /></div>
+        ) : (
+          <img src={src} alt={alt} width={width} height={height} loading={loading} decoding="async" />
+        )}
+      </div>
+    </div>
+  </div>
+  {caption && <figcaption class="jdb-shot__caption">{caption}</figcaption>}
+</figure>
+
+<style>
+  .jdb-shot {
+    margin: 0;
+  }
+
+  .jdb-shot__stage {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: 100%;
+  }
+
+  /* Graph paper, fading toward the edges, as in the hero and menu. */
+  .jdb-shot--stage .jdb-shot__stage {
+    position: relative;
+    padding: var(--jdb-s-6) var(--jdb-s-5) 0;
+    overflow: hidden;
+    background: var(--jdb-surface-band);
+    border: 1px solid var(--jdb-line);
+    border-radius: var(--jdb-r-lg);
+  }
+
+  .jdb-shot--stage .jdb-shot__stage::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(to right, var(--jdb-grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--jdb-grid-line) 1px, transparent 1px);
+    background-size: var(--jdb-grid-size) var(--jdb-grid-size);
+    -webkit-mask-image: radial-gradient(ellipse at 50% 0%, #000 30%, transparent 80%);
+            mask-image: radial-gradient(ellipse at 50% 0%, #000 30%, transparent 80%);
+  }
+
+  /* A shot that isn't clipped sits on the stage with padding all round. */
+  .jdb-shot--stage:not(.jdb-shot--clipped) .jdb-shot__stage {
+    padding-bottom: var(--jdb-s-6);
+  }
+
+  .jdb-shot__device {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background: var(--jdb-surface-code);
+    border: 1px solid var(--jdb-line-strong);
+    box-shadow: 0 24px 60px rgba(2, 6, 16, 0.45);
+  }
+
+  .jdb-shot--browser .jdb-shot__device {
+    border-radius: var(--jdb-r-lg);
+  }
+
+  .jdb-shot--phone .jdb-shot__device {
+    max-width: 17rem;
+    padding: .45rem;
+    border-radius: 1.75rem;
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .jdb-shot--phone .jdb-shot__screen {
+    border-radius: 1.35rem;
+  }
+
+  .jdb-shot--panel .jdb-shot__device {
+    max-width: 17rem;
+    border-radius: var(--jdb-r-lg);
+  }
+
+  /* Clipped shots run off the bottom of the stage, so drop the bottom
+     corners and border there. */
+  .jdb-shot--clipped.jdb-shot--stage .jdb-shot__device {
+    border-bottom: 0;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  .jdb-shot--clipped.jdb-shot--phone .jdb-shot__device {
+    padding-bottom: 0;
+  }
+
+  .jdb-shot__bar {
+    display: flex;
+    align-items: center;
+    gap: var(--jdb-s-3);
+    padding: .55rem .75rem;
+    background: var(--jdb-surface-card);
+    border-bottom: 1px solid var(--jdb-line);
+  }
+
+  .jdb-shot__dots {
+    display: inline-flex;
+    gap: 5px;
+    flex: none;
+  }
+
+  .jdb-shot__dots span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--jdb-line-strong);
+  }
+
+  .jdb-shot__dots span:first-child {
+    background: var(--jdb-orange-500);
+  }
+
+  .jdb-shot__url {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    padding: .15rem .6rem;
+    font-family: var(--jdb-font-mono);
+    font-size: .7rem;
+    color: var(--jdb-fg-muted);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    background: var(--jdb-surface-page);
+    border-radius: var(--jdb-r-pill);
+  }
+
+  .jdb-shot__screen {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .jdb-shot--clipped .jdb-shot__screen {
+    max-height: var(--_clip);
+    -webkit-mask-image: linear-gradient(to bottom, #000 78%, transparent);
+            mask-image: linear-gradient(to bottom, #000 78%, transparent);
+  }
+
+  .jdb-shot__screen img,
+  .jdb-shot__art :global(svg) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .jdb-shot__caption {
+    margin-top: var(--jdb-s-3);
+    font-size: var(--jdb-fs-sm);
+    color: var(--jdb-fg-muted);
+  }
+</style>

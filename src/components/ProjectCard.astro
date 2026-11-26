@@ -1,0 +1,167 @@
+---
+/**
+ * A side project as a card: a framed screenshot on top, then the kind,
+ * name, one-line pitch, status and stack. The whole card links to the
+ * project's page. Pass an inline SVG in the `art` slot to show an
+ * illustration instead of a screenshot.
+ */
+import ScreenshotFrame from './ScreenshotFrame.astro';
+
+interface Props {
+  name: string;
+  href: string;
+  tagline: string;
+  /** Small label above the name, e.g. "Chrome extension". */
+  kind?: string;
+  /** Short status line, e.g. "Live" or "Private". */
+  status?: string;
+  /** `muted` for a project that isn't public (grey badge instead of green). */
+  statusTone?: 'good' | 'muted';
+  stack?: string[];
+  shot: {
+    src?: string;
+    alt: string;
+    width?: number;
+    height?: number;
+    device?: 'browser' | 'phone' | 'panel';
+    url?: string;
+  };
+  headingLevel?: 'h2' | 'h3';
+  class?: string;
+}
+
+const { name, href, tagline, kind, status, statusTone = 'good', stack = [], shot, headingLevel = 'h3', class: className } = Astro.props;
+const Heading = headingLevel;
+// Render the slot first: an `art` slot whose expression is false still
+// counts as present to Astro.slots.has().
+const art = Astro.slots.has('art') ? (await Astro.slots.render('art')).trim() : '';
+---
+
+<article class:list={['jdb-project', className]}>
+  <div class="jdb-project__media">
+    {art ? (
+      <ScreenshotFrame alt={shot.alt} device={shot.device} url={shot.url} clip="17rem">
+        <Fragment set:html={art} />
+      </ScreenshotFrame>
+    ) : (
+      <ScreenshotFrame {...shot} clip="17rem" />
+    )}
+  </div>
+  <div class="jdb-project__body">
+    {kind && <p class="jdb-eyebrow jdb-project__kind">{kind}</p>}
+    <Heading class="jdb-project__title">
+      <a href={href} class="jdb-project__link">{name}</a>
+    </Heading>
+    <p class="jdb-project__tagline">{tagline}</p>
+    <div class="jdb-project__meta">
+      {status && <span class:list={['jdb-badge', { 'jdb-badge--muted': statusTone === 'muted' }]}><span class="jdb-badge__dot"></span> {status}</span>}
+      {stack.length > 0 && (
+        <ul class="jdb-project__stack" aria-label="Built with">
+          {stack.map((item) => <li class="jdb-tag jdb-tag--muted">{item}</li>)}
+        </ul>
+      )}
+    </div>
+  </div>
+</article>
+
+<style>
+  .jdb-project {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    background: var(--jdb-surface-card);
+    border: 1px solid var(--jdb-line);
+    border-radius: var(--jdb-r-xl);
+    transition: border-color var(--jdb-t-fast), transform var(--jdb-dur) var(--jdb-ease);
+  }
+
+  .jdb-project:hover {
+    border-color: var(--jdb-line-strong);
+    transform: translateY(-2px);
+  }
+
+  .jdb-project:focus-within {
+    border-color: var(--jdb-orange-500);
+  }
+
+  /* The frame's stage fills the top of the card edge to edge. */
+  .jdb-project__media :global(.jdb-shot__stage) {
+    height: 19rem;
+    border: 0;
+    border-bottom: 1px solid var(--jdb-line);
+    border-radius: 0;
+  }
+
+  .jdb-project__media :global(.jdb-shot--browser .jdb-shot__device) {
+    max-width: 30rem;
+  }
+
+  .jdb-project__body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: var(--jdb-s-6);
+  }
+
+  .jdb-project__kind {
+    margin-bottom: var(--jdb-s-2);
+  }
+
+  .jdb-project__title {
+    margin: 0 0 var(--jdb-s-3);
+    font-size: var(--jdb-fs-xl);
+    line-height: 1.2;
+  }
+
+  .jdb-project__link {
+    color: var(--jdb-fg);
+    text-decoration: none;
+  }
+
+  /* The whole card is the link's target. */
+  .jdb-project__link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .jdb-project__link:hover,
+  .jdb-project:hover .jdb-project__link {
+    color: var(--jdb-orange-400);
+  }
+
+  .jdb-project__link:focus-visible {
+    outline: none;
+  }
+
+  .jdb-project__tagline {
+    margin: 0 0 var(--jdb-s-5);
+    font-size: var(--jdb-fs-base);
+  }
+
+  .jdb-project__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--jdb-s-3);
+    margin-top: auto;
+  }
+
+  .jdb-project__stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--jdb-s-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .jdb-project,
+    .jdb-project:hover {
+      transform: none;
+    }
+  }
+</style>
