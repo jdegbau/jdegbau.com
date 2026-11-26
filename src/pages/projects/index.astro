@@ -49,7 +49,7 @@ const pageSchema = {
             tagline={project.tagline}
             kind={project.kind}
             status={project.status}
-            statusTone={project.primary ? 'good' : 'muted'}
+            statusTone={project.access === 'private' ? 'muted' : 'good'}
             stack={project.stack}
             shot={project.hero}
             headingLevel="h2"

@@ -39,8 +39,10 @@ export interface Project {
   /** Year the project started (from its first commit). */
   since: number;
   stack: string[];
-  /** The main call to action. Omitted for projects that aren't public. */
+  /** The main call to action. */
   primary?: ProjectLink;
+  /** `private`: the site exists but only its owner can sign in (grey badge, no "it's free" pitch). */
+  access?: 'open' | 'private';
   secondary?: ProjectLink;
   /** Lead visual on the card and in the page header. */
   hero: Shot;
@@ -250,21 +252,23 @@ export const projects: Project[] = [
     tagline: 'My private reading tracker: a journal for every book, finish-date estimates, a stats dashboard, and a spoiler-aware reading companion.',
     description: 'Reading Log is Josh DeGrasse-Baumann’s personal reading tracker: a journal for every book, finish-date estimates from recent pace, a stats dashboard, and a spoiler-aware AI reading companion.',
     seoTitle: 'Reading Log: a personal reading tracker with stats and an AI companion',
-    status: 'Private, for my own reading',
+    status: 'Live, sign-in only',
     since: 2026,
     stack: ['React', 'TypeScript', 'Tailwind CSS', 'Supabase', 'Lovable'],
+    access: 'private',
+    primary: { label: 'Visit books.jdegbau.com', href: 'https://books.jdegbau.com/' },
     hero: {
       src: '',
       alt: 'Illustration of the Reading Log stats page: a daily reading line colored by book, a goal ring, and a shelf of book spines.',
       width: 1200,
       height: 780,
       device: 'browser',
-      url: 'reading log',
+      url: 'books.jdegbau.com/stats',
     },
     illustration: 'reading-log',
     overview: [
       'Reading Log is the app I use to track what I read. Each book gets a page with its cover, progress and a journal of every session: pages read, how long it took, and any quotes or notes.',
-      'It’s private, since it’s my own library, so this page shows an illustration rather than a link.',
+      'It lives at <a href="https://books.jdegbau.com/">books.jdegbau.com</a>. The library is mine alone, so visitors see a sign-in page; the picture here is an illustration of the Stats page.',
     ],
     features: [
       { title: 'A journal for every book', text: 'Log a session in a few taps: pages, a built-in timer that survives a closed tab, and an optional quote. Each book takes its accent color from its cover.' },
@@ -291,9 +295,9 @@ export const projects: Project[] = [
       },
     ],
     facts: [
-      { label: 'What', value: 'Personal reading tracker (private)' },
+      { label: 'What', value: 'Personal reading tracker at books.jdegbau.com' },
+      { label: 'Access', value: 'Sign-in only; the library is private' },
       { label: 'Tracks', value: 'Sessions, pages, time, quotes, ratings' },
-      { label: 'Built with', value: 'React, Supabase, Lovable' },
       { label: 'Started', value: 'October 2026' },
     ],
     schemaCategory: 'LifestyleApplication',

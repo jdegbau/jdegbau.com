@@ -30,4 +30,4 @@ Josh is a content strategist who specializes in data visualization and measureme
 - [SEO Fetcher](https://jdegbau.com/projects/seo-fetcher/) - Free Chrome extension for on-page SEO checks: indexability, snippet previews, issues, and AI crawler access.
 - [Pseudoku](https://jdegbau.com/projects/pseudoku/) - Free daily 4x4 number logic puzzle with five guesses.
 - [The Longest At-Bat](https://jdegbau.com/projects/the-longest-at-bat/) - Baseball game: try to beat the 21-pitch MLB record, with odds from 2025 MLB averages.
-- [Reading Log](https://jdegbau.com/projects/reading-log/) - Josh's private reading tracker with stats and a spoiler-aware AI companion.
+- [Reading Log](https://jdegbau.com/projects/reading-log/) - Josh's reading tracker at books.jdegbau.com (sign-in only), with stats and a spoiler-aware AI companion.

@@ -22,7 +22,7 @@ export function getStaticPaths() {
 const { project } = Astro.props as { project: Project };
 const url = `https://jdegbau.com/projects/${project.slug}/`;
 const others = projects.filter((item) => item.slug !== project.slug);
-const isPublic = Boolean(project.primary);
+const isPublic = Boolean(project.primary) && project.access !== 'private';
 const external = (href: string) => /^https?:/.test(href);
 const heroImage = project.hero.src || project.gallery[0]?.src;
 
@@ -36,7 +36,8 @@ const pageSchema = {
       description: project.description,
       applicationCategory: project.schemaCategory,
       operatingSystem: project.operatingSystem,
-      ...(isPublic && project.primary ? { url: project.primary.href, offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' } } : {}),
+      ...(project.primary ? { url: project.primary.href } : {}),
+      ...(isPublic ? { offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' } } : {}),
       ...(heroImage ? { screenshot: `https://jdegbau.com${heroImage}` } : {}),
       author: { '@id': 'https://jdegbau.com/#person' },
     },
@@ -78,7 +79,7 @@ const gallerySize = project.gallery.some((shot) => shot.device === 'browser') ? 
     <span class="jdb-eyebrow">{project.kind}</span>
     <h1>{project.name}</h1>
     <p class="jdb-hero__lede">{project.tagline}</p>
-    {isPublic ? (
+    {project.primary ? (
       <div class="jdb-hero__actions">
         {project.primary && (
           <a
@@ -96,6 +97,7 @@ const gallerySize = project.gallery.some((shot) => shot.device === 'browser') ? 
             {...(external(project.secondary.href) ? { target: '_blank', rel: 'noopener' } : {})}
           >{project.secondary.label}</a>
         )}
+        {project.access === 'private' && <span class="jdb-badge jdb-badge--muted project-hero__badge"><span class="jdb-badge__dot"></span> {project.status}</span>}
       </div>
     ) : (
       <p class="project-hero__note"><span class="jdb-badge jdb-badge--muted"><span class="jdb-badge__dot"></span> {project.status}</span></p>
@@ -103,7 +105,7 @@ const gallerySize = project.gallery.some((shot) => shot.device === 'browser') ? 
 
     <div slot="media" class="project-hero__media">
       {project.illustration === 'reading-log' ? (
-        <ScreenshotFrame alt={project.hero.alt} device={project.hero.device} url={project.hero.url} caption="An illustration of the Stats page. The app itself is private.">
+        <ScreenshotFrame alt={project.hero.alt} device={project.hero.device} url={project.hero.url} caption="An illustration of the Stats page. The library itself is private.">
           <ReadingLogArt />
         </ScreenshotFrame>
       ) : (
@@ -153,7 +155,7 @@ const gallerySize = project.gallery.some((shot) => shot.device === 'browser') ? 
             tagline={other.tagline}
             kind={other.kind}
             status={other.status}
-            statusTone={other.primary ? 'good' : 'muted'}
+            statusTone={other.access === 'private' ? 'muted' : 'good'}
             shot={other.hero}
           >
             {other.illustration === 'reading-log' && <ReadingLogArt slot="art" />}
@@ -192,6 +194,10 @@ const gallerySize = project.gallery.some((shot) => shot.device === 'browser') ? 
 
   .project-hero__note {
     margin-top: var(--jdb-s-5);
+  }
+
+  .project-hero__badge {
+    align-self: center;
   }
 
   .project-hero__media {
