@@ -2,14 +2,16 @@
 /**
  * Site header and mobile menu.
  *
- * Desktop: logotype on the left; the page links, search, and the Contact
- * button grouped on the right. The current page is marked with the brand's
- * orange cursor bar under its label. Contact is the site's main next step,
- * so it uses the primary button, the same orange button as every other
- * main action.
+ * Desktop: logotype on the left; the page links, search, and two calls to
+ * action grouped on the right. The current page is marked with the brand's
+ * orange cursor bar under its label. Both of the site's next steps live in
+ * the header on purpose: the SEO Helpline (a paid one-hour call) as an
+ * outline button, and Contact ("Work with me") last, as the primary orange
+ * button, the same as every other main action.
  *
  * Mobile: logotype, a search icon, and a menu button that opens a
- * full-screen menu with large links and Contact as a full-width button.
+ * full-screen menu with large links and both calls to action as
+ * full-width buttons.
  *
  * The header sits flat on the page at the top and gains a glass surface and
  * hairline once the page scrolls. Search is passed in through the default
@@ -17,14 +19,15 @@
  */
 import Logotype from './Logotype.astro';
 
-// Keep this list short and in this order; Contact always comes last.
+// Keep this list short and in this order. The two calls to action follow
+// it, SEO Helpline then Contact; Contact always comes last.
 const navPages = [
   { href: '/about/', label: 'About' },
   { href: '/blog/', label: 'Blog' },
-  { href: '/seo-helpline/', label: 'SEO Helpline' },
   { href: 'https://store.jdegbau.com/', label: 'GTM Templates', external: true },
 ];
-const contact = { href: '/contact/', label: 'Contact' };
+const helpline = { href: '/seo-helpline/', label: 'SEO Helpline' };
+const contact = { href: '/contact/', label: 'Work with me' };
 
 const currentPath = Astro.url.pathname;
 const isActive = (href: string) => (href === '/' ? currentPath === '/' : currentPath.startsWith(href));
@@ -62,8 +65,14 @@ const external = (item: { external?: boolean }) =>
     <div class="jdb-header__actions">
       <slot />
       <a
+        href={helpline.href}
+        class="jdb-btn jdb-btn--outline jdb-header__cta"
+        aria-current={isActive(helpline.href) ? 'page' : undefined}
+        data-jdb-track="nav-helpline"
+      >{helpline.label}</a>
+      <a
         href={contact.href}
-        class="jdb-btn jdb-btn--primary jdb-btn--arrow jdb-header__contact"
+        class="jdb-btn jdb-btn--primary jdb-btn--arrow jdb-header__cta"
         aria-current={isActive(contact.href) ? 'page' : undefined}
         data-jdb-track="nav-contact"
       >{contact.label}</a>
@@ -106,6 +115,7 @@ const external = (item: { external?: boolean }) =>
       </ul>
     </nav>
     <div class="jdb-menu__foot">
+      <a href={helpline.href} class="jdb-btn jdb-btn--outline jdb-btn--lg jdb-btn--block" data-jdb-track="nav-helpline">{helpline.label}</a>
       <a href={contact.href} class="jdb-btn jdb-btn--primary jdb-btn--lg jdb-btn--block jdb-btn--arrow" data-jdb-track="nav-contact">{contact.label}</a>
       <p class="jdb-menu__note">Or email <a href="mailto:josh@jdegbau.com">josh@jdegbau.com</a></p>
     </div>
@@ -212,7 +222,7 @@ const external = (item: { external?: boolean }) =>
     opacity: .6;
   }
 
-  /* ---- Actions: search, Contact, menu button ---------------------------- */
+  /* ---- Actions: search, SEO Helpline, Contact, menu button -------------- */
   .jdb-header__actions {
     position: relative;
     display: flex;
@@ -221,7 +231,7 @@ const external = (item: { external?: boolean }) =>
     margin-left: auto;
   }
 
-  .jdb-header__contact {
+  .jdb-header__cta {
     display: none;
     min-height: var(--jdb-target);
     padding: 0 1.1rem;
@@ -279,7 +289,7 @@ const external = (item: { external?: boolean }) =>
 
   @media (min-width: 64rem) {
     .jdb-nav { display: block; }
-    .jdb-header__contact { display: inline-flex; }
+    .jdb-header__cta { display: inline-flex; }
     .jdb-menu-btn { display: none; }
 
     /* A hairline between the page links and the actions. */
@@ -395,6 +405,10 @@ const external = (item: { external?: boolean }) =>
     padding-top: var(--jdb-s-8);
   }
 
+  .jdb-menu__foot .jdb-btn + .jdb-btn {
+    margin-top: var(--jdb-s-3);
+  }
+
   .jdb-menu__note {
     margin: var(--jdb-s-4) 0 0;
     text-align: center;
@@ -407,7 +421,7 @@ const external = (item: { external?: boolean }) =>
   }
 
   @media print {
-    .jdb-menu, .jdb-menu-btn, .jdb-header__contact { display: none !important; }
+    .jdb-menu, .jdb-menu-btn, .jdb-header__cta { display: none !important; }
   }
 </style>
 

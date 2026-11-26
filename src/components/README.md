@@ -278,11 +278,11 @@ Purpose: Site-wide header and mobile menu.
 Location: `src/components/Navigation.astro`
 Notes:
 - Shared across pages; `BaseLayout` renders it with `<Search />` in its default slot (Search appears once).
-- Desktop (64rem and up): the logotype on the left; the page links, a hairline, search, and the Contact button grouped on the right. The current page gets the brand's orange cursor bar under its label.
-- Contact is the site's main next step, so it's the standard primary button (orange, navy text, arrow), not a special nav style. Keep it last and keep the link list to four items plus Contact. The order is About, Blog, SEO Helpline, GTM Templates, Contact.
+- Desktop (64rem and up): the logotype on the left; the page links, a hairline, search, and two call-to-action buttons grouped on the right. The current page gets the brand's orange cursor bar under its label.
+- Both of the site's next steps are buttons in the header, on purpose: the SEO Helpline as an outline button, then Contact (labeled "Work with me") last as the standard primary button (orange, navy text, arrow). Keep the plain link list to three items. The order is About, Blog, GTM Templates, then SEO Helpline and Contact.
 - External links open in a new tab and show an external-link icon plus screen-reader text.
 - The header sits flat on the page at the top and gains a glass surface, hairline, and shadow once the page scrolls. Its height never changes, so anything pinned under it (the post share bar, the table of contents) can use `--jdb-header-h`.
-- Mobile: a search icon and a menu button (two bars that cross into an X). The menu is full screen under the header: large links on graph paper, the current page marked with the logotype's block cursor, and Contact as a full-width button at the bottom with the email address under it.
+- Mobile: a search icon and a menu button (two bars that cross into an X). The menu is full screen under the header: large links on graph paper, the current page marked with the logotype's block cursor, and the SEO Helpline and Contact as full-width buttons at the bottom with the email address under it.
 - While the menu is open the page behind it is `inert` and doesn't scroll; Escape closes it and returns focus to the menu button, and it closes itself if the window grows to the desktop layout.
 
 ### PostMeta
@@ -427,7 +427,7 @@ Notes:
 The main conversion points carry a `data-jdb-track` attribute naming the action, so one Tag Manager trigger can measure all of them before and after design changes:
 - `hero-primary`, `hero-secondary`, `about-primary` (page hero buttons)
 - `cta-primary`, `cta-secondary` (every `CallToAction`)
-- `nav-contact` (the Contact button in the header)
+- `nav-contact`, `nav-helpline` (the Contact and SEO Helpline buttons in the header and mobile menu)
 - `helpline-choose-time`, `helpline-ask-first`, `booking-direct` (SEO Helpline page)
 - `newsletter` (the footer signup form)
 - `share-x`, `share-linkedin`, `share-email`, `share-copy` (post share bar)
