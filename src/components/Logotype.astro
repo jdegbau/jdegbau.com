@@ -11,6 +11,10 @@
  * - Light/print: parens/braces #8b97b0, arrow --jdb-orange-600, word in ink.
  * - Never redraw it in another font, recolour the arrow, or rebuild the markup
  *   by hand — render this component instead.
+ *
+ * Easter egg: every half minute or so the cursor flashes the Konami code one
+ * key at a time (↑ ↑ ↓ ↓ ← → ← → B A), then goes back to blinking. It is
+ * skipped under prefers-reduced-motion and while the tab is hidden.
  */
 interface Props {
   /** Link target. Pass `null` to render the mark without a link (e.g. in a showcase). */
@@ -39,7 +43,7 @@ const Tag = href ? 'a' : 'span';
 const classes = ['jdb-logo', `jdb-logo--${size}`, theme === 'light' && 'jdb-logo--light', className];
 const a11y = href ? { href, 'aria-label': label } : { role: 'img', 'aria-label': '(jdegbau) => {}' };
 ---
-<Tag class:list={classes} {...a11y}><em>(</em><b>jdegbau</b><em>)</em><i>=&gt;</i><em>&#123;</em>{cursor && <span class="jdb-logo__cursor" aria-hidden="true"></span>}<em>&#125;</em></Tag>
+<Tag class:list={classes} {...a11y}><em>(</em><b>jdegbau</b><em>)</em><i>=&gt;</i><em>&#123;</em>{cursor && <span class="jdb-logo__hint" aria-hidden="true"></span>}{cursor && <span class="jdb-logo__cursor" aria-hidden="true"></span>}<em>&#125;</em></Tag>
 
 <style>
   .jdb-logo {
@@ -94,6 +98,11 @@ const a11y = href ? { href, 'aria-label': label } : { role: 'img', 'aria-label':
     animation: jdb-logo-cursor-blink 1.05s steps(1) infinite;
   }
 
+  .jdb-logo__hint { color: var(--jdb-logo-arrow); }
+  .jdb-logo__hint:empty { display: none; }
+  /* Hold the cursor solid while it "types", like a real caret. */
+  .jdb-logo.is-typing .jdb-logo__cursor { animation: none; }
+
   .jdb-logo--sm { font-size: 0.9rem; }
   .jdb-logo--md { font-size: 1.05rem; }
   .jdb-logo--lg { font-size: 1.5rem; }
@@ -120,6 +129,39 @@ const a11y = href ? { href, 'aria-label': label } : { role: 'img', 'aria-label':
       --jdb-logo-arrow: var(--jdb-orange-600);
       text-decoration: none !important;
     }
-    .jdb-logo__cursor { display: none; }
+    .jdb-logo__cursor,
+    .jdb-logo__hint { display: none; }
   }
 </style>
+
+<script>
+  const HINT = ['↑', '↑', '↓', '↓', '←', '→', '←', '→', 'B', 'A'];
+  const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  async function typeHint(hint: HTMLElement) {
+    const logo = hint.closest('.jdb-logo');
+    if (!logo) return;
+    logo.classList.add('is-typing');
+    // One key at a time; a short blank between keys so repeats (↑ ↑) read as two presses.
+    for (const key of HINT) {
+      hint.textContent = key;
+      await wait(260);
+      hint.textContent = '';
+      await wait(90);
+    }
+    logo.classList.remove('is-typing');
+  }
+
+  function schedule() {
+    // Roughly every 30 blinks, with a little jitter so it never feels mechanical.
+    setTimeout(() => {
+      if (!reduced.matches && !document.hidden) {
+        document.querySelectorAll<HTMLElement>('.jdb-logo__hint').forEach(typeHint);
+      }
+      schedule();
+    }, 28000 + Math.random() * 10000);
+  }
+
+  if (document.querySelector('.jdb-logo__hint')) schedule();
+</script>

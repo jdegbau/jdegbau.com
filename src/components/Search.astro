@@ -163,8 +163,22 @@
       `;
     }
 
+    // Easter egg hint: a few "secret" searches reveal the Konami code.
+    const EGG_TERMS = ['konami', 'cheat', 'cheats', 'cheat code', 'cheat codes', 'easter egg', 'secret', 'secrets', 'up up down down', 'contra'];
+    const eggHint = () => `
+      <li class="jdb-searchpanel__result jdb-searchpanel__result--empty jdb-searchpanel__result--egg">
+        <strong>↑ ↑ ↓ ↓ ← → ← → B A</strong>
+        <span>Close search, then try it anywhere on the site.</span>
+      </li>
+    `;
+
     function render(query) {
       const trimmed = (query || '').trim();
+
+      if (EGG_TERMS.includes(normalize(trimmed))) {
+        resultsContainer.innerHTML = eggHint();
+        return;
+      }
 
       if (!trimmed) {
         // Before anything is typed, offer the newest posts instead of a blank panel.
