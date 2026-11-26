@@ -13,6 +13,7 @@ import satori from 'satori';
 import { Resvg } from '@resvg/resvg-js';
 import { parse as parseYaml } from 'yaml';
 import { TOPICS, assignCovers, coverSvg } from './cover-art.mjs';
+import { renderCoverPng } from './cover-render.mjs';
 
 const require = createRequire(import.meta.url);
 const WIDTH = 1200;
@@ -59,7 +60,7 @@ function titleSize(title) {
 }
 
 const ART_WIDTH = 520;
-const svgUri = (svg) => `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`;
+const pngUri = (png) => `data:image/png;base64,${png.toString('base64')}`;
 
 function card({ eyebrow, title, subtitle, footer, size, art }) {
   const content = h(
@@ -103,7 +104,7 @@ function card({ eyebrow, title, subtitle, footer, size, art }) {
     ? h(
         'div',
         { position: 'absolute', top: 0, right: 0, width: ART_WIDTH, height: HEIGHT },
-        { type: 'img', props: { src: svgUri(art), width: ART_WIDTH, height: HEIGHT } },
+        { type: 'img', props: { src: pngUri(art), width: ART_WIDTH, height: HEIGHT } },
         h('div', {
           position: 'absolute', top: 0, left: 0, width: 220, height: HEIGHT,
           backgroundImage: `linear-gradient(to right, ${colors.canvas}, rgba(10,21,38,0))`,
@@ -132,7 +133,7 @@ async function render(element, fonts) {
   return new Resvg(svg, { fitTo: { mode: 'width', value: WIDTH } }).render().asPng();
 }
 
-async function readPosts(blogDir) {
+export async function readPosts(blogDir) {
   const files = (await readdir(blogDir)).filter((file) => /\.mdx?$/.test(file));
   return Promise.all(
     files.map(async (file) => {
@@ -164,8 +165,10 @@ export async function generateOgCards(root) {
 
   // Same chart choice as the site (src/lib/posts.ts), so cards and share images match.
   const covers = assignCovers(posts);
-  const jobs = posts.map(async ({ slug, title, topic, coverData, coverSeed }) => {
-    const art = coverSvg({ seed: coverSeed, kind: covers.get(slug), data: coverData, aspect: ART_WIDTH / HEIGHT, mode: 'crop' });
+  const jobs = posts.map(async ({ slug, title, topic, coverSeed }) => {
+    // Rendered to PNG first (with the cover's fonts), then placed in the card.
+    const svg = coverSvg({ seed: coverSeed, cover: covers.get(slug), aspect: ART_WIDTH / HEIGHT, mode: 'crop' });
+    const art = await renderCoverPng(svg, ART_WIDTH * 2);
     const eyebrow = TOPICS[topic]?.label ?? 'From the blog';
     const png = await render(card({ eyebrow, title, footer: 'jdegbau.com/blog', art }), fonts);
     await writeFile(path.join(outDir, `${slug}.png`), png);

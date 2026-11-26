@@ -250,19 +250,52 @@ Notes:
 - Decorative by default. Pass `label` when the glyph is the only thing conveying its meaning.
 
 ### PostCover
-Purpose: Generated cover art for posts: a chart in the brand's chart style.
-Location: `src/components/PostCover.astro`, drawing code in `src/lib/cover-art.mjs`
+Purpose: Generated cover art for posts, in the brand's chart style: a scene filled with details from the post, or a chart for posts about data.
+Location: `src/components/PostCover.astro`; scenes in `src/lib/cover-scenes.mjs`, charts and cover choice in `src/lib/cover-art.mjs`
 Notes:
-- Props: `seed` (usually the post slug), `kind?` (a chart name, below), `data?` (real numbers), `label?` (topic shown as a small chip), `ratio?: 16/9 | 21/9 | 4/3 | 1/1`, `class?`.
-- 14 chart types, each suited to a kind of story (`KIND_USES` in `cover-art.mjs`): `trend`, `compare`, `search`, `hierarchy`, `code`, `measure`, `flow`, `part`, `scatter`, `funnel`, `heatmap`, `slope`, `dumbbell`, `histogram`.
-- **How a post gets its chart.** Each topic has a set of charts that fit it (`TOPICS` in `cover-art.mjs`). Posts take their topic's charts in turn, oldest first, skipping a chart the previous post just used (`assignCovers`). So posts on the same subject get different pictures, and publishing a new post never changes older covers. The data is made up but seeded from the slug, so it's stable between builds.
-- **Front matter controls**, all optional:
-  - `cover: funnel` picks the chart when another one tells the post's story better.
-  - `cover_data: [120, 118, 104, 160, 240]` draws real numbers from the post (3–24 values; used by `trend`, `compare`, `funnel`, and `histogram`). Use it when the post has a real chart.
-  - `cover_seed: anything` redraws the made-up data, if a cover looks too much like another one.
-- `/components/` shows every cover in use, newest first. Check it for repeats before publishing.
+- Props: `seed` (usually the post slug), `cover?` (a scene object, usually `post.cover`), `kind?`/`data?` (shorthand for a chart cover), `label?` (topic shown as a small chip), `ratio?: 16/9 | 21/9 | 4/3 | 1/1`, `class?`.
 - `BlogCard`, the article header (when the post has no `featured_image`), and the social share images (`src/lib/og-cards.mjs`) all draw from the same function, so a post looks the same everywhere.
 - Covers are the only images on post cards. Don't put photos, stock art, or AI images on cards.
+- See "Post covers" below for how to make one.
+
+#### Post covers
+Every cover keeps one look: navy panels on graph paper, one orange mark with a soft glow for the story, JetBrains Mono for any text, a fade at the bottom. What changes per post is the scene and the details in it, taken from the post itself.
+
+**1. Pick the scene that shows what the post is about** (not just its topic):
+
+| Scene | Use it for | Fields (all text drawn large; keep it short) |
+|---|---|---|
+| `browser` | A URL or page: parameters, redirects, canonicals, what the address bar shows | `url`, `highlight` (part of the URL in orange), `bookmarks` + `bookmark` (a bookmarks bar, one in orange), `body: page \| serp`, `note` |
+| `serp` | A Google search: a query, a ranking, SERP features, People Also Ask | `query`, `questions` (up to 5), `label` (default "People also ask"), `highlight` (index, from 0), `note` |
+| `editor` | Code from the post: snippets, scripts, tracking, config | `file`, `lines` (up to 10, about 48 characters fit), `start` (first line number), `highlight` (line number, from 1), `note` |
+| `timeline` | Events over time: sessions, hits, crawls, a cutoff | `ticks` (axis labels), `marker` (label on the orange line), `marker_at` (0.15–0.85) |
+| `document` | Articles, outlines, briefs, content strategy | `file`, `title`, `headings` (up to 7), `highlight` (index, from 0), `note` |
+| `checklist` | Steps, audits, requirements | `title`, `items` (up to 6), `highlight` (index, from 0; items before it show as done), `note` |
+| `chart` | Posts about data, or with a real chart in them | `kind` (one of the 14 charts below), `data` (3–24 real numbers) |
+
+**2. Fill it with the post's own specifics**: the actual parameter, query, code line, question, or time the post is about. The orange mark goes on the one detail the post explains. `note` (up to 40 characters) is an orange callout pointing at it; use it for the post's answer in a few words ("added by Google, not indexed"), not for the title.
+
+**3. Write it in the front matter**, for example:
+
+```yaml
+cover:
+  scene: browser
+  url: example.com/products/?srsltid=AfmBOoqSE-AmgwEVDycwF0ws
+  highlight: srsltid
+  note: added by Google, not indexed
+```
+
+**4. Preview it**: `npm run covers -- <part of the slug>` writes the card (16:9) and header (4:3) to `cover-previews/` and refreshes the share images in `public/assets/img/og/`. Check that the orange detail is readable on the card, nothing important is cut with "…", and it doesn't look like the cover next to it on `/blog/`.
+
+Rules:
+- Use `example.com` (or the post's own example domain) in URLs, not a real company's site, unless the post is about that site.
+- Don't invent results or numbers. Questions and queries can be illustrative; chart `data` must come from the post.
+- Don't repeat the title on the cover; the card already shows it.
+- The schema in `src/content.config.ts` checks every field, so a typo fails the build with the post and field named.
+
+**Defaults.** A post without `cover` gets its topic's scene (`TOPICS` in `cover-art.mjs`): SEO posts a search for their title, content posts an outline with their title, dev posts an editor, data viz and measurement posts a chart. Chart covers without a `kind` take the topic's charts in turn, oldest first, skipping the chart the previous chart post used, so neighbors don't repeat and new posts never change older covers. Made-up data is seeded from the slug; `cover_seed: anything` redraws it. `cover: funnel` (a bare chart name) and `cover_data` still work as shorthand for a chart cover.
+
+**Charts.** 14 types, each suited to a kind of story (`KIND_USES` in `cover-art.mjs`): `trend`, `compare`, `search`, `hierarchy`, `code`, `measure`, `flow`, `part`, `scatter`, `funnel`, `heatmap`, `slope`, `dumbbell`, `histogram`. `/components/` shows every cover in use, every scene, and every chart.
 
 ### Portrait
 Purpose: Josh's photo (or another photo prepared the same way) with the site's photo treatment.

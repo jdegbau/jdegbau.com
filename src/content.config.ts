@@ -26,6 +26,72 @@ const optionalText = z
   .optional()
   .transform((value) => (value?.trim() ? value.trim() : undefined));
 
+const chartKind = z.enum(KINDS as [string, ...string[]]);
+const short = (max: number) => z.string().min(1).max(max);
+const note = short(40).optional();
+
+/**
+ * Post covers. Each scene takes real details from the post. Keep text short:
+ * it's drawn large and cut with an ellipsis when it doesn't fit.
+ * See src/lib/cover-scenes.mjs for what each scene draws.
+ */
+const coverSchema = z.union([
+  chartKind,
+  z.discriminatedUnion('scene', [
+    z.object({
+      scene: z.literal('browser'),
+      url: short(160),
+      highlight: z.string().min(1).optional(),
+      bookmarks: z.array(short(24)).max(4).optional(),
+      bookmark: z.string().optional(),
+      body: z.enum(['page', 'serp']).optional(),
+      note,
+    }).strict(),
+    z.object({
+      scene: z.literal('serp'),
+      query: short(60),
+      questions: z.array(short(80)).max(5).optional(),
+      label: short(30).optional(),
+      highlight: z.number().int().min(0).optional(),
+      note,
+    }).strict(),
+    z.object({
+      scene: z.literal('editor'),
+      file: short(40).optional(),
+      lines: z.array(z.string()).min(1).max(10).optional(),
+      start: z.number().int().positive().optional(),
+      highlight: z.number().int().positive().optional(),
+      note,
+    }).strict(),
+    z.object({
+      scene: z.literal('timeline'),
+      ticks: z.array(z.string().max(12)).min(2).max(6).optional(),
+      marker: short(20).optional(),
+      marker_at: z.number().min(0.15).max(0.85).optional(),
+    }).strict(),
+    z.object({
+      scene: z.literal('document'),
+      file: short(40).optional(),
+      title: short(80).optional(),
+      headings: z.array(short(60)).max(7).optional(),
+      highlight: z.number().int().min(0).optional(),
+      note,
+    }).strict(),
+    z.object({
+      scene: z.literal('checklist'),
+      title: short(40).optional(),
+      items: z.array(short(60)).max(6).optional(),
+      highlight: z.number().int().min(0).optional(),
+      note,
+    }).strict(),
+    z.object({
+      scene: z.literal('chart'),
+      kind: chartKind.optional(),
+      data: z.array(z.number()).min(3).max(24).optional(),
+    }).strict(),
+  ]),
+]);
+
 const blog = defineCollection({
   loader: glob({
     // Use .mdx for posts that embed components; plain .md for everything else.
@@ -55,11 +121,13 @@ const blog = defineCollection({
        */
       topic: z.enum(['content', 'dataviz', 'measurement', 'seo', 'dev']).default('content'),
       /**
-       * Optional: the chart drawn on the cover. Without it, posts in a topic
-       * take the topic's charts in turn. See KIND_USES in src/lib/cover-art.mjs.
+       * Optional: the generated cover, built from details in the post.
+       * A scene object (see coverSchema above and "Post covers" in
+       * src/components/README.md), or a chart kind as a shorthand.
+       * Without it, the post gets its topic's default scene.
        */
-      cover: z.enum(KINDS as [string, ...string[]]).optional(),
-      /** Optional: real numbers from the post for the cover chart (trend, compare, funnel, histogram). */
+      cover: coverSchema.optional(),
+      /** Optional: real numbers for a chart cover (trend, compare, funnel, histogram). Same as `data` on a chart scene. */
       cover_data: z.array(z.number()).min(3).max(24).optional(),
       /** Optional: any text; change it to redraw the cover with different made-up data. */
       cover_seed: z.string().optional(),

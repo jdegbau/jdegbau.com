@@ -47,9 +47,11 @@ slug: /my-post-title/               # required; the post lives at /blog/my-post-
 excerpt: One or two sentences.      # required; used as the meta description
 seo_title: Title for search results # optional; defaults to title
 topic: seo                          # content | dataviz | measurement | seo | dev (default content)
-cover: slope                        # optional; chart on the generated cover (otherwise the topic's next chart)
-cover_data: [120, 104, 160, 240]    # optional; real numbers for the cover chart
-cover_seed: v2                      # optional; change to redraw the cover's made-up data
+cover:                              # optional; the generated cover, built from the post (see below)
+  scene: serp
+  query: best dog food
+  questions: [What dog food do vets recommend?]
+cover_seed: v2                      # optional; change to redraw a cover's made-up parts
 featured_image: /assets/img/x.png   # optional; image in the article header instead of the cover
 featured_image_alt: Describe it     # optional; alt text for featured_image (omit if decorative)
 updated: 2026-11-12                 # optional; set when you meaningfully revise a post
@@ -59,7 +61,7 @@ tags: [SEO, Analytics]              # optional
 
 Setting `updated` shows "Updated …" on the post and feeds `dateModified`, `article:modified_time` and the sitemap's `<lastmod>`.
 
-Each post gets generated cover art: a small chart in the brand's chart style (`src/lib/cover-art.mjs`). Posts in a topic take the topic's charts in turn, so neighbors don't repeat, and the data is seeded from the slug so it's stable. `/components/` shows every cover in use; see "PostCover" in `src/components/README.md` for the chart types and when to pick one. Blog cards show it, and so does the post's 1200×630 social share card (`/assets/img/og/<slug>.png`), generated at build time by `src/lib/og-cards.mjs`. The generated share images are git-ignored.
+Each post gets generated cover art in the brand's chart style: a scene (a browser, a search, a code editor, a timeline, a document, a checklist, or a chart) filled with details from the post, such as the URL parameter or code line it explains. See "Post covers" in `src/components/README.md` for how to pick and fill one, and run `npm run covers -- <slug>` to preview it. Posts without `cover` get their topic's default. `/components/` shows every cover in use. Blog cards show it, and so does the post's 1200×630 social share card (`/assets/img/og/<slug>.png`), generated at build time by `src/lib/og-cards.mjs`. The generated share images are git-ignored.
 
 ## Notes
 

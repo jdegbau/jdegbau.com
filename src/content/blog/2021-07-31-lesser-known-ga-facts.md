@@ -3,6 +3,11 @@ title: 8 Lesser Known Facts About Google Analytics Sessions
 excerpt: Google Analytics does some weird stuff, man.
 slug: /lesser-known-google-analytics-session-facts/
 topic: measurement
+cover:
+  scene: timeline
+  ticks: ["23:00", "23:30", "00:00", "00:30", "01:00"]
+  marker: midnight
+  marker_at: 0.5
 ---
 
 Sessions in Google Analytics are deceptively simple. It’s just the number of visits to your website, right?

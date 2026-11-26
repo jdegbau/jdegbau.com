@@ -1,19 +1,22 @@
 ---
 /**
- * Generated cover art: a small chart in the brand's chart style, seeded so
- * the same seed always draws the same picture. Blog cards, the article
- * header, and the social share image all use it, so a post looks the same
- * everywhere. See src/lib/cover-art.mjs for the drawing code.
+ * Generated cover art in the brand's chart style: a scene built from details
+ * in the post (a URL, a query, code, questions) or a chart, seeded so the
+ * same seed always draws the same picture. Blog cards, the article header,
+ * and the social share image all use it, so a post looks the same
+ * everywhere. See src/lib/cover-scenes.mjs and src/lib/cover-art.mjs.
  */
-import { coverSvg } from '../lib/cover-art.mjs';
+import { coverIcon, coverSvg } from '../lib/cover-art.mjs';
 import ChartGlyph from './ChartGlyph.astro';
 
 interface Props {
   /** Usually the post slug. Same seed, same picture. */
   seed: string;
-  /** Chart type, one of KINDS in src/lib/cover-art.mjs. */
+  /** The scene to draw, e.g. post.cover. See src/lib/cover-scenes.mjs. */
+  cover?: { scene: string; [key: string]: unknown };
+  /** Shorthand for a chart cover: one of KINDS in src/lib/cover-art.mjs. */
   kind?: string;
-  /** Real numbers to draw instead of made-up data (trend, compare, funnel, histogram). */
+  /** Real numbers for a chart cover (trend, compare, funnel, histogram). */
   data?: number[];
   /** Topic name shown as a small label on the cover, e.g. "SEO". */
   label?: string;
@@ -22,17 +25,18 @@ interface Props {
   class?: string;
 }
 
-const { seed, kind = 'trend', data, label, ratio = '16/9', class: className } = Astro.props;
+const { seed, cover, kind = 'trend', data, label, ratio = '16/9', class: className } = Astro.props;
+const spec = cover ?? { scene: 'chart', kind, data };
 const [rw, rh] = ratio.split('/').map(Number);
-// Taller boxes get a taller canvas, so the whole chart stays in view.
-const svg = coverSvg({ seed, kind, data, aspect: rw / rh });
+// Taller boxes get a taller canvas, so the whole picture stays in view.
+const svg = coverSvg({ seed, cover: spec, aspect: rw / rh });
 ---
 
 <div class:list={['jdb-cover', className]} style={`aspect-ratio: ${ratio}`}>
   <Fragment set:html={svg} />
   {label && (
     <span class="jdb-cover__label">
-      <ChartGlyph name={kind as any} size={14} />
+      <ChartGlyph name={coverIcon(spec) as any} size={14} />
       {label}
     </span>
   )}
