@@ -12,8 +12,8 @@
  * - Never redraw it in another font, recolour the arrow, or rebuild the markup
  *   by hand — render this component instead.
  *
- * Easter egg: every half minute or so the cursor briefly "types" ↑↑↓↓ (the
- * start of the Konami code), then erases it and goes back to blinking. It is
+ * Easter egg: every half minute or so the cursor flashes the Konami code one
+ * key at a time (↑ ↑ ↓ ↓ ← → ← → B A), then goes back to blinking. It is
  * skipped under prefers-reduced-motion and while the tab is hidden.
  */
 interface Props {
@@ -135,7 +135,7 @@ const a11y = href ? { href, 'aria-label': label } : { role: 'img', 'aria-label':
 </style>
 
 <script>
-  const HINT = '↑↑↓↓';
+  const HINT = ['↑', '↑', '↓', '↓', '←', '→', '←', '→', 'B', 'A'];
   const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -143,14 +143,12 @@ const a11y = href ? { href, 'aria-label': label } : { role: 'img', 'aria-label':
     const logo = hint.closest('.jdb-logo');
     if (!logo) return;
     logo.classList.add('is-typing');
-    for (let i = 1; i <= HINT.length; i++) {
-      hint.textContent = HINT.slice(0, i);
-      await wait(140);
-    }
-    await wait(1100);
-    for (let i = HINT.length - 1; i >= 0; i--) {
-      hint.textContent = HINT.slice(0, i);
-      await wait(70);
+    // One key at a time; a short blank between keys so repeats (↑ ↑) read as two presses.
+    for (const key of HINT) {
+      hint.textContent = key;
+      await wait(260);
+      hint.textContent = '';
+      await wait(90);
     }
     logo.classList.remove('is-typing');
   }
