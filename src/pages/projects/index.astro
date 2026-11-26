@@ -1,0 +1,99 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Hero from '../../components/Hero.astro';
+import Section from '../../components/Section.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import CallToAction from '../../components/CallToAction.astro';
+import ReadingLogArt from '../_components/ReadingLogArt.astro';
+import { projects } from '../../data/projects';
+
+const seoTitle = 'Side projects by Josh DeGrasse-Baumann: SEO tools and games';
+const description = 'Side projects by Josh DeGrasse-Baumann: SEO Fetcher, a free Chrome extension for on-page SEO; Pseudoku, a daily number puzzle; The Longest At-Bat, a baseball game; and a personal reading tracker.';
+
+const pageSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  '@id': 'https://jdegbau.com/projects/#webpage',
+  url: 'https://jdegbau.com/projects/',
+  name: seoTitle,
+  description,
+  isPartOf: { '@id': 'https://jdegbau.com/#website' },
+  author: { '@id': 'https://jdegbau.com/#person' },
+  mainEntity: {
+    '@type': 'ItemList',
+    itemListElement: projects.map((project, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      url: `https://jdegbau.com/projects/${project.slug}/`,
+      name: project.name,
+    })),
+  },
+};
+---
+<BaseLayout seoTitle={seoTitle} description={description} schema={pageSchema}>
+  <Hero variant="intro">
+    <span class="jdb-eyebrow">Side projects</span>
+    <h1>Tools and games I build outside client work</h1>
+    <p class="jdb-hero__lede">
+      A Chrome extension for on-page SEO checks, a daily number puzzle, a baseball game I first wrote in 2018, and the app I track my reading in.
+    </p>
+  </Hero>
+
+  <Section tight>
+    <ul class="projects-grid" role="list">
+      {projects.map((project) => (
+        <li>
+          <ProjectCard
+            name={project.name}
+            href={`/projects/${project.slug}/`}
+            tagline={project.tagline}
+            kind={project.kind}
+            status={project.status}
+            statusTone={project.access === 'private' ? 'muted' : 'good'}
+            stack={project.stack}
+            shot={project.hero}
+            headingLevel="h2"
+          >
+            {project.illustration === 'reading-log' && <ReadingLogArt slot="art" />}
+          </ProjectCard>
+        </li>
+      ))}
+    </ul>
+  </Section>
+
+  <Section tone="band" layout="split" eyebrow="What they have in common" title="Simple to run, tested where it counts">
+    <div class="jdb-prose">
+      <p>Three of the four run on plain HTML, CSS and JavaScript with no build step or framework, so there’s little to maintain. The logic that has to be right (SEO rules, puzzle solving, reading estimates) lives in functions with unit tests, separate from the interface.</p>
+      <p>They also overlap with my day job: SEO Fetcher puts the on-page checks from an SEO audit in one panel, and the reading log’s stats page is a working example of the kind of charts I write about on the <a href="/blog/">blog</a>.</p>
+    </div>
+  </Section>
+
+  <section class="jdb-section">
+    <div class="jdb-container">
+      <CallToAction
+        variant="closing"
+        title="Want this kind of care on your site or your reporting?"
+        text="Book a focused one-hour call about an SEO or measurement problem, or send a short note about what you’re working on."
+        primary={{ href: '/seo-helpline/', label: 'Book a consultation' }}
+        secondary={{ href: '/contact/', label: 'Get in touch' }}
+      />
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+    gap: var(--jdb-s-6);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (min-width: 62rem) {
+    .projects-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

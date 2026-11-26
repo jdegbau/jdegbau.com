@@ -41,6 +41,9 @@ import TestimonialGroup from '../components/TestimonialGroup.astro';
 import StatRow from '../components/StatRow.astro';
 import CaseStudyCard from '../components/CaseStudyCard.astro';
 import BookingEmbed from '../components/BookingEmbed.astro';
+import ScreenshotFrame from '../components/ScreenshotFrame.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { projects } from '../data/projects';
 import { KIND_USES, SCENES, TOPICS } from '../lib/cover-art.mjs';
 import Spec from './_components/Spec.astro';
 import { getAllPosts } from '../lib/posts';
@@ -173,6 +176,8 @@ const explorer = [
       { id: 'component-statrow', label: 'StatRow' },
       { id: 'component-casestudycard', label: 'CaseStudyCard' },
       { id: 'component-bookingembed', label: 'BookingEmbed' },
+      { id: 'component-projectcard', label: 'ProjectCard' },
+      { id: 'component-screenshotframe', label: 'ScreenshotFrame' },
     ],
   },
   {
@@ -595,6 +600,27 @@ const sampleMatrixRows = [
                 approach="[What you did about it.]"
                 result="[What happened, with the number and the period.]"
               />
+            </div>
+          </Spec>
+          <Spec name="ProjectCard" id="component-projectcard" what="A side project: framed screenshot, kind, name, one-line pitch, status and stack. The whole card links to the project's page. Use the art slot for an inline SVG instead of a screenshot." props="name, href, tagline, kind, status, statusTone, stack, shot, headingLevel, class (slot: art)">
+            <div class="demo-narrow">
+              <ProjectCard
+                name={projects[1].name}
+                href={`/projects/${projects[1].slug}/`}
+                tagline={projects[1].tagline}
+                kind={projects[1].kind}
+                status={projects[1].status}
+                stack={projects[1].stack}
+                shot={projects[1].hero}
+              />
+            </div>
+          </Spec>
+
+          <Spec name="ScreenshotFrame" id="component-screenshotframe" what="A screenshot in a browser, phone or panel frame on the graph-paper stage. clip caps a tall shot's height and fades its bottom edge." props="src, alt, width, height, device, url, caption, clip, stage, loading, class (slot: inline SVG instead of src)">
+            <div class="demo-shots">
+              <ScreenshotFrame {...projects[2].hero} caption={'device="browser" url="at-bat.jdegbau.com"'} />
+              <ScreenshotFrame {...projects[1].hero} clip="20rem" caption={'device="phone" clip="20rem"'} />
+              <ScreenshotFrame {...projects[0].hero} clip="20rem" caption={'device="panel" clip="20rem"'} />
             </div>
           </Spec>
 
@@ -1289,6 +1315,13 @@ const sampleMatrixRows = [
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
     gap: var(--jdb-s-6);
+  }
+
+  .demo-shots {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    gap: var(--jdb-s-5);
+    width: 100%;
   }
 
   .demo-narrow {

@@ -235,6 +235,23 @@ Notes:
 - With `href`, the whole card links to the full write-up (stretched title link) and lifts on hover.
 - Real engagements only. Describe the client generically ("B2B manufacturer") unless you have permission to name them.
 
+### ProjectCard
+Purpose: A side project as a card on `/projects/` and at the foot of each project page.
+Location: `src/components/ProjectCard.astro`
+Notes:
+- Props: `name`, `href`, `tagline`, `kind?` (eyebrow, e.g. "Chrome extension"), `status?`, `statusTone?: good | muted` (muted for projects that aren't public), `stack?: string[]`, `shot` (a `ScreenshotFrame` source: `{ src?, alt, width?, height?, device?, url? }`), `headingLevel?: h2 | h3`, `class?`.
+- Put an inline SVG in the `art` slot to show an illustration instead of a screenshot (the Reading Log card does this).
+- The whole card is one link and one tab stop, like `BlogCard`. The screenshot is clipped to the same height on every card so rows line up.
+- Project content lives in `src/data/projects.ts`, which also drives `src/pages/projects/[slug].astro`.
+
+### ScreenshotFrame
+Purpose: A screenshot of an app or site in a simple device frame, on the brand's graph-paper stage.
+Location: `src/components/ScreenshotFrame.astro`
+Notes:
+- Props: `src` + `alt` (or an inline SVG in the default slot, labeled by `alt`), `width?`, `height?`, `device?: browser | phone | panel`, `url?` (browser address bar), `caption?`, `clip?` (CSS length; caps a tall shot's height and fades its bottom edge), `stage?` (default `true`), `loading?`, `class?`.
+- `phone` and `panel` frames are capped at about 17rem wide; take phone shots around 430px wide at 2x.
+- Screenshots for projects live in `public/assets/img/projects/` as WebP.
+
 ### BookingEmbed
 Purpose: The TidyCal booking calendar, with graceful loading.
 Location: `src/components/BookingEmbed.astro`

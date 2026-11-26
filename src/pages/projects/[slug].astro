@@ -1,0 +1,236 @@
+---
+/**
+ * One side project's page, built from its entry in src/data/projects.ts:
+ * header with a framed screenshot, what it is, what it does, screenshots,
+ * the story behind it, the other projects, and one next step.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Hero from '../../components/Hero.astro';
+import Section from '../../components/Section.astro';
+import SummaryCard from '../../components/SummaryCard.astro';
+import FeatureList from '../../components/FeatureList.astro';
+import ScreenshotFrame from '../../components/ScreenshotFrame.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import CallToAction from '../../components/CallToAction.astro';
+import ReadingLogArt from '../_components/ReadingLogArt.astro';
+import { projects, type Project } from '../../data/projects';
+
+export function getStaticPaths() {
+  return projects.map((project) => ({ params: { slug: project.slug }, props: { project } }));
+}
+
+const { project } = Astro.props as { project: Project };
+const url = `https://jdegbau.com/projects/${project.slug}/`;
+const others = projects.filter((item) => item.slug !== project.slug);
+const isPublic = Boolean(project.primary) && project.access !== 'private';
+const external = (href: string) => /^https?:/.test(href);
+const heroImage = project.hero.src || project.gallery[0]?.src;
+
+const pageSchema = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'SoftwareApplication',
+      '@id': `${url}#app`,
+      name: project.name,
+      description: project.description,
+      applicationCategory: project.schemaCategory,
+      operatingSystem: project.operatingSystem,
+      ...(project.primary ? { url: project.primary.href } : {}),
+      ...(isPublic ? { offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' } } : {}),
+      ...(heroImage ? { screenshot: `https://jdegbau.com${heroImage}` } : {}),
+      author: { '@id': 'https://jdegbau.com/#person' },
+    },
+    {
+      '@type': 'WebPage',
+      '@id': `${url}#webpage`,
+      url,
+      name: project.seoTitle,
+      description: project.description,
+      isPartOf: { '@id': 'https://jdegbau.com/#website' },
+      about: { '@id': `${url}#app` },
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://jdegbau.com/' },
+        { '@type': 'ListItem', position: 2, name: 'Projects', item: 'https://jdegbau.com/projects/' },
+        { '@type': 'ListItem', position: 3, name: project.name, item: url },
+      ],
+    },
+  ],
+};
+
+const gallerySize = project.gallery.some((shot) => shot.device === 'browser') ? 'wide' : 'tall';
+---
+<BaseLayout
+  seoTitle={project.seoTitle}
+  description={project.description}
+  image={heroImage}
+  imageAlt={heroImage ? project.hero.alt : undefined}
+  schema={pageSchema}
+>
+  <Hero variant="intro" class="project-hero">
+    <nav class="jdb-crumbs" aria-label="Breadcrumb">
+      <a href="/projects/">Projects</a>
+      <span class="jdb-crumbs__sep" aria-hidden="true">/</span>
+      <span aria-current="page">{project.name}</span>
+    </nav>
+    <span class="jdb-eyebrow">{project.kind}</span>
+    <h1>{project.name}</h1>
+    <p class="jdb-hero__lede">{project.tagline}</p>
+    {project.primary ? (
+      <div class="jdb-hero__actions">
+        {project.primary && (
+          <a
+            href={project.primary.href}
+            class="jdb-btn jdb-btn--primary jdb-btn--lg jdb-btn--arrow"
+            data-jdb-track={`project-${project.slug}-primary`}
+            {...(external(project.primary.href) ? { target: '_blank', rel: 'noopener' } : {})}
+          >{project.primary.label}</a>
+        )}
+        {project.secondary && (
+          <a
+            href={project.secondary.href}
+            class="jdb-btn jdb-btn--outline jdb-btn--lg"
+            data-jdb-track={`project-${project.slug}-secondary`}
+            {...(external(project.secondary.href) ? { target: '_blank', rel: 'noopener' } : {})}
+          >{project.secondary.label}</a>
+        )}
+        {project.access === 'private' && <span class="jdb-badge jdb-badge--muted project-hero__badge"><span class="jdb-badge__dot"></span> {project.status}</span>}
+      </div>
+    ) : (
+      <p class="project-hero__note"><span class="jdb-badge jdb-badge--muted"><span class="jdb-badge__dot"></span> {project.status}</span></p>
+    )}
+
+    <div slot="media" class="project-hero__media">
+      {project.illustration === 'reading-log' ? (
+        <ScreenshotFrame alt={project.hero.alt} device={project.hero.device} url={project.hero.url} caption="An illustration of the Stats page. The library itself is private.">
+          <ReadingLogArt />
+        </ScreenshotFrame>
+      ) : (
+        <ScreenshotFrame {...project.hero} loading="eager" clip={project.hero.device === 'browser' ? undefined : '30rem'} />
+      )}
+    </div>
+  </Hero>
+
+  <Section layout="split" eyebrow="What it is" title={`${project.name} in short`}>
+    <div class="project-overview">
+      <div class="jdb-prose">
+        {project.overview.map((paragraph) => <p set:html={paragraph} />)}
+      </div>
+      <SummaryCard eyebrow="At a glance" title={project.name} items={project.facts} />
+    </div>
+  </Section>
+
+  <Section tone="band" eyebrow="Features" title="What it does">
+    <FeatureList items={project.features} columns={3} />
+  </Section>
+
+  {project.gallery.length > 0 && (
+    <Section eyebrow="Screenshots" title={`${project.name}, screen by screen`}>
+      <ul class:list={['project-gallery', `project-gallery--${gallerySize}`]} role="list">
+        {project.gallery.map((shot) => (
+          <li><ScreenshotFrame {...shot} clip={shot.device === 'browser' ? undefined : '28rem'} /></li>
+        ))}
+      </ul>
+    </Section>
+  )}
+
+  {project.story.map((block, index) => (
+    <Section layout="split" tone={index % 2 ? 'band' : 'page'} eyebrow={index === 0 ? 'Background' : 'Under the hood'} title={block.heading} tight>
+      <div class="jdb-prose">
+        {block.paragraphs.map((paragraph) => <p set:html={paragraph} />)}
+      </div>
+    </Section>
+  ))}
+
+  <Section eyebrow="More projects" title="Other things I’ve built">
+    <ul class="project-others" role="list">
+      {others.map((other) => (
+        <li>
+          <ProjectCard
+            name={other.name}
+            href={`/projects/${other.slug}/`}
+            tagline={other.tagline}
+            kind={other.kind}
+            status={other.status}
+            statusTone={other.access === 'private' ? 'muted' : 'good'}
+            shot={other.hero}
+          >
+            {other.illustration === 'reading-log' && <ReadingLogArt slot="art" />}
+          </ProjectCard>
+        </li>
+      ))}
+    </ul>
+  </Section>
+
+  <section class="jdb-section">
+    <div class="jdb-container">
+      {isPublic && project.primary ? (
+        <CallToAction
+          prompt="Try it"
+          title={`${project.name} is free.`}
+          text="No sign-up needed. If something breaks or you have an idea, send me a note."
+          primary={project.primary}
+          secondary={{ href: '/contact/', label: 'Send feedback' }}
+        />
+      ) : (
+        <CallToAction
+          title="Want charts like these for your own data?"
+          text="I build reporting and dashboards that show what’s working. Book a one-hour call or send a short note."
+          primary={{ href: '/seo-helpline/', label: 'Book a consultation' }}
+          secondary={{ href: '/projects/', label: 'See all projects' }}
+        />
+      )}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .project-hero .jdb-crumbs {
+    margin-bottom: var(--jdb-s-4);
+  }
+
+  .project-hero__note {
+    margin-top: var(--jdb-s-5);
+  }
+
+  .project-hero__badge {
+    align-self: center;
+  }
+
+  .project-hero__media {
+    width: 100%;
+  }
+
+  .project-overview {
+    display: grid;
+    gap: var(--jdb-s-6);
+  }
+
+  .project-gallery {
+    display: grid;
+    gap: var(--jdb-s-6);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .project-gallery--tall {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  }
+
+  .project-gallery--wide {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  }
+
+  .project-others {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    gap: var(--jdb-s-6);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+</style>

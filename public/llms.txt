@@ -25,3 +25,9 @@ Josh is a content strategist who specializes in data visualization and measureme
 - [Quick Google Site Search Bookmarklet](https://jdegbau.com/blog/site-search-bookmarklet/) - Bookmarklet for searching a site in Google.
 - [8 Lesser Known Facts About Google Analytics Sessions](https://jdegbau.com/blog/lesser-known-google-analytics-session-facts/) - Google Analytics session behaviors explained.
 - [Redirecting Contact Form 7 Forms](https://jdegbau.com/blog/contact-form-7-redirects/) - Guide to redirecting Contact Form 7 submissions.
+## Side Projects
+- [Side projects](https://jdegbau.com/projects/) - Tools and games Josh builds outside client work.
+- [SEO Fetcher](https://jdegbau.com/projects/seo-fetcher/) - Free Chrome extension for on-page SEO checks: indexability, snippet previews, issues, and AI crawler access.
+- [Pseudoku](https://jdegbau.com/projects/pseudoku/) - Free daily 4x4 number logic puzzle with five guesses.
+- [The Longest At-Bat](https://jdegbau.com/projects/the-longest-at-bat/) - Baseball game: try to beat the 21-pitch MLB record, with odds from 2025 MLB averages.
+- [Reading Log](https://jdegbau.com/projects/reading-log/) - Josh's reading tracker at books.jdegbau.com (sign-in only), with stats and a spoiler-aware AI companion.
