@@ -273,7 +273,7 @@ Location: `src/components/PostCover.astro`; scenes in `src/lib/cover-scenes.mjs`
 Notes:
 - Props: `seed` (usually the post slug), `cover?` (a scene object, usually `post.cover`), `kind?`/`data?` (shorthand for a chart cover), `label?` (topic shown as a small chip), `ratio?: 16/9 | 21/9 | 4/3 | 1/1`, `class?`.
 - `BlogCard`, the article header (when the post has no `featured_image`), and the social share images (`src/lib/og-cards.mjs`) all draw from the same function, so a post looks the same everywhere.
-- Covers are the only images on post cards. Don't put photos, stock art, or AI images on cards.
+- Covers are the only images on post cards. Don't put raw photos, stock art, or AI images on cards; a photo or screenshot goes on a cover only through `scene: image`, which tones it to the brand (see "Bespoke covers" below).
 - See "Post covers" below for how to make one.
 
 #### Post covers
@@ -290,6 +290,8 @@ Every cover keeps one look: navy panels on graph paper, one orange mark with a s
 | `document` | Articles, outlines, briefs, content strategy | `file`, `title`, `headings` (up to 7), `highlight` (index, from 0), `note` |
 | `checklist` | Steps, audits, requirements | `title`, `items` (up to 6), `highlight` (index, from 0; items before it show as done), `note` |
 | `chart` | Posts about data, or with a real chart in them | `kind` (one of the 14 charts below), `data` (3–24 real numbers) |
+| `custom` | Bespoke: nothing above fits, so the picture is drawn by hand | `art` (file in `src/content/covers/`, default the slug), `frame`, `title`, `focus`, `note` |
+| `image` | Bespoke: a photo, screenshot, or illustration that belongs to the post | `src`, `tone`, `frame`, `title`, `focus`, `mark`, `mark_size`, `note` |
 
 **2. Fill it with the post's own specifics**: the actual parameter, query, code line, question, or time the post is about. The orange mark goes on the one detail the post explains. `note` (up to 40 characters) is an orange callout pointing at it; use it for the post's answer in a few words ("added by Google, not indexed"), not for the title.
 
@@ -310,6 +312,11 @@ Rules:
 - Don't invent results or numbers. Questions and queries can be illustrative; chart `data` must come from the post.
 - Don't repeat the title on the cover; the card already shows it.
 - The schema in `src/content.config.ts` checks every field, so a typo fails the build with the post and field named.
+
+**Bespoke covers.** When no scene can show the post's idea, override the cover by hand without leaving the look. Use the `custom-cover` skill (`.claude/skills/custom-cover/`); it covers both kinds step by step. Both render through the same `coverSvg`, so the card, article header, and share image still match, and the build checks them.
+- `scene: custom`: an SVG fragment in `src/content/covers/<slug>.svg`, drawn on the 1200×675 canvas. The cover adds the navy, graph paper, and fade; the fragment draws only the picture, in the cover palette (`C` in `cover-scenes.mjs`), JetBrains Mono, with `url(#glow)` behind the one orange detail. `frame: true` draws the standard window panel behind it. `lintCustomArt` (`src/lib/cover-bespoke.mjs`) fails the build on off-palette colors, other fonts, `<image>`, `<style>`, scripts, or external links, and `npm run covers` warns about missing or overused orange, text under 22 units, and text near the edges. `focus: [x, y]` (fractions of the canvas) marks the detail so the share image's narrow crop keeps it.
+- `scene: image`: prepare the file with `npm run cover-image -- <file> <slug> --focus x,y [--zoom n]` (crops to 16:9 around the detail, 1600×900 JPEG in `public/assets/img/covers/`, and prints the front matter). The cover tones it: `duotone` (default; photos and illustrations, mapped onto the navies), `night` (light screenshots, flipped to dark mode), or `graded` (a hint of the original color, for photos where color matters). `frame: bleed` (default) fills the cover under the graph paper; `frame: window` puts it in the window panel like a screenshot. The orange `mark` (`ring` or `box`, sized by `mark_size` as fractions of the image) goes on `focus`; `note` labels it.
+- Keep the rules above: one orange detail, no title on the cover, no invented numbers. The source image stays natural; never bake the tone into the file.
 
 **Defaults.** A post without `cover` gets its topic's scene (`TOPICS` in `cover-art.mjs`): SEO posts a search for their title, content posts an outline with their title, dev posts an editor, data viz and measurement posts a chart. Chart covers without a `kind` take the topic's charts in turn, oldest first, skipping the chart the previous chart post used, so neighbors don't repeat and new posts never change older covers. Made-up data is seeded from the slug; `cover_seed: anything` redraws it. `cover: funnel` (a bare chart name) and `cover_data` still work as shorthand for a chart cover.
 
@@ -496,7 +503,7 @@ The visual rules live in the tokens at the top of `public/assets/css/main.css`; 
 - **Two faces, two jobs.** Schibsted Grotesk (`--jdb-font-sans`) sets everything people read: headlines, UI, body. JetBrains Mono (`--jdb-font-mono`) is only for what is literally code: the logotype, code samples, `kbd`. Don't set labels, dates, or buttons in mono.
 - **Headlines carry the page.** Large, heavy, tightly tracked (`--jdb-track-display` / `--jdb-track-heading`). Heading sizes are fluid between a phone size and a desktop size.
 - **Graph paper is the one texture.** It appears behind heroes (`--jdb-grid-line`, `--jdb-grid-size`, under a soft orange wash, `--jdb-hero-wash`), on generated post covers, and behind the closing call to action, which bookends the hero. Don't add other washes or textures.
-- **Images: covers, charts, and one photo treatment.** Post cards use generated `PostCover` art, never photos. Photos use the `graded` treatment (`Portrait`, article header images, the 404 clip). Client logos are one color (`Logos`).
+- **Images: covers, charts, and one photo treatment.** Post cards use `PostCover` art, never raw photos (a photo on a cover goes through `scene: image`, which tones it navy). Photos use the `graded` treatment (`Portrait`, article header images, the 404 clip). Client logos are one color (`Logos`).
 - **Bailey is part of the site.** Josh's dog appears in his portrait, the data viz guide's header, the 404 page clip, and the footer status bar ("supervised by Bailey", linking to `/about/#bailey`). Keep the cameos small and occasional.
 - **Orange is a signal.** The brand orange marks the main action and the current location (the active nav item, the cursor in the logotype and home headline). Don't use it for decoration.
 - **Labels are plain.** Eyebrows are short, sentence-case, and only used where the heading alone would be ambiguous. No `//`, `#`, or `$` prefixes, no all caps.

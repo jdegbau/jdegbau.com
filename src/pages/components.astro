@@ -45,6 +45,7 @@ import ScreenshotFrame from '../components/ScreenshotFrame.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import { projects } from '../data/projects';
 import { KIND_USES, SCENES, TOPICS } from '../lib/cover-art.mjs';
+import demoCustomArt from '../content/covers/demo-custom.svg?raw';
 import Spec from './_components/Spec.astro';
 import { getAllPosts } from '../lib/posts';
 
@@ -61,6 +62,10 @@ const sceneDemos: [string, { scene: string; [key: string]: unknown }][] = [
   ['document', { scene: 'document', title: 'Content brief', headings: ['Audience', 'Search intent', 'Key questions', 'Evidence', 'Next step'], highlight: 2 }],
   ['checklist', { scene: 'checklist', title: 'Launch checklist', items: ['Redirect map approved', 'Canonicals updated', 'Analytics firing on new templates', 'Sitemaps resubmitted'], highlight: 2 }],
   ['chart', { scene: 'chart', kind: 'trend', data: [120, 118, 104, 98, 110, 160, 210, 240] }],
+  // Bespoke overrides (the custom-cover skill): a hand-drawn SVG, a photo, a screenshot.
+  ['custom', { scene: 'custom', art: 'demo-custom', markup: demoCustomArt, focus: [0.76, 0.73] }],
+  ['image', { scene: 'image', src: '/assets/img/covers/demo-photo.jpg', focus: [0.5, 0.45], mark_size: [0.25, 0.3], note: 'one chart, one story' }],
+  ['image: window, night', { scene: 'image', src: '/assets/img/covers/demo-screenshot.jpg', frame: 'window', tone: 'night', focus: [0.75, 0.5], mark_size: [0.25, 0.4] }],
 ];
 
 const sampleFaqs = [
@@ -431,12 +436,12 @@ const sampleMatrixRows = [
               ))}
             </div>
 
-            <p class="demo-label">Every scene, and the story it fits. Fill it with details from the post; these use sample details:</p>
+            <p class="demo-label">Every scene, and the story it fits. Fill it with details from the post; these use sample details. The last three are bespoke overrides for when no scene fits (see the <code>custom-cover</code> skill):</p>
             <div class="cover-grid">
               {sceneDemos.map(([scene, cover]) => (
                 <div class="cover-grid__item">
                   <PostCover seed={`demo-${scene}`} cover={cover} />
-                  <p><code>{scene}</code><br />{SCENES[scene as keyof typeof SCENES]}</p>
+                  <p><code>{scene}</code><br />{SCENES[cover.scene as keyof typeof SCENES]}</p>
                 </div>
               ))}
             </div>

@@ -9,6 +9,7 @@ import { mkdir, readFile, writeFile, access } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { inflateSync } from 'node:zlib';
 import { Resvg } from '@resvg/resvg-js';
 
@@ -74,9 +75,29 @@ async function coverFonts() {
   return fontFiles;
 }
 
-/** A cover SVG string → PNG buffer at `width` pixels wide. */
+const publicDir = fileURLToPath(new URL('../../public/', import.meta.url));
+
+/**
+ * A cover SVG string → PNG buffer at `width` pixels wide. Images on the
+ * cover (`scene: image`) are site paths like /assets/img/covers/x.jpg and
+ * are read from public/.
+ */
 export async function renderCoverPng(svg, width) {
   const files = await coverFonts();
+  // resvg only reads images that are inline, so site paths become data URIs.
+  const hrefs = [...new Set([...svg.matchAll(/<image\b[^>]*?\shref="(\/[^"]+)"/g)].map((m) => m[1]))];
+  for (const href of hrefs) {
+    const file = path.join(publicDir, decodeURI(href.replace(/^\/+/, '').split(/[?#]/)[0]));
+    if (!file.startsWith(publicDir)) throw new Error(`Cover image outside public/: ${href}`);
+    let data;
+    try {
+      data = await readFile(file);
+    } catch (error) {
+      throw new Error(`Cover image ${href} not found in public/ (${error.code ?? error.message}).`);
+    }
+    const type = /\.png$/i.test(file) ? 'image/png' : 'image/jpeg';
+    svg = svg.replaceAll(`href="${href}"`, `href="data:${type};base64,${data.toString('base64')}"`);
+  }
   return new Resvg(svg, {
     fitTo: { mode: 'width', value: width },
     font: { fontFiles: files, loadSystemFonts: false, defaultFontFamily: 'JetBrains Mono' },

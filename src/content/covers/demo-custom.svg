@@ -1,0 +1,25 @@
+<!-- Demo for /components/: a crawl decision, one branch in orange.
+     Fragment on the 1200×675 canvas. Built-ins: url(#glow), url(#shadow). -->
+<circle cx="822" cy="420" r="200" fill="url(#glow)"/>
+
+<!-- Start node -->
+<rect x="150" y="120" width="300" height="96" rx="18" fill="#152a49" stroke="#223a5e" stroke-width="3"/>
+<text x="300" y="178" font-size="30" font-weight="700" fill="#e8ecf4" text-anchor="middle">Googlebot</text>
+
+<!-- Context branch -->
+<path d="M300 216 V300 Q300 330 330 330 H380" fill="none" stroke="#33547e" stroke-width="6" stroke-linecap="round"/>
+<rect x="380" y="290" width="340" height="80" rx="16" fill="#152a49" stroke="#223a5e" stroke-width="3"/>
+<text x="550" y="340" font-size="28" fill="#aab4c8" text-anchor="middle">robots.txt ok</text>
+
+<path d="M300 216 V460 Q300 490 330 490 H380" fill="none" stroke="#33547e" stroke-width="6" stroke-linecap="round"/>
+<rect x="380" y="450" width="340" height="80" rx="16" fill="#152a49" stroke="#223a5e" stroke-width="3"/>
+<text x="550" y="500" font-size="28" fill="#aab4c8" text-anchor="middle">page fetched</text>
+
+<!-- The story: the one orange branch -->
+<path d="M720 490 H760" fill="none" stroke="#ff4d00" stroke-width="7" stroke-linecap="round"/>
+<rect x="760" y="440" width="300" height="100" rx="18" fill="#ff4d00" fill-opacity=".14" stroke="#ff4d00" stroke-width="4"/>
+<text x="910" y="501" font-size="32" font-weight="700" fill="#ff4d00" text-anchor="middle">noindex</text>
+
+<path d="M720 330 H760" fill="none" stroke="#33547e" stroke-width="6" stroke-linecap="round" stroke-dasharray="2 12"/>
+<rect x="760" y="290" width="300" height="80" rx="16" fill="none" stroke="#33547e" stroke-width="3" stroke-dasharray="10 10"/>
+<text x="910" y="340" font-size="26" fill="#8b97b0" text-anchor="middle">indexed</text>

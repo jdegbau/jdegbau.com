@@ -1,5 +1,10 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { TOPICS, assignCovers, coverIcon, normalizeCover } from './cover-art.mjs';
+import { attachCustomArt } from './cover-bespoke.mjs';
+
+/** Hand-drawn cover fragments for `cover: { scene: custom }` (see the custom-cover skill). */
+const customArt = import.meta.glob<string>('../content/covers/*.svg', { query: '?raw', import: 'default', eager: true });
+const readCustomArt = (name: string) => customArt[`../content/covers/${name}.svg`];
 
 export type BlogEntry = CollectionEntry<'blog'>;
 
@@ -95,9 +100,11 @@ export async function getAllPosts(): Promise<Post[]> {
   const covers = assignCovers(
     posts.map(({ slug, date, topic, title, entry }) => ({ slug, date, topic, title, cover: entry.data.cover, coverData: entry.data.cover_data })),
   );
+  // Throws (failing the build) on a missing or off-brand custom cover.
+  attachCustomArt(covers, readCustomArt);
   for (const post of posts) {
     post.cover = covers.get(post.slug) ?? post.cover;
-    post.coverIcon = coverIcon(post.cover);
+    post.coverIcon = coverIcon(post.cover, TOPICS[post.topic].kinds[0]);
   }
   return posts;
 }

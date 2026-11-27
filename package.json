@@ -10,7 +10,8 @@
     "generate-types": "wrangler types",
     "deploy": "npm run build && wrangler deploy",
     "check": "node scripts/check-site.mjs",
-    "covers": "node scripts/preview-covers.mjs"
+    "covers": "node scripts/preview-covers.mjs",
+    "cover-image": "node scripts/prepare-cover-image.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.1.5",

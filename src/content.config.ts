@@ -29,6 +29,7 @@ const optionalText = z
 const chartKind = z.enum(KINDS as [string, ...string[]]);
 const short = (max: number) => z.string().min(1).max(max);
 const note = short(40).optional();
+const unit = z.number().min(0).max(1);
 
 /**
  * Post covers. Each scene takes real details from the post. Keep text short:
@@ -88,6 +89,31 @@ const coverSchema = z.union([
       scene: z.literal('chart'),
       kind: chartKind.optional(),
       data: z.array(z.number()).min(3).max(24).optional(),
+    }).strict(),
+    // Bespoke covers (see src/lib/cover-bespoke.mjs and the custom-cover skill).
+    z.object({
+      scene: z.literal('custom'),
+      /** File name in src/content/covers/, without .svg. Defaults to the post slug. */
+      art: z.string().regex(/^[\w-]+$/, 'Use the file name without .svg, e.g. my-post').optional(),
+      /** Draw the standard window panel behind the art. */
+      frame: z.boolean().optional(),
+      title: short(40).optional(),
+      /** Where the orange detail sits, as fractions of the canvas [x, y]. Keeps it in view on the share image. */
+      focus: z.tuple([unit, unit]).optional(),
+      note,
+    }).strict(),
+    z.object({
+      scene: z.literal('image'),
+      src: z.string().regex(/^\/assets\/img\/covers\/[\w.-]+\.(?:jpe?g|png)$/, 'Prepare the image with `npm run cover-image`; src is /assets/img/covers/<name>.jpg'),
+      tone: z.enum(['duotone', 'night', 'graded']).optional(),
+      frame: z.enum(['bleed', 'window']).optional(),
+      title: short(40).optional(),
+      /** The detail the post is about, as fractions of the image [x, y]. Gets the orange mark. */
+      focus: z.tuple([unit, unit]).optional(),
+      mark: z.enum(['ring', 'box', 'none']).optional(),
+      /** Mark size as fractions of the image [width, height]. */
+      mark_size: z.tuple([unit, unit]).optional(),
+      note,
     }).strict(),
   ]),
 ]);
