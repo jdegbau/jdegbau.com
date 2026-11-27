@@ -14,6 +14,8 @@ import { Resvg } from '@resvg/resvg-js';
 import { parse as parseYaml } from 'yaml';
 import { TOPICS, assignCovers, coverSvg } from './cover-art.mjs';
 import { renderCoverPng } from './cover-render.mjs';
+import { attachCustomArt } from './cover-bespoke.mjs';
+import { readFileSync } from 'node:fs';
 
 const require = createRequire(import.meta.url);
 const WIDTH = 1200;
@@ -156,6 +158,22 @@ export async function readPosts(blogDir) {
   );
 }
 
+/**
+ * Loads src/content/covers/<name>.svg onto each custom cover (see
+ * attachCustomArt in cover-bespoke.mjs). Returns slug → lint warnings.
+ */
+export function loadCustomArt(root, posts, covers) {
+  const dir = fileURLToPath(new URL('./src/content/covers/', root));
+  const read = (name) => {
+    try {
+      return readFileSync(path.join(dir, `${name}.svg`), 'utf8');
+    } catch {
+      return undefined;
+    }
+  };
+  return attachCustomArt(covers, read, new Map(posts.map((p) => [p.slug, p.title])));
+}
+
 export async function generateOgCards(root) {
   const blogDir = fileURLToPath(new URL('./src/content/blog/', root));
   const outDir = fileURLToPath(new URL('./public/assets/img/og/', root));
@@ -165,6 +183,7 @@ export async function generateOgCards(root) {
 
   // Same chart choice as the site (src/lib/posts.ts), so cards and share images match.
   const covers = assignCovers(posts);
+  loadCustomArt(root, posts, covers);
   const jobs = posts.map(async ({ slug, title, topic, coverSeed }) => {
     // Rendered to PNG first (with the cover's fonts), then placed in the card.
     const svg = coverSvg({ seed: coverSeed, cover: covers.get(slug), aspect: ART_WIDTH / HEIGHT, mode: 'crop' });

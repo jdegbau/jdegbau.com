@@ -20,6 +20,9 @@
  * The first kind is the topic's icon.
  */
 import { SCENES, SCENE_DRAW } from './cover-scenes.mjs';
+import { custom, imageScene } from './cover-bespoke.mjs';
+
+const DRAW_SCENE = { ...SCENE_DRAW, custom };
 
 export { SCENES };
 
@@ -488,8 +491,9 @@ export function topicKind(topic) {
 
 /** The small icon on a cover's label: the chart kind, or the closest one for a scene. */
 const SCENE_ICON = { browser: 'search', serp: 'search', editor: 'code', timeline: 'trend', document: 'hierarchy', checklist: 'measure' };
-export function coverIcon(cover) {
-  return cover?.scene === 'chart' ? cover.kind ?? 'trend' : SCENE_ICON[cover?.scene] ?? 'trend';
+/** `fallback` (usually the topic's chart) is used for bespoke covers, which have no fixed icon. */
+export function coverIcon(cover, fallback = 'trend') {
+  return cover?.scene === 'chart' ? cover.kind ?? 'trend' : SCENE_ICON[cover?.scene] ?? fallback;
 }
 
 /** A post's `cover` front matter as a scene object: a chart kind string becomes a chart scene. */
@@ -555,23 +559,29 @@ export function assignCovers(posts) {
  */
 export function coverSvg({ seed, cover, kind = 'trend', data, title, aspect, mode = 'extend' }) {
   const spec = normalizeCover(cover) ?? { scene: 'chart', kind, data };
-  const isChart = spec.scene === 'chart' || !SCENE_DRAW[spec.scene];
+  const isImage = spec.scene === 'image' && Boolean(spec.src);
+  const isChart = !isImage && (spec.scene === 'chart' || !DRAW_SCENE[spec.scene]);
   const chartKind = isChart ? (DRAW[spec.kind] ? spec.kind : 'trend') : null;
   const rand = rng(`${seed}:${isChart ? chartKind : spec.scene}`);
   const id = `cv${rng(seed)().toString(36).slice(2, 8)}`;
   let art;
   let focusX;
   let align;
+  let defs = '';
   if (isChart) {
     const series = Array.isArray(spec.data) && spec.data.length >= 3 ? spec.data.map(Number).filter(Number.isFinite) : undefined;
     art = DRAW[chartKind](rand, id, series);
     align = FOCUS[chartKind] ?? 'xMidYMid';
+  } else if (isImage) {
+    // Drawn once the canvas is known (below): the photo has to cover it.
+    align = spec.frame === 'window' ? 'xMidYMin' : 'xMidYMid';
+    focusX = imageScene(id, spec, [0, 0, W, H]).focus[0];
   } else {
-    const drawn = SCENE_DRAW[spec.scene](rand, id, spec);
+    const drawn = DRAW_SCENE[spec.scene](rand, id, spec);
     art = drawn.art;
     focusX = drawn.focus?.[0];
     // Windowed scenes keep their top (the address bar, the tab) in view.
-    align = spec.scene === 'timeline' ? 'xMidYMid' : 'xMidYMin';
+    align = spec.scene === 'timeline' || (spec.scene === 'custom' && !spec.frame) ? 'xMidYMid' : 'xMidYMin';
   }
   // The canvas: x, y, width, height in drawing units.
   let box = [0, 0, W, H];
@@ -587,6 +597,12 @@ export function coverSvg({ seed, cover, kind = 'trend', data, title, aspect, mod
       const share = align === 'xMidYMin' ? 0.3 : 0.5;
       box = [0, -Math.round((vh - H) * share), W, vh];
     }
+  }
+  if (isImage) {
+    // A crop keeps the 16:9 layout and picks the focus out of it; a taller canvas re-fits the photo.
+    const drawn = imageScene(id, spec, mode === 'crop' ? [0, 0, W, H] : box);
+    art = drawn.art;
+    defs = drawn.defs;
   }
   const viewBox = box.join(' ');
   const bgRect = `x="${box[0]}" y="${box[1]}" width="${box[2]}" height="${box[3]}"`;
@@ -605,12 +621,13 @@ export function coverSvg({ seed, cover, kind = 'trend', data, title, aspect, mod
       <stop offset="1" stop-color="${C.ink}" stop-opacity="0"/>
     </linearGradient>
     <linearGradient id="${id}-fade" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="${isChart ? '.55' : '.7'}" stop-color="${C.bg}" stop-opacity="0"/>
+      <stop offset="${isChart || (isImage && spec.frame !== 'window') ? '.55' : '.7'}" stop-color="${C.bg}" stop-opacity="0"/>
       <stop offset="1" stop-color="${C.bg}" stop-opacity=".85"/>
     </linearGradient>
     <filter id="${id}-shadow" x="-10%" y="-10%" width="120%" height="130%">
       <feGaussianBlur stdDeviation="22"/>
     </filter>
+    ${defs}
   </defs>
   <rect ${bgRect} fill="${C.bg}"/>
   <rect ${bgRect} fill="url(#${id}-grid)"/>

@@ -12,7 +12,7 @@ Before creating a new reusable UI component, read and follow the guidance in:
 ## Content and messaging
 The site follows Andy Crestodina / Orbit Media's content and conversion philosophy. Before writing or rewriting page copy or blog posts, read "Content guidelines (Orbit Media approach)" in `src/components/README.md`. In short: use descriptive headlines; answer questions, address objections, and add evidence (never invent proof); end every page with one clear next step (`CallToAction`).
 
-Every post gets a generated cover built from its own details (a `cover:` scene in the front matter). Follow "Post covers" in `src/components/README.md`, or the `post-cover` skill in `.claude/skills/`, when writing a post or when asked for a cover or featured image.
+Every post gets a generated cover built from its own details (a `cover:` scene in the front matter). Follow "Post covers" in `src/components/README.md`, or the `post-cover` skill in `.claude/skills/`, when writing a post or when asked for a cover or featured image. For a bespoke override (a hand-drawn cover, or one made from a user's photo or screenshot), use the `custom-cover` skill; it stays on brand through `scene: custom` / `scene: image`.
 
 ## Component rules
 1. Prefer reusing an existing component over creating a new one.

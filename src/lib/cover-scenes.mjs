@@ -23,6 +23,8 @@ export const SCENES = {
   document: 'an article or page outline: content strategy, structure, briefs',
   checklist: 'steps, audits, requirements: a list with one item marked',
   chart: 'data: one of the chart kinds, optionally with the post\'s real numbers',
+  custom: 'bespoke: a hand-drawn SVG in src/content/covers/, in the same style (see the custom-cover skill)',
+  image: 'bespoke: a photo or screenshot in public/assets/img/covers/, toned to the brand, with one orange mark',
 };
 
 // Hex values (not CSS variables) so the same SVG renders inside resvg.
@@ -459,4 +461,5 @@ function checklist(rand, id, o) {
 }
 
 export const SCENE_DRAW = { browser, serp, editor, timeline, document: documentScene, checklist };
-export { W, H };
+// Shared with the bespoke scenes in src/lib/cover-bespoke.mjs.
+export { W, H, FONT, FRAME, frame, note, glow, text, fit, tw };
