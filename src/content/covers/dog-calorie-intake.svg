@@ -1,0 +1,40 @@
+<!-- Dog calorie intake: a week of daily calories against a target; the day over it in orange.
+     Illustrative: no numbers until the post supplies them. -->
+<circle cx="782" cy="250" r="190" fill="url(#glow)"/>
+
+<!-- Dog bowl with kibble -->
+<circle cx="250" cy="404" r="13" fill="#6f8fbf"/>
+<circle cx="282" cy="398" r="14" fill="#33547e"/>
+<circle cx="316" cy="403" r="13" fill="#6f8fbf"/>
+<circle cx="346" cy="406" r="12" fill="#33547e"/>
+<circle cx="300" cy="386" r="12" fill="#8b97b0"/>
+<path d="M180 414 H420 Q412 520 300 520 Q188 520 180 414 Z" fill="#152a49" stroke="#223a5e" stroke-width="4" stroke-linejoin="round"/>
+<rect x="168" y="404" width="264" height="20" rx="10" fill="#223a5e"/>
+<!-- Paw print -->
+<ellipse cx="300" cy="482" rx="19" ry="15" fill="#aab4c8"/>
+<circle cx="276" cy="458" r="8" fill="#aab4c8"/>
+<circle cx="292" cy="449" r="8" fill="#aab4c8"/>
+<circle cx="308" cy="449" r="8" fill="#aab4c8"/>
+<circle cx="324" cy="458" r="8" fill="#aab4c8"/>
+
+<!-- Chart: calories per day -->
+<text x="530" y="150" font-size="26" fill="#8b97b0">kcal / day</text>
+<line x1="510" x2="1070" y1="520" y2="520" stroke="#33547e" stroke-width="3"/>
+<rect x="530" y="320" width="48" height="200" rx="8" fill="#33547e"/>
+<text x="554" y="562" font-size="24" font-weight="500" fill="#8b97b0" text-anchor="middle">M</text>
+<rect x="606" y="305" width="48" height="215" rx="8" fill="#33547e"/>
+<text x="630" y="562" font-size="24" font-weight="500" fill="#8b97b0" text-anchor="middle">T</text>
+<rect x="682" y="330" width="48" height="190" rx="8" fill="#33547e"/>
+<text x="706" y="562" font-size="24" font-weight="500" fill="#8b97b0" text-anchor="middle">W</text>
+<rect x="758" y="220" width="48" height="300" rx="8" fill="#ff4d00"/>
+<text x="782" y="562" font-size="24" font-weight="700" fill="#ff4d00" text-anchor="middle">T</text>
+<rect x="834" y="315" width="48" height="205" rx="8" fill="#33547e"/>
+<text x="858" y="562" font-size="24" font-weight="500" fill="#8b97b0" text-anchor="middle">F</text>
+<rect x="910" y="335" width="48" height="185" rx="8" fill="#33547e"/>
+<text x="934" y="562" font-size="24" font-weight="500" fill="#8b97b0" text-anchor="middle">S</text>
+<rect x="986" y="310" width="48" height="210" rx="8" fill="#33547e"/>
+<text x="1010" y="562" font-size="24" font-weight="500" fill="#8b97b0" text-anchor="middle">S</text>
+
+<!-- Target -->
+<line x1="510" x2="1070" y1="280" y2="280" stroke="#e8ecf4" stroke-opacity=".7" stroke-width="3" stroke-dasharray="10 10"/>
+<text x="1036" y="264" font-size="24" fill="#e8ecf4" text-anchor="end">target</text>
