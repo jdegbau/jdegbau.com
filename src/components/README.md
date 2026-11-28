@@ -478,6 +478,7 @@ Notes:
 - Renders inside `ChartFrame`, so it shares the title, source line, and "View the data" table with every other chart.
 - Each control is a checkbox; when it's on, its `patch` is deep-merged into the config (objects merge, arrays replace, so patch a whole `datasets` array).
 - Config is plain JSON: no functions or scriptable options. Colors can be site tokens written as `"var(--jdb-orange-500)"`.
+- Sankey flows can take their own `color` (`{ from, to, flow, color }`) to highlight one flow against the dataset's `colorFrom`/`colorTo`. A node takes the color of the last flow listed into or out of it, so list a highlighted flow before its neighbors to keep the nodes neutral.
 - Chart.js 4.6.1 and plugins load once per page from jsDelivr with SRI, lazily when the chart nears the viewport. The site's dark theme defaults are applied, and animation is off for `prefers-reduced-motion`.
 - To upgrade a library, edit the pinned URL and hash in `src/lib/chart-loader.ts` (instructions are in the file).
 - `table` adds a "View the data" panel for screen readers, and as a fallback if the chart can't load.

@@ -1,0 +1,302 @@
+---
+title: "Sankey Charts: What They Are, When to Use One, and How to Read It"
+seo_title: "What Is a Sankey Chart? When to Use One and How to Read It"
+slug: sankey-chart
+topic: dataviz
+excerpt: "A Sankey chart shows how a total flows between stages, with band width showing quantity. Learn when to use one, how to read it step by step, the mistakes to avoid, and when another chart works better."
+series: Chart by Chart
+seriesOrder: 1
+tags: [data visualization, sankey chart, chart types, reporting]
+keywords: [sankey chart, sankey diagram, what is a sankey chart, how to read a sankey chart, when to use a sankey chart]
+cover:
+  scene: chart
+  kind: flow
+faq:
+  - question: What is a Sankey chart used for?
+    answer: '<p>A Sankey chart shows how a total moves between stages: where traffic comes from and where it lands, how a budget splits across teams, or how energy is used and lost. Use one when the story is <strong>where the volume goes</strong>, not just how big each stage is.</p>'
+  - question: What is the difference between a Sankey chart and a funnel chart?
+    answer: '<p>A funnel shows one path and how many drop out at each step. A Sankey shows many paths at once: items can split, merge, and end in different places. If everyone moves through the same steps in the same order, a funnel is simpler to read.</p>'
+  - question: How many nodes can a Sankey chart have?
+    answer: '<p>Keep it to about eight nodes per column and a few dozen flows at most. Past that, the bands get too thin to follow. Group small sources into an "Other" node, or split the chart in two.</p>'
+  - question: Can I make a Sankey chart in Google Sheets or GA4?
+    answer: '<p>Neither has a built-in Sankey chart. Export a table with three columns (from, to, value) and paste it into a free tool such as SankeyMATIC, Flourish, or RAWGraphs, or build it in Python with Plotly.</p>'
+  - question: Who invented the Sankey chart?
+    answer: '<p>It is named after Matthew Henry Phineas Riall Sankey, an Irish engineer who used one in 1898 to show the energy efficiency of a steam engine.</p>'
+---
+
+import SummaryCard from '../../components/SummaryCard.astro';
+import ChartPlayground from '../../components/ChartPlayground.astro';
+import Steps from '../../components/Steps.astro';
+import Callout from '../../components/Callout.astro';
+import Tabs from '../../components/Tabs.astro';
+import TabPanel from '../../components/TabPanel.astro';
+import DownloadCard from '../../components/DownloadCard.astro';
+
+export const flows = [
+  { from: 'Search', to: 'Blog', flow: 320 },
+  { from: 'Search', to: 'Pricing', flow: 120 },
+  { from: 'Search', to: 'Home', flow: 80 },
+  { from: 'Social', to: 'Blog', flow: 140 },
+  { from: 'Social', to: 'Home', flow: 40 },
+  { from: 'Email', to: 'Pricing', flow: 90 },
+  { from: 'Email', to: 'Home', flow: 50 },
+  { from: 'Direct', to: 'Home', flow: 110 },
+  { from: 'Direct', to: 'Pricing', flow: 50 },
+  { from: 'Blog', to: 'Signed up', flow: 60 },
+  { from: 'Blog', to: 'Left', flow: 400 },
+  { from: 'Pricing', to: 'Signed up', flow: 140 },
+  { from: 'Pricing', to: 'Left', flow: 120 },
+  { from: 'Home', to: 'Signed up', flow: 50 },
+  { from: 'Home', to: 'Left', flow: 230 },
+];
+
+export const tinyFlows = ['Referral', 'Partners', 'Podcast', 'Ads'].flatMap((source) => [
+  { from: source, to: 'Blog', flow: 12 },
+  { from: source, to: 'Home', flow: 9 },
+]);
+
+export const nodeTotal = (list, node) =>
+  Math.max(
+    list.filter((f) => f.from === node).reduce((sum, f) => sum + f.flow, 0),
+    list.filter((f) => f.to === node).reduce((sum, f) => sum + f.flow, 0),
+  );
+
+export const withTotals = (list) =>
+  Object.fromEntries([...new Set(list.flatMap((f) => [f.from, f.to]))].map((node) => [node, `${node} · ${nodeTotal(list, node)}`]));
+
+export const highlighted = flows.map((f) =>
+  f.from === 'Pricing' && f.to === 'Signed up' ? { ...f, color: 'var(--jdb-orange-500)' } : f,
+);
+
+export const rainbow = ['#ff6b6b', '#f2b84b', '#4fd68a', '#4cc9f0', '#a78bfa', '#f472b6', '#fb923c', '#22d3ee'];
+// The tiny sources' visits also leave from Blog and Home, so every stage still reconciles.
+export const extraLeft = { Blog: 48, Home: 36 };
+export const cluttered = [...flows.slice(0, 9), ...tinyFlows, ...flows.slice(9)].map((f, i) => ({
+  ...f,
+  flow: f.to === 'Left' ? f.flow + (extraLeft[f.from] ?? 0) : f.flow,
+  color: rainbow[i % rainbow.length],
+}));
+
+export const dataset = (list, labels) => ({
+  label: 'Visitors',
+  data: list,
+  labels,
+  color: 'var(--jdb-fg)',
+  borderWidth: 0,
+  nodeWidth: 12,
+  nodePadding: 18,
+  colorFrom: 'var(--jdb-navy-600)',
+  colorTo: 'var(--jdb-navy-600)',
+  colorMode: 'from',
+  alpha: 0.45,
+});
+
+export const dataTable = {
+  columns: ['From', 'To', 'Visitors'],
+  rows: flows.map((f) => [f.from, f.to, f.flow]),
+};
+
+A Sankey chart shows how a total flows from one stage to the next. Each band is a path, and its width is how much moves along it. That makes it the clearest way to answer "where does it all go?", whether "it" is website visitors, budget, or energy.
+
+This guide covers what a Sankey chart is, when to use one, how to read one step by step, the most common mistakes, and when a different chart works better. The example uses 1,000 website visitors, and you can download the data at the end.
+
+<SummaryCard
+  title="Sankey chart"
+  definition="A flow diagram where band width shows how much moves from one stage to the next."
+  items={[
+    { label: 'Use it when', value: 'You need to show where a total goes, and where it is lost.', tone: 'good' },
+    { label: 'Avoid it when', value: 'Flows loop back, there is only one path, or exact values matter most.', tone: 'bad' },
+    { label: 'Best alternative', value: 'A <strong>funnel</strong> for a single path, a <strong>table</strong> for exact values.', tone: 'neutral' },
+  ]}
+/>
+
+## What is a Sankey chart?
+
+A Sankey chart (also called a Sankey diagram) has two parts:
+
+- **Nodes** are the bars. Each one is a group or a stage, such as a traffic source, a page, or an outcome. Its height is its total.
+- **Bands** (also called links or flows) connect the nodes. A band's width is the amount moving from one node to the next.
+
+Nothing is lost or invented between stages. What flows into a node equals what flows out of it, so the totals reconcile from left to right. That rule is what makes a Sankey chart trustworthy, and it's the first thing to check when one looks wrong.
+
+The chart is named after Matthew Henry Phineas Riall Sankey, an engineer who used one in 1898 to show how much of a steam engine's energy became useful work and how much was lost as heat.
+
+## Why and when to use a Sankey chart
+
+A table lists the numbers. A Sankey chart shows **where they go**. Reports often split one journey across three disconnected tables (traffic by channel, visits by landing page, conversions by page). A Sankey puts the whole path in one view, so the reader sees the connections instead of rebuilding them.
+
+Use a Sankey chart to show:
+
+- **How a total splits** into paths, such as visits by source and landing page, or a budget by team and project.
+- **What survives** each stage of a process, such as leads becoming opportunities and then customers.
+- **Where things get lost** along the way, so the biggest leak is the widest band heading to "Left."
+
+It works best with two to four stages and a handful of nodes in each. For more chart types and when each one fits, see the [SEO data visualization guide](/blog/seo-data-visualization-guide/).
+
+## Example: where 1,000 visitors go
+
+Here are 1,000 visits to a website in one month, followed from traffic source, to the first page they saw, to whether they signed up. Hover a band to see its value, or open "View the data" for the full table.
+
+<ChartPlayground
+  id="sankey-example"
+  type="sankey"
+  plugins={['sankey']}
+  height={440}
+  data={{ datasets: [dataset(highlighted, withTotals(flows))] }}
+  title="Pricing gets fewer visitors than the Blog but produces the most sign-ups"
+  dek="1,000 visits: traffic source → landing page → outcome"
+  source="Example data"
+  alt="Sankey chart of 1,000 visitors flowing from four traffic sources (Search 520, Social 180, Direct 160, Email 140) to three landing pages (Blog 460, Home 280, Pricing 260), then to Signed up (250) or Left (750). The band from Pricing to Signed up, 140 visitors, is highlighted in orange."
+  table={dataTable}
+/>
+
+The numbers are example data, chosen to show a pattern that's common in real reports: the page with the most traffic isn't the page that converts.
+
+## How to read a Sankey chart
+
+Read it in four steps, left to right.
+
+<Steps label="How to read a Sankey chart">
+
+1. **Start on the left.** Each node is a source, sized by its total. Search is the biggest at 520 visits, more than half the total.
+2. **Follow the widest band.** Width is quantity, so the widest band is the biggest flow. Here it's the 400 visitors who landed on the Blog and left.
+3. **Compare what goes in with what comes out.** Pricing gets 260 visitors, fewer than the Blog's 460, but 140 of them sign up. That's 54%, against 13% for the Blog and 18% for Home.
+4. **Finish on the right.** The outcome nodes add up to the total: 250 signed up and 750 left.
+
+</Steps>
+
+The takeaway writes itself: Pricing is the best-converting page, so sending more of the Blog's 460 visitors there (with links or calls to action) is likely worth more than growing Blog traffic further. That's the kind of decision a Sankey chart supports and three separate tables hide.
+
+<Callout type="tip" title="Check the totals">
+
+Add up each column of nodes. If they don't match (say, 1,000 visits on the left and 1,080 on the right), the data mixes units, like sessions and users, or counts some visits twice. Fix that before you share the chart.
+
+</Callout>
+
+## The most common mistake: color everywhere, focus nowhere
+
+Most Sankey charts that fail have too many flows and too many colors. Turn on the toggle below to see the same data the way it often gets charted: eight tiny extra sources and a different color for every band. Then turn it off again.
+
+<ChartPlayground
+  id="sankey-makeover"
+  type="sankey"
+  plugins={['sankey']}
+  height={440}
+  data={{ datasets: [dataset(highlighted, withTotals(flows))] }}
+  controls={[
+    { label: 'Show the cluttered version', patch: { data: { datasets: [dataset(cluttered, withTotals(cluttered))] } } },
+  ]}
+  title="One color for the flow that matters beats a color for every flow"
+  dek="Same flows; the cluttered version adds eight sources of 21 visits each"
+  source="Example data"
+  alt="Two versions of the same Sankey chart. The clean version shows 15 grey bands with the Pricing to Signed up band in orange. The cluttered version adds eight tiny sources, 23 bands in all, each a different color, so no single path stands out."
+  table={dataTable}
+/>
+
+The cluttered version has 23 bands in eight colors, and nothing stands out, so the reader has to work out the story alone. The clean version is grey with one orange band, and the story is found in seconds: Pricing converts.
+
+## Other mistakes to avoid
+
+- **A different color for every flow.** Color should carry meaning. Use one neutral color, and save a bright one for the flow you want people to notice.
+- **Dozens of thin bands nobody can follow.** Group small sources into an "Other" node. Four referral sources of 21 visits each say more as one "Other · 84" node.
+- **Nodes in random order, so bands cross.** Order nodes so the biggest flows run as straight as possible. Crossings make readers trace bands by hand.
+- **Totals that don't reconcile.** Every stage should add up to the same total. If it doesn't, the chart is wrong, not just ugly.
+- **No numbers on the nodes.** Widths show proportion, not value. Add the total to each node's label, as in the example above.
+
+## When not to use a Sankey chart
+
+A Sankey chart is the wrong choice when:
+
+- **Flows loop back.** If items return to an earlier stage (visitors going back and forth between pages), use a network diagram or a path analysis instead.
+- **There's only one path.** If everyone moves through the same steps in order, a funnel chart is simpler.
+- **Exact values matter.** Readers judge width poorly. If they need to compare 140 with 120, use a table or a bar chart.
+- **You need to show change over time.** A Sankey is a snapshot. Use a line chart for trends.
+- **You have more than about eight nodes per column.** It turns into spaghetti. Split it into two charts or group the small nodes.
+
+## How to make a Sankey chart
+
+Every Sankey tool needs the same table with three columns: where the flow starts, where it ends, and how much moves. That's the format of the example dataset.
+
+<Tabs label="Build it in" group="sankey-tool">
+<TabPanel label="SankeyMATIC">
+
+[SankeyMATIC](https://sankeymatic.com/build/) is free and runs in the browser. Type one flow per line, with the amount in brackets, and the chart draws as you type:
+
+```text
+Search [320] Blog
+Search [120] Pricing
+Search [80] Home
+Pricing [140] Signed up
+Pricing [120] Left
+```
+
+</TabPanel>
+<TabPanel label="Flourish or RAWGraphs">
+
+Both are free, no-code tools. Paste the three columns into a new Sankey chart (Flourish) or a Sankey diagram (RAWGraphs), map the columns to source, target, and value, and export an image or embed code.
+
+</TabPanel>
+<TabPanel label="Python">
+
+Plotly's `Sankey` takes node labels plus three lists for the links: source and target (as positions in the label list) and value.
+
+```python
+import pandas as pd
+import plotly.graph_objects as go
+
+df = pd.read_csv("sankey-example-visitors.csv")
+labels = list(dict.fromkeys(df["from"].tolist() + df["to"].tolist()))
+index = {label: i for i, label in enumerate(labels)}
+
+fig = go.Figure(go.Sankey(
+    node=dict(label=labels),
+    link=dict(
+        source=df["from"].map(index),
+        target=df["to"].map(index),
+        value=df["visitors"],
+    ),
+))
+fig.show()
+```
+
+</TabPanel>
+<TabPanel label="Chart.js">
+
+The charts on this page use Chart.js with the `chartjs-chart-sankey` plugin. Each flow is an object with `from`, `to`, and `flow`:
+
+```js
+new Chart(canvas, {
+  type: 'sankey',
+  data: {
+    datasets: [{
+      data: [
+        { from: 'Search', to: 'Blog', flow: 320 },
+        { from: 'Pricing', to: 'Signed up', flow: 140 },
+      ],
+      colorFrom: '#33547e',
+      colorTo: '#33547e',
+    }],
+  },
+});
+```
+
+</TabPanel>
+</Tabs>
+
+<DownloadCard
+  title="Example dataset: 1,000 visitors, source to outcome"
+  description="The 15 flows used in the charts above, in the from, to, value format every Sankey tool accepts."
+  files={[
+    { label: 'Download CSV', href: '/assets/downloads/sankey-example-visitors.csv', format: 'CSV', size: '1 KB' },
+  ]}
+/>
+
+## Recap
+
+- A Sankey chart shows how a **total flows** between stages.
+- **Band width** is quantity, and every stage adds up to the same total.
+- Read it **left to right**: sources, paths, outcomes.
+- Keep it to **a few flows** and one highlight, and add the totals to the node labels.
+- Use a funnel for a single path, a table for exact values, and a line chart for trends.
+
+Next in the Chart by Chart series: radar charts.

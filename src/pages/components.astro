@@ -824,6 +824,7 @@ const sampleMatrixRows = [
               controls={[
                 { label: 'Add 8 tiny flows', patch: { data: { datasets: [sankeyDataset([...sankeyFlows, ...tinyFlows], calmColors)] } } },
                 { label: 'Rainbow gradient', patch: { data: { datasets: [sankeyDataset(sankeyFlows, loudColors)] } } },
+                { label: 'Highlight Pricing → Signed up', patch: { data: { datasets: [sankeyDataset(sankeyFlows.map((flow) => (flow.from === 'Pricing' && flow.to === 'Signed up' ? { ...flow, color: 'var(--jdb-orange-500)' } : flow)), calmColors)] } } },
               ]}
               alt="Sankey chart of 1,000 visitors flowing from four traffic sources to three landing pages, then to signed up or left. Blog gets the most visitors but Pricing produces the most sign-ups."
               caption="Toggle the clutter on and off to see why a Sankey needs few, meaningful flows."

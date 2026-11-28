@@ -1,0 +1,16 @@
+from,to,visitors
+Search,Blog,320
+Search,Pricing,120
+Search,Home,80
+Social,Blog,140
+Social,Home,40
+Email,Pricing,90
+Email,Home,50
+Direct,Home,110
+Direct,Pricing,50
+Blog,Signed up,60
+Blog,Left,400
+Pricing,Signed up,140
+Pricing,Left,120
+Home,Signed up,50
+Home,Left,230
