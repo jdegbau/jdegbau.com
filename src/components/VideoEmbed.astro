@@ -19,10 +19,12 @@ interface Props {
   /** ISO 8601 duration, e.g. PT8M30S. */
   duration?: string;
   chapters?: Chapter[];
+  /** Optional local poster image (e.g. /assets/img/...). Defaults to YouTube's own thumbnail. */
+  poster?: string;
   class?: string;
 }
 
-const { youtubeId, title, description, uploadDate, duration, chapters = [], class: className } = Astro.props;
+const { youtubeId, title, description, uploadDate, duration, chapters = [], poster, class: className } = Astro.props;
 
 if (!/^[\w-]{11}$/.test(youtubeId)) {
   throw new Error(`VideoEmbed: "${youtubeId}" is not a YouTube video id`);
@@ -30,7 +32,11 @@ if (!/^[\w-]{11}$/.test(youtubeId)) {
 
 const watchUrl = `https://www.youtube.com/watch?v=${youtubeId}`;
 const embedUrl = `https://www.youtube-nocookie.com/embed/${youtubeId}`;
-const thumbnail = `https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg`;
+// maxresdefault is sharp and 16:9 but missing on some videos; the script falls
+// back to hqdefault (always present, 4:3, cropped by the frame) when it is.
+const thumbnail = poster ?? `https://i.ytimg.com/vi/${youtubeId}/maxresdefault.jpg`;
+const fallbackThumbnail = `https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg`;
+const embedParams = 'rel=0&playsinline=1';
 const sorted = [...chapters].sort((a, b) => a.start - b.start);
 
 const formatTime = (seconds: number) => {
@@ -40,12 +46,25 @@ const formatTime = (seconds: number) => {
   return h ? `${h}:${m.toString().padStart(2, '0')}:${s}` : `${m}:${s}`;
 };
 
+// "PT2M4S" -> 124 seconds, for the length badge.
+const toSeconds = (iso?: string) => {
+  const match = iso?.match(/^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?$/);
+  if (!match) return undefined;
+  const [, h = '0', m = '0', sec = '0'] = match;
+  return Number(h) * 3600 + Number(m) * 60 + Number(sec);
+};
+const lengthSeconds = toSeconds(duration);
+if (duration && lengthSeconds === undefined) {
+  throw new Error(`VideoEmbed: duration "${duration}" should be ISO 8601, e.g. PT2M4S`);
+}
+const lengthLabel = lengthSeconds !== undefined ? formatTime(lengthSeconds) : undefined;
+
 const schema = {
   '@context': 'https://schema.org',
   '@type': 'VideoObject',
   name: title,
   description,
-  thumbnailUrl: [thumbnail],
+  thumbnailUrl: [poster ? new URL(poster, 'https://jdegbau.com').href : thumbnail, fallbackThumbnail],
   uploadDate,
   duration,
   embedUrl,
@@ -62,23 +81,33 @@ const schema = {
 };
 ---
 
-<figure class:list={['jdb-video', className]} data-video={youtubeId} data-video-title={title}>
+<figure class:list={['jdb-video', className]} data-video={youtubeId} data-video-title={title} data-video-params={embedParams}>
   <div class="jdb-video__frame">
-    <button class="jdb-video__play" type="button" data-video-start="0">
-      <img src={thumbnail} alt="" width="480" height="360" loading="lazy" decoding="async" />
+    <button class="jdb-video__play" type="button" data-video-start="0" data-jdb-track="video-play">
+      <img src={thumbnail} data-fallback={poster ? undefined : fallbackThumbnail} alt="" width="1280" height="720" loading="lazy" decoding="async" />
       <span class="jdb-video__icon" aria-hidden="true"></span>
-      <span class="jdb-video__sr">Play video: {title}</span>
+      {lengthLabel && <span class="jdb-video__length" aria-hidden="true">{lengthLabel}</span>}
+      <span class="jdb-video__sr">Play video: {title}{lengthLabel && ` (${lengthLabel})`}</span>
     </button>
+    <noscript>
+      <iframe
+        src={`${embedUrl}?${embedParams}`}
+        title={title}
+        allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen
+        referrerpolicy="strict-origin-when-cross-origin"
+        loading="lazy"
+      ></iframe>
+    </noscript>
   </div>
   <figcaption class="jdb-video__caption">
-    <span>{title}</span>
-    <a href={watchUrl} target="_blank" rel="noopener" class="jdb-video__external">Watch on YouTube</a>
+    <span class="jdb-video__title">{title}</span>
   </figcaption>
   {sorted.length > 0 && (
     <ol class="jdb-video__chapters" aria-label="Chapters">
       {sorted.map((chapter) => (
         <li>
-          <button type="button" data-video-start={chapter.start}>
+          <button type="button" data-video-start={chapter.start} data-jdb-track="video-chapter">
             <span class="jdb-video__time">{formatTime(chapter.start)}</span>
             {chapter.title}
           </button>
@@ -103,6 +132,7 @@ const schema = {
     border-radius: var(--jdb-r-lg);
   }
 
+  .jdb-video__frame iframe,
   .jdb-video__frame :global(iframe),
   .jdb-video__play {
     position: absolute;
@@ -131,6 +161,23 @@ const schema = {
     opacity: 1;
   }
 
+  .jdb-video__play:hover .jdb-video__icon,
+  .jdb-video__play:focus-visible .jdb-video__icon {
+    transform: translate(-50%, -50%) scale(1.06);
+  }
+
+  .jdb-video__length {
+    position: absolute;
+    right: var(--jdb-s-3);
+    bottom: var(--jdb-s-3);
+    padding: 0.15rem var(--jdb-s-2);
+    font-size: var(--jdb-fs-xs);
+    font-variant-numeric: tabular-nums;
+    color: var(--jdb-fg);
+    background: rgb(10 21 38 / 0.85);
+    border-radius: var(--jdb-r-sm);
+  }
+
   .jdb-video__play:focus-visible {
     outline: 3px solid var(--jdb-orange-400);
     outline-offset: -3px;
@@ -146,6 +193,14 @@ const schema = {
     border-radius: var(--jdb-r-lg);
     background: var(--jdb-orange-500);
     box-shadow: var(--jdb-sh-sm);
+    transition: transform var(--jdb-t-fast) var(--jdb-ease);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .jdb-video__icon,
+    .jdb-video__play img {
+      transition: none;
+    }
   }
 
   .jdb-video__icon::after {
@@ -178,11 +233,6 @@ const schema = {
     color: var(--jdb-fg-dim);
   }
 
-  .jdb-video__external {
-    font-family: var(--jdb-font-sans);
-    font-size: var(--jdb-fs-xs);
-  }
-
   .jdb-video__chapters {
     display: flex;
     flex-wrap: wrap;
@@ -208,9 +258,20 @@ const schema = {
     cursor: pointer;
   }
 
-  .jdb-video__chapters button:hover {
+  .jdb-video__chapters button {
+    min-height: var(--jdb-target);
+    align-items: center;
+  }
+
+  .jdb-video__chapters button:hover,
+  .jdb-video__chapters button[aria-current='true'] {
     color: var(--jdb-fg);
     border-color: var(--jdb-orange-500);
+  }
+
+  .jdb-video__chapters button:focus-visible {
+    outline: 3px solid var(--jdb-orange-400);
+    outline-offset: 2px;
   }
 
   .jdb-video__time {
@@ -220,22 +281,93 @@ const schema = {
 </style>
 
 <script>
+  const ORIGIN = 'https://www.youtube-nocookie.com';
+  let warmed = false;
+
+  // Open connections early when a reader shows intent, so playback starts faster.
+  const warm = () => {
+    if (warmed) return;
+    warmed = true;
+    for (const href of [ORIGIN, 'https://www.google.com', 'https://i.ytimg.com']) {
+      const link = document.createElement('link');
+      link.rel = 'preconnect';
+      link.href = href;
+      link.crossOrigin = '';
+      document.head.append(link);
+    }
+  };
+
   document.querySelectorAll<HTMLElement>('[data-video]').forEach((figure) => {
     const id = figure.dataset.video;
     const frame = figure.querySelector<HTMLElement>('.jdb-video__frame');
     if (!id || !frame) return;
 
+    // YouTube serves a 120×90 placeholder when maxresdefault doesn't exist.
+    const img = frame.querySelector<HTMLImageElement>('img[data-fallback]');
+    if (img) {
+      const check = () => {
+        if (img.naturalWidth > 0 && img.naturalWidth <= 120 && img.dataset.fallback) {
+          img.src = img.dataset.fallback;
+          delete img.dataset.fallback;
+        }
+      };
+      if (img.complete) check();
+      else img.addEventListener('load', check);
+      img.addEventListener('error', () => img.dataset.fallback && (img.src = img.dataset.fallback));
+    }
+
+    const chapters = [...figure.querySelectorAll<HTMLButtonElement>('.jdb-video__chapters [data-video-start]')];
+    const starts = chapters.map((button) => Number(button.dataset.videoStart) || 0);
+    let iframe: HTMLIFrameElement | undefined;
+
+    const markChapter = (time: number) => {
+      let current = -1;
+      starts.forEach((start, index) => {
+        if (time >= start) current = index;
+      });
+      chapters.forEach((button, index) => button.setAttribute('aria-current', String(index === current)));
+    };
+
+    const command = (func: string, args: unknown[] = []) =>
+      iframe?.contentWindow?.postMessage(JSON.stringify({ event: 'command', func, args }), ORIGIN);
+
     const load = (start: number) => {
-      const iframe = document.createElement('iframe');
-      iframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&start=${start}`;
-      iframe.title = figure.dataset.videoTitle ?? 'YouTube video';
+      if (iframe) {
+        // Already playing: jump within the player instead of reloading it.
+        command('seekTo', [start, true]);
+        command('playVideo');
+        markChapter(start);
+        return;
+      }
+      iframe = document.createElement('iframe');
+      const params = figure.dataset.videoParams ?? 'rel=0';
+      iframe.src = `${ORIGIN}/embed/${id}?${params}&autoplay=1&enablejsapi=1&origin=${encodeURIComponent(location.origin)}&start=${start}`;
+      iframe.title = figure.dataset.videoTitle ?? 'Video';
       iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
       iframe.allowFullscreen = true;
       iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+      // Ask the player to report its time, so the current chapter stays highlighted.
+      iframe.addEventListener('load', () => iframe?.contentWindow?.postMessage(JSON.stringify({ event: 'listening' }), ORIGIN));
       frame.replaceChildren(iframe);
       iframe.focus();
+      markChapter(start);
     };
 
+    if (chapters.length) {
+      window.addEventListener('message', (event) => {
+        if (event.origin !== ORIGIN || !iframe || event.source !== iframe.contentWindow) return;
+        try {
+          const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+          const time = data?.info?.currentTime;
+          if (typeof time === 'number') markChapter(time);
+        } catch {
+          /* not a player message */
+        }
+      });
+    }
+
+    figure.addEventListener('pointerenter', warm, { once: true });
+    figure.addEventListener('focusin', warm, { once: true });
     figure.querySelectorAll<HTMLButtonElement>('[data-video-start]').forEach((button) => {
       button.addEventListener('click', () => load(Number(button.dataset.videoStart) || 0));
     });

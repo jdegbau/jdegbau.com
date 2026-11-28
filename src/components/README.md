@@ -451,8 +451,12 @@ Notes:
 Purpose: Privacy-friendly, click-to-load YouTube embed with VideoObject schema.
 Location: `src/components/VideoEmbed.astro`
 Notes:
-- Props: `youtubeId`, `title`, `description`, `uploadDate` (ISO date), `duration?` (ISO 8601, e.g. `PT8M30S`), `chapters?: { start, title }[]` (start in seconds).
-- Shows the thumbnail until clicked, then loads a `youtube-nocookie.com` iframe. Chapter buttons start playback at that time.
+- Props: `youtubeId`, `title`, `description`, `uploadDate` (ISO date), `duration?` (ISO 8601, e.g. `PT2M4S`), `chapters?: { start, title }[]` (start in seconds), `poster?` (a local image to show instead of YouTube's thumbnail).
+- Shows the thumbnail until clicked, then loads a `youtube-nocookie.com` iframe in place. There's no outbound link to YouTube; without JavaScript, the player loads inline instead.
+- The thumbnail is YouTube's sharp 16:9 `maxresdefault`, falling back to `hqdefault` when a video doesn't have one. `duration` adds a length badge on the thumbnail; a malformed value fails the build.
+- Chapter buttons start playback at that time. Once the player is running, they jump within it (no reload), and the current chapter is highlighted as the video plays.
+- Connections to YouTube open when a reader hovers or focuses the player, so it starts faster after the click.
+- Tag Manager hooks: `data-jdb-track="video-play"` on the play button and `video-chapter` on chapter buttons.
 - Emits its own VideoObject JSON-LD, with chapters as `Clip` parts.
 
 ### PostSeriesNav
@@ -491,6 +495,7 @@ The main conversion points carry a `data-jdb-track` attribute naming the action,
 - `helpline-choose-time`, `helpline-ask-first`, `booking-direct` (SEO Helpline page)
 - `newsletter` (the footer signup form)
 - `share-x`, `share-linkedin`, `share-email`, `share-copy` (post share bar)
+- `video-play`, `video-chapter` (every `VideoEmbed`)
 
 In Tag Manager: add a Custom JavaScript variable that returns `{{Click Element}}.closest('[data-jdb-track]')?.dataset.jdbTrack`, a Click (All Elements) trigger where that variable is not undefined, and a GA4 event tag (e.g. `cta_click` with parameter `cta` = the variable). Use a Form Submission trigger on `[data-jdb-track="newsletter"]` for signups. Give new conversion points a `data-jdb-track` name in the same style.
 
