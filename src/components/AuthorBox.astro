@@ -8,14 +8,10 @@ import { author } from '../data/author';
 import Portrait from './Portrait.astro';
 import Icon, { type IconName } from './Icon.astro';
 
-// Same profiles and order as the footer.
+// Professional profiles only (the footer lists them all). Add a name here,
+// with its icon, to show another profile.
 const iconFor: Record<string, IconName> = {
   LinkedIn: 'linkedin-in',
-  GitHub: 'github',
-  Instagram: 'instagram',
-  Threads: 'threads',
-  Bluesky: 'bluesky',
-  X: 'x-twitter',
 };
 const order = Object.keys(iconFor);
 const socials = author.aiProfile.profiles
@@ -34,19 +30,20 @@ const socials = author.aiProfile.profiles
 
   <p class="jdb-author__bio">{author.bio}</p>
 
-  <ul class="jdb-author__social" aria-label="Follow Josh">
-    {socials.map((profile) => (
-      <li>
-        <a href={profile.url} aria-label={`Follow me on ${profile.name}`}>
-          <Icon name={iconFor[profile.name]} />
-        </a>
-      </li>
-    ))}
-  </ul>
-
   <div class="jdb-author__actions">
     <a class="jdb-btn jdb-btn--primary jdb-btn--arrow" href="/contact/" data-jdb-track="author-contact">Work with me</a>
     <a class="jdb-author__more" href="/about/">More about Josh</a>
+    {socials.length > 0 && (
+      <ul class="jdb-author__social" aria-label="Follow Josh">
+        {socials.map((profile) => (
+          <li>
+            <a href={profile.url} aria-label={`Follow me on ${profile.name}`}>
+              <Icon name={iconFor[profile.name]} />
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
   </div>
 </aside>
 
@@ -146,13 +143,13 @@ const socials = author.aiProfile.profiles
     color: var(--jdb-orange-400);
   }
 
-  /* The icons sit in 44px tap targets; pull the row left so the first
-     icon lines up with the bio's text edge. */
+  /* Pulled in by half its tap target's padding so the gap to "More about
+     Josh" matches the gap between the links. */
   .jdb-author__social {
     display: flex;
     flex-wrap: wrap;
     gap: 0;
-    margin: var(--jdb-s-3) 0 0 calc((1.1rem - var(--jdb-target)) / 2);
+    margin: 0 0 0 calc((1.1rem - var(--jdb-target)) / 2);
     padding: 0;
     list-style: none;
   }

@@ -32,8 +32,8 @@ Purpose: The "Written by" sign-off at the end of every post.
 Location: `src/components/AuthorBox.astro`
 Notes:
 - Accepts no props. Uses author data from `src/data/author.ts` (name, bio, and `aiProfile.profiles` for the social links).
-- One column at every width: photo and name, then the bio, then social icons, then a hairline and the call to action: a primary "Work with me" button (to `/contact/`) and a "More about Josh" link.
-- Social icons use `Icon`, in the footer's order (LinkedIn, GitHub, Instagram, Threads, Bluesky, X). Each is a 44px target labeled "Follow me on <network>"; the row is pulled left so the first icon lines up with the bio. A profile added to `author.ts` needs an entry in `iconFor` to show up.
+- One column at every width: photo and name, then the bio, then a hairline and the call to action: a primary "Work with me" button (to `/contact/`), a "More about Josh" link, and a LinkedIn icon.
+- Only professional profiles get an icon (just LinkedIn for now; the footer lists every network). To show another, add its name and `Icon` to `iconFor` in the component. Each icon is a 44px target labeled "Follow me on <network>".
 - Sits on the site's graph paper, with a soft orange glow behind the photo, fading toward the bottom right. The padding is half a grid square and the photo is two squares, so the photo lands exactly on the grid lines; keep those in step if you change `--jdb-grid-size`.
 - The photo has empty alt text because the name is printed beside it.
 - Tag Manager hook: `data-jdb-track="author-contact"` on the button.
