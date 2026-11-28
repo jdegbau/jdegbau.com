@@ -28,12 +28,13 @@ Front matter options handled by the post template (`src/pages/blog/[slug].astro`
 ## Current components
 
 ### AuthorBox
-Purpose: Reusable author profile summary block.
+Purpose: The "Written by" sign-off at the end of every post.
 Location: `src/components/AuthorBox.astro`
 Notes:
-- Accepts no props.
-- Uses author data from `src/data/author.ts`.
-- The bio takes the free width; on narrow cards the button wraps below it. The photo has empty alt text because the name is printed beside it.
+- Accepts no props. Uses author data from `src/data/author.ts` (name, bio, the LinkedIn profile, and the SEO Helpline link).
+- One column at every width: photo and name, then the bio, then a row of plain text links (More about Josh, LinkedIn, SEO Helpline). No buttons, so it doesn't compete with the post's closing call to action.
+- Sits on the site's graph paper, with a soft orange glow behind the photo, fading toward the bottom right. The padding is half a grid square and the photo is two squares, so the photo lands exactly on the grid lines; keep those in step if you change `--jdb-grid-size`.
+- The photo has empty alt text because the name is printed beside it.
 
 ### BlogCard
 Purpose: Compact blog post teaser card.
@@ -539,7 +540,7 @@ Older posts contain raw HTML from the site's previous CSS framework (`columns`, 
 The visual rules live in the tokens at the top of `public/assets/css/main.css`; the components page shows them.
 - **Two faces, two jobs.** Schibsted Grotesk (`--jdb-font-sans`) sets everything people read: headlines, UI, body. JetBrains Mono (`--jdb-font-mono`) is only for what is literally code: the logotype, code samples, `kbd`. Don't set labels, dates, or buttons in mono.
 - **Headlines carry the page.** Large, heavy, tightly tracked (`--jdb-track-display` / `--jdb-track-heading`). Heading sizes are fluid between a phone size and a desktop size.
-- **Graph paper is the one texture.** It appears behind heroes (`--jdb-grid-line`, `--jdb-grid-size`, under a soft orange wash, `--jdb-hero-wash`), on generated post covers, and behind the closing call to action, which bookends the hero. Don't add other washes or textures.
+- **Graph paper is the one texture.** It appears behind heroes (`--jdb-grid-line`, `--jdb-grid-size`, under a soft orange wash, `--jdb-hero-wash`), on generated post covers, behind the closing call to action, which bookends the hero, and behind the author sign-off at the end of posts. Don't add other washes or textures.
 - **Images: covers, charts, and one photo treatment.** Post cards use `PostCover` art, never raw photos (a photo on a cover goes through `scene: image`, which tones it navy). Photos use the `graded` treatment (`Portrait`, article header images, the 404 clip). Client logos are one color (`Logos`).
 - **Bailey is part of the site.** Josh's dog appears in his portrait, the data viz guide's header, the 404 page clip, and the footer status bar ("supervised by Bailey", linking to `/about/#bailey`). Keep the cameos small and occasional.
 - **Orange is a signal.** The brand orange marks the main action and the current location (the active nav item, the cursor in the logotype and home headline). Don't use it for decoration.
