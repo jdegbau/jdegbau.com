@@ -8,10 +8,12 @@ import { author } from '../data/author';
 import Portrait from './Portrait.astro';
 import Icon, { type IconName } from './Icon.astro';
 
-// Professional profiles only (the footer lists them all). Add a name here,
-// with its icon, to show another profile.
+// Professional profiles only (the footer lists them all), in this order.
+// Add a name here, with its icon, to show another profile.
 const iconFor: Record<string, IconName> = {
   LinkedIn: 'linkedin-in',
+  GitHub: 'github',
+  Bluesky: 'bluesky',
 };
 const order = Object.keys(iconFor);
 const socials = author.aiProfile.profiles
@@ -25,25 +27,24 @@ const socials = author.aiProfile.profiles
     <div>
       <p class="jdb-author__eyebrow">Written by</p>
       <p class="jdb-author__name">{author.name}</p>
+      {socials.length > 0 && (
+        <ul class="jdb-author__social" aria-label="Follow Josh">
+          {socials.map((profile) => (
+            <li>
+              <a href={profile.url} aria-label={`Follow me on ${profile.name}`}>
+                <Icon name={iconFor[profile.name]} />
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   </div>
 
   <p class="jdb-author__bio">{author.bio}</p>
 
   <div class="jdb-author__actions">
-    <a class="jdb-btn jdb-btn--primary jdb-btn--arrow" href="/contact/" data-jdb-track="author-contact">Work with me</a>
-    <a class="jdb-author__more" href="/about/">More about Josh</a>
-    {socials.length > 0 && (
-      <ul class="jdb-author__social" aria-label="Follow Josh">
-        {socials.map((profile) => (
-          <li>
-            <a href={profile.url} aria-label={`Follow me on ${profile.name}`}>
-              <Icon name={iconFor[profile.name]} />
-            </a>
-          </li>
-        ))}
-      </ul>
-    )}
+    <a class="jdb-btn jdb-btn--primary jdb-btn--arrow jdb-author__cta" href="/contact/" data-jdb-track="author-contact">Work with me</a>
   </div>
 </aside>
 
@@ -121,35 +122,23 @@ const socials = author.aiProfile.profiles
   }
 
   .jdb-author__actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--jdb-s-2) var(--jdb-s-5);
-    margin-top: var(--jdb-s-4);
-    padding-top: var(--pad);
-    border-top: 1px solid var(--jdb-line);
+    margin-top: var(--pad);
   }
 
-  .jdb-author__more {
-    display: inline-flex;
-    align-items: center;
-    min-height: var(--jdb-target);
-    font-size: var(--jdb-fs-sm);
-    font-weight: var(--jdb-fw-medium);
-    color: var(--jdb-fg);
+  /* Full width of the text area, inside the panel's padding. */
+  .jdb-author__cta {
+    width: 100%;
+    justify-content: center;
   }
 
-  .jdb-author__more:hover {
-    color: var(--jdb-orange-400);
-  }
-
-  /* Pulled in by half its tap target's padding so the gap to "More about
-     Josh" matches the gap between the links. */
+  /* Under the name. The icons sit in 44px tap targets, so pull the row
+     left (and up) by the padding around each icon to line the first one up
+     with the name. */
   .jdb-author__social {
     display: flex;
     flex-wrap: wrap;
     gap: 0;
-    margin: 0 0 0 calc((1.1rem - var(--jdb-target)) / 2);
+    margin: calc((1rem - var(--jdb-target)) / 2 + var(--jdb-s-2)) 0 calc((1rem - var(--jdb-target)) / 2) calc((1rem - var(--jdb-target)) / 2);
     padding: 0;
     list-style: none;
   }
@@ -175,7 +164,7 @@ const socials = author.aiProfile.profiles
   }
 
   .jdb-author__social :global(.jdb-svg-icon) {
-    width: 1.1rem;
-    height: 1.1rem;
+    width: 1rem;
+    height: 1rem;
   }
 </style>
