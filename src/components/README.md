@@ -31,10 +31,12 @@ Front matter options handled by the post template (`src/pages/blog/[slug].astro`
 Purpose: The "Written by" sign-off at the end of every post.
 Location: `src/components/AuthorBox.astro`
 Notes:
-- Accepts no props. Uses author data from `src/data/author.ts` (name, bio, the LinkedIn profile, and the SEO Helpline link).
-- One column at every width: photo and name, then the bio, then a row of plain text links (More about Josh, LinkedIn, SEO Helpline). No buttons, so it doesn't compete with the post's closing call to action.
+- Accepts no props. Uses author data from `src/data/author.ts` (name, bio, and `aiProfile.profiles` for the social links).
+- One column at every width: photo and name, then the bio, then social icons, then a hairline and the call to action: a primary "Work with me" button (to `/contact/`) and a "More about Josh" link.
+- Social icons use `Icon`, in the footer's order (LinkedIn, GitHub, Instagram, Threads, Bluesky, X). Each is a 44px target labeled "Follow me on <network>"; the row is pulled left so the first icon lines up with the bio. A profile added to `author.ts` needs an entry in `iconFor` to show up.
 - Sits on the site's graph paper, with a soft orange glow behind the photo, fading toward the bottom right. The padding is half a grid square and the photo is two squares, so the photo lands exactly on the grid lines; keep those in step if you change `--jdb-grid-size`.
 - The photo has empty alt text because the name is printed beside it.
+- Tag Manager hook: `data-jdb-track="author-contact"` on the button.
 
 ### BlogCard
 Purpose: Compact blog post teaser card.
@@ -528,6 +530,7 @@ The main conversion points carry a `data-jdb-track` attribute naming the action,
 - `newsletter` (the footer signup form)
 - `share-x`, `share-linkedin`, `share-email`, `share-copy` (post share bar)
 - `video-play`, `video-chapter` (every `VideoEmbed`)
+- `author-contact` (the "Work with me" button in the author sign-off at the end of posts)
 
 In Tag Manager: add a Custom JavaScript variable that returns `{{Click Element}}.closest('[data-jdb-track]')?.dataset.jdbTrack`, a Click (All Elements) trigger where that variable is not undefined, and a GA4 event tag (e.g. `cta_click` with parameter `cta` = the variable). Use a Form Submission trigger on `[data-jdb-track="newsletter"]` for signups. Give new conversion points a `data-jdb-track` name in the same style.
 

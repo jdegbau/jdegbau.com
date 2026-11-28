@@ -6,8 +6,21 @@
  */
 import { author } from '../data/author';
 import Portrait from './Portrait.astro';
+import Icon, { type IconName } from './Icon.astro';
 
-const linkedin = author.aiProfile.profiles.find((profile) => profile.name === 'LinkedIn');
+// Same profiles and order as the footer.
+const iconFor: Record<string, IconName> = {
+  LinkedIn: 'linkedin-in',
+  GitHub: 'github',
+  Instagram: 'instagram',
+  Threads: 'threads',
+  Bluesky: 'bluesky',
+  X: 'x-twitter',
+};
+const order = Object.keys(iconFor);
+const socials = author.aiProfile.profiles
+  .filter((profile) => profile.name in iconFor)
+  .sort((a, b) => order.indexOf(a.name) - order.indexOf(b.name));
 ---
 <aside class="jdb-author" aria-label="About the author">
   <div class="jdb-author__head">
@@ -21,17 +34,20 @@ const linkedin = author.aiProfile.profiles.find((profile) => profile.name === 'L
 
   <p class="jdb-author__bio">{author.bio}</p>
 
-  <ul class="jdb-author__links">
-    <li><a href="/about/">More about Josh</a></li>
-    {linkedin && (
+  <ul class="jdb-author__social" aria-label="Follow Josh">
+    {socials.map((profile) => (
       <li>
-        <a href={linkedin.url} target="_blank" rel="noopener noreferrer">
-          LinkedIn <span class="jdb-icon jdb-icon--external jdb-author__ext" aria-hidden="true"></span><span class="jdb-sr-only">(opens in a new tab)</span>
+        <a href={profile.url} aria-label={`Follow me on ${profile.name}`}>
+          <Icon name={iconFor[profile.name]} />
         </a>
       </li>
-    )}
-    <li><a href={author.cta.href}>{author.cta.text}</a></li>
+    ))}
   </ul>
+
+  <div class="jdb-author__actions">
+    <a class="jdb-btn jdb-btn--primary jdb-btn--arrow" href="/contact/" data-jdb-track="author-contact">Work with me</a>
+    <a class="jdb-author__more" href="/about/">More about Josh</a>
+  </div>
 </aside>
 
 <style>
@@ -107,37 +123,62 @@ const linkedin = author.aiProfile.profiles.find((profile) => profile.name === 'L
     color: var(--jdb-fg-dim);
   }
 
-  .jdb-author__links {
+  .jdb-author__actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 0 var(--jdb-s-5);
-    margin: var(--jdb-s-4) 0 0;
-    padding: var(--jdb-s-2) 0 0;
-    list-style: none;
+    align-items: center;
+    gap: var(--jdb-s-2) var(--jdb-s-5);
+    margin-top: var(--jdb-s-4);
+    padding-top: var(--pad);
     border-top: 1px solid var(--jdb-line);
   }
 
-  .jdb-author__links li {
-    margin: 0;
-  }
-
-  .jdb-author__links a {
+  .jdb-author__more {
     display: inline-flex;
     align-items: center;
-    gap: 0.35em;
     min-height: var(--jdb-target);
     font-size: var(--jdb-fs-sm);
     font-weight: var(--jdb-fw-medium);
     color: var(--jdb-fg);
-    text-decoration: none;
   }
 
-  .jdb-author__links a:hover {
+  .jdb-author__more:hover {
     color: var(--jdb-orange-400);
   }
 
-  .jdb-author__ext {
-    width: 0.8em;
-    height: 0.8em;
+  /* The icons sit in 44px tap targets; pull the row left so the first
+     icon lines up with the bio's text edge. */
+  .jdb-author__social {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    margin: var(--jdb-s-3) 0 0 calc((1.1rem - var(--jdb-target)) / 2);
+    padding: 0;
+    list-style: none;
+  }
+
+  .jdb-author__social li {
+    margin: 0;
+  }
+
+  .jdb-author__social a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--jdb-target);
+    height: var(--jdb-target);
+    color: var(--jdb-fg-dim);
+    border-radius: var(--jdb-r-md);
+    transition: color var(--jdb-t-fast), background-color var(--jdb-t-fast);
+  }
+
+  .jdb-author__social a:hover {
+    color: var(--jdb-fg);
+    background: var(--jdb-navy-800);
+  }
+
+  .jdb-author__social :global(.jdb-svg-icon) {
+    width: 1.1rem;
+    height: 1.1rem;
   }
 </style>
