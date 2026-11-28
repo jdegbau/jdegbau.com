@@ -264,6 +264,8 @@ function measure(rand, id) {
 }
 
 function flow(rand, id) {
+  // A real Sankey: each band keeps its width from left to right, and each
+  // right-hand node is exactly as tall as the bands flowing into it.
   const left = [0.42, 0.33, 0.25].map((f) => f + range(rand, -0.06, 0.06));
   const nodeW = 26;
   const gap = 26;
@@ -276,30 +278,31 @@ function flow(rand, id) {
     lNodes.push([y, h]);
     y += h + gap;
   }
-  const rSplit = range(rand, 0.35, 0.55);
-  const rNodes = [[P.y + 30, (P.h - 60 - gap) * rSplit], [P.y + 30 + (P.h - 60 - gap) * rSplit + gap, (P.h - 60 - gap) * (1 - rSplit)]];
+  range(rand, 0.35, 0.55); // kept so the seeded choices below stay the same
   const hi = Math.floor(rand() * 3);
+  const shares = lNodes.map((_, i) => (i === hi ? 1 : range(rand, 0.2, 0.7)));
+  // Band heights: [left node][target].
+  const bandH = lNodes.map(([, lh], i) => [lh * shares[i], lh * (1 - shares[i])]);
+  const rHeights = [0, 1].map((t) => bandH.reduce((sum, b) => sum + b[t], 0));
+  // Right column holds the same total with one gap, centered on the left column.
+  const rTop = P.y + gap / 2;
+  const rNodes = [[rTop, rHeights[0]], [rTop + rHeights[0] + gap, rHeights[1]]];
   const x0 = P.x + nodeW;
   const x1 = P.x + P.w - nodeW;
+  const mx = (x0 + x1) / 2;
   const rOffsets = [0, 0];
   let bands = '';
-  lNodes.forEach(([ly, lh], i) => {
-    const toFirst = i === hi ? 1 : range(rand, 0.2, 0.7);
+  lNodes.forEach(([ly], i) => {
     let lOffset = 0;
-    [toFirst, 1 - toFirst].forEach((share, target) => {
-      if (share <= 0.01) return;
-      const bh = lh * share;
-      const [ry, rh] = rNodes[target];
-      const scale = rh / usable;
-      const rbh = Math.max(8, bh * (rh / (P.h * 0.5)) * 0.55);
+    [0, 1].forEach((target) => {
+      const bh = bandH[i][target];
+      if (bh <= 0.5) return;
       const ya = ly + lOffset;
-      const yb = ry + rOffsets[target];
-      const mx = (x0 + x1) / 2;
+      const yb = rNodes[target][0] + rOffsets[target];
       const on = i === hi && target === 0;
-      bands += `<path d="M${x0} ${r1(ya)} C${r1(mx)} ${r1(ya)} ${r1(mx)} ${r1(yb)} ${x1} ${r1(yb)} L${x1} ${r1(yb + rbh)} C${r1(mx)} ${r1(yb + rbh)} ${r1(mx)} ${r1(ya + bh)} ${x0} ${r1(ya + bh)} Z" fill="${on ? C.accent : C.ink}" fill-opacity="${on ? 0.9 : 0.5}"/>`;
+      bands += `<path d="M${x0} ${r1(ya)} C${r1(mx)} ${r1(ya)} ${r1(mx)} ${r1(yb)} ${x1} ${r1(yb)} L${x1} ${r1(yb + bh)} C${r1(mx)} ${r1(yb + bh)} ${r1(mx)} ${r1(ya + bh)} ${x0} ${r1(ya + bh)} Z" fill="${on ? C.accent : C.ink}" fill-opacity="${on ? 0.9 : 0.5}"/>`;
       lOffset += bh;
-      rOffsets[target] += rbh;
-      void scale;
+      rOffsets[target] += bh;
     });
   });
   const nodes = [

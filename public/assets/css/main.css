@@ -313,7 +313,7 @@ a:hover { color: var(--jdb-c-link-hover); }
 /* Card-surface components re-scope the link token to the card-safe tint
    (see --jdb-c-link-oncard note in tokens) — any plain <a> nested inside
    one of these automatically gets the accessible shade, no per-link fix. */
-.jdb-service, .jdb-quote, .jdb-post, .jdb-chartcard, .jdb-authorcard, .jdb-toc, .jdb-quiz {
+.jdb-service, .jdb-quote, .jdb-post, .jdb-chartcard, .jdb-toc, .jdb-quiz {
   --jdb-c-link: var(--jdb-c-link-oncard);
 }
 
@@ -416,7 +416,6 @@ hr { border: 0; border-top: 1px solid var(--jdb-line); margin: var(--jdb-s-7) 0;
    static cards (author, quote, quiz) stay put, so a lifting card always
    means "this whole thing is clickable". */
 .jdb-post,
-.jdb-authorcard,
 .jdb-quote,
 .jdb-quiz {
   background: var(--jdb-surface-card);
@@ -885,15 +884,7 @@ a.jdb-tag:hover { background: var(--jdb-orange-a20); color: #fff; }
 /* --------------------------------------------------------------------------
    17. AUTHOR BIO CARD
    -------------------------------------------------------------------------- */
-.jdb-authorcard { display: flex; flex-wrap: wrap; align-items: center; gap: var(--jdb-s-4); padding: var(--jdb-s-5); background: var(--jdb-surface); border: 1px solid var(--jdb-line); border-radius: var(--jdb-r-lg); }
-/* The photo is a <Portrait> (see AuthorBox.astro). */
-.jdb-authorcard__name { font-family: var(--jdb-font-sans); font-size: var(--jdb-fs-base); color: var(--jdb-fg); margin-bottom: .15rem; }
-.jdb-authorcard p { margin: 0; font-size: var(--jdb-fs-sm); }
-/* The bio takes the free space and the button wraps under it when the card
-   is narrow (phones, sidebars), instead of squeezing the bio to one word
-   per line. */
-.jdb-authorcard__body { flex: 1 1 16rem; min-width: 0; }
-.jdb-authorcard .jdb-btn { flex: 0 0 auto; white-space: nowrap; }
+/* The author sign-off is styled in src/components/AuthorBox.astro. */
 
 /* --------------------------------------------------------------------------
    20. TABLE OF CONTENTS — styled in src/components/TableOfContents.astro

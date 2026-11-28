@@ -169,6 +169,21 @@ const payload = { config, plugins, patches: controls.map((control) => control.pa
     return result;
   };
 
+  // A Sankey flow can carry its own `color` (to highlight the one flow that
+  // matters). Config is JSON, so wrap the dataset's colors in functions that
+  // check each flow first.
+  const applyFlowColors = (config: Record<string, any>) => {
+    if (config.type !== 'sankey') return config;
+    for (const dataset of config.data?.datasets ?? []) {
+      if (!Array.isArray(dataset.data) || !dataset.data.some((flow: unknown) => isObject(flow) && 'color' in flow)) continue;
+      for (const key of ['colorFrom', 'colorTo']) {
+        const base = dataset[key];
+        dataset[key] = (ctx: { raw?: { color?: string } }) => ctx.raw?.color ?? (typeof base === 'function' ? base(ctx) : base);
+      }
+    }
+    return config;
+  };
+
   const start = async (figure: HTMLElement) => {
     const source = figure.querySelector('[data-playground-config]');
     const canvas = figure.querySelector('canvas');
@@ -187,7 +202,7 @@ const payload = { config, plugins, patches: controls.map((control) => control.pa
           .filter((toggle) => toggle.checked)
           .reduce((current, toggle) => merge(current, payload.patches[Number(toggle.dataset.playgroundControl)]), structuredClone(payload.config));
         chart?.destroy();
-        chart = new Chart(canvas, resolveCssVars(config));
+        chart = new Chart(canvas, applyFlowColors(resolveCssVars(config)));
       };
 
       toggles.forEach((toggle) => toggle.addEventListener('change', render));

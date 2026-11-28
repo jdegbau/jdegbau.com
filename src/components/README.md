@@ -28,12 +28,15 @@ Front matter options handled by the post template (`src/pages/blog/[slug].astro`
 ## Current components
 
 ### AuthorBox
-Purpose: Reusable author profile summary block.
+Purpose: The "Written by" sign-off at the end of every post.
 Location: `src/components/AuthorBox.astro`
 Notes:
-- Accepts no props.
-- Uses author data from `src/data/author.ts`.
-- The bio takes the free width; on narrow cards the button wraps below it. The photo has empty alt text because the name is printed beside it.
+- Accepts no props. Uses author data from `src/data/author.ts` (name, bio, and `aiProfile.profiles` for the social links).
+- One column at every width: photo, name, and social icons at the top, then the bio, then a "Work with me" button (to `/contact/`) that spans the text area.
+- Only professional profiles get an icon: LinkedIn, GitHub, and Bluesky (the footer lists every network). To change them, edit `iconFor` in the component; the order there is the order shown. Each icon is a 44px target labeled "Follow me on <network>", and the row is pulled left so the first icon lines up with the name.
+- Sits on the site's graph paper, with a soft orange glow behind the photo, fading toward the bottom right. The padding is half a grid square and the photo is two squares, so the photo lands exactly on the grid lines; keep those in step if you change `--jdb-grid-size`.
+- The photo has empty alt text because the name is printed beside it.
+- Tag Manager hook: `data-jdb-track="author-contact"` on the button.
 
 ### BlogCard
 Purpose: Compact blog post teaser card.
@@ -451,9 +454,44 @@ Notes:
 Purpose: Privacy-friendly, click-to-load YouTube embed with VideoObject schema.
 Location: `src/components/VideoEmbed.astro`
 Notes:
-- Props: `youtubeId`, `title`, `description`, `uploadDate` (ISO date), `duration?` (ISO 8601, e.g. `PT8M30S`), `chapters?: { start, title }[]` (start in seconds).
-- Shows the thumbnail until clicked, then loads a `youtube-nocookie.com` iframe. Chapter buttons start playback at that time.
+- Props: `youtubeId`, `title`, `description`, `uploadDate` (ISO date), `duration?` (ISO 8601, e.g. `PT2M4S`), `chapters?: { start, title }[]` (start in seconds), `poster?` (a local image to show instead of YouTube's thumbnail).
+- Shows the thumbnail until clicked, then loads a `youtube-nocookie.com` iframe in place. There's no outbound link to YouTube; without JavaScript, the player loads inline instead.
+- The thumbnail comes from YouTube unless you pass `poster` (see "Video thumbnails" below). `duration` adds a length badge on the thumbnail; a malformed value fails the build.
+- Chapter buttons start playback at that time. Once the player is running, they jump within it (no reload), and the current chapter is highlighted as the video plays.
+- Connections to YouTube open when a reader hovers or focuses the player, so it starts faster after the click.
+- Tag Manager hooks: `data-jdb-track="video-play"` on the play button and `video-chapter` on chapter buttons.
 - Emits its own VideoObject JSON-LD, with chapters as `Clip` parts.
+
+#### Video thumbnails
+Until a reader clicks play, the embed shows a still image. There are two sources:
+
+**YouTube's thumbnail (the default).** With no `poster`, the embed uses the thumbnail set on the video in YouTube Studio, so changing it there changes it here (allow for caching).
+- It asks for `maxresdefault.jpg` (1280×720, 16:9), the sharp version.
+- YouTube only makes that size when the video, or its custom thumbnail, is at least 1280×720. Otherwise the request returns a 404 whose body is a 120×90 grey placeholder, which browsers still display, so the script checks the loaded width (and listens for errors) and swaps to `hqdefault.jpg` (480×360, always present). That image is 4:3 with black bars, and the frame crops it to 16:9, so it looks softer but fills the frame.
+- The swap needs JavaScript; without it, the player loads inline and no thumbnail is shown anyway.
+
+**Your own image (`poster`).** Use one when YouTube's thumbnail is off brand, low resolution, or carries text meant for YouTube (like "WATCH NOW" or an arrow) that reads oddly in a post.
+
+```mdx
+<VideoEmbed
+  youtubeId="OAOGigx32d4"
+  title="Sankey charts, explained"
+  description="What a Sankey chart is, when to use one, and how to read it."
+  uploadDate="2026-11-28"
+  duration="PT2M4S"
+  poster="/assets/img/video/sankey-charts-explained.jpg"
+/>
+```
+
+Poster rules:
+- **Size:** 16:9, 1280×720 (or 1920×1080). Other shapes are cropped from the center to fill the frame.
+- **Format:** JPEG at about quality 80, or WebP; keep it under ~200 KB. It's lazy-loaded, but it's still the biggest thing in the embed.
+- **Where:** `public/assets/img/video/<video-slug>.jpg`, and pass the path starting at `/assets/`. `npm run check` fails if the file doesn't exist.
+- **Content:** a frame from the video or a branded still in the site's palette. Keep the center clear for the orange play button and the bottom-right corner clear for the length badge. Don't bake in a play button, the duration, or the video title; the embed draws those.
+- **Alt text:** none needed. The image is decorative because the play button is labeled "Play video: <title>" for screen readers.
+- **No fallback:** the YouTube swap only applies to YouTube's thumbnails, so check a poster on the preview before publishing.
+
+Either way, the image also goes into the VideoObject schema as `thumbnailUrl` (a poster as an absolute `https://jdegbau.com/...` URL), with YouTube's `hqdefault` listed second as a backup for search engines.
 
 ### PostSeriesNav
 Purpose: Previous/next links and the numbered list of parts for a multi-part series.
@@ -478,6 +516,7 @@ Notes:
 - Renders inside `ChartFrame`, so it shares the title, source line, and "View the data" table with every other chart.
 - Each control is a checkbox; when it's on, its `patch` is deep-merged into the config (objects merge, arrays replace, so patch a whole `datasets` array).
 - Config is plain JSON: no functions or scriptable options. Colors can be site tokens written as `"var(--jdb-orange-500)"`.
+- Sankey flows can take their own `color` (`{ from, to, flow, color }`) to highlight one flow against the dataset's `colorFrom`/`colorTo`. A node takes the color of the last flow listed into or out of it, so list a highlighted flow before its neighbors to keep the nodes neutral.
 - Chart.js 4.6.1 and plugins load once per page from jsDelivr with SRI, lazily when the chart nears the viewport. The site's dark theme defaults are applied, and animation is off for `prefers-reduced-motion`.
 - To upgrade a library, edit the pinned URL and hash in `src/lib/chart-loader.ts` (instructions are in the file).
 - `table` adds a "View the data" panel for screen readers, and as a fallback if the chart can't load.
@@ -490,6 +529,8 @@ The main conversion points carry a `data-jdb-track` attribute naming the action,
 - `helpline-choose-time`, `helpline-ask-first`, `booking-direct` (SEO Helpline page)
 - `newsletter` (the footer signup form)
 - `share-x`, `share-linkedin`, `share-email`, `share-copy` (post share bar)
+- `video-play`, `video-chapter` (every `VideoEmbed`)
+- `author-contact` (the "Work with me" button in the author sign-off at the end of posts)
 
 In Tag Manager: add a Custom JavaScript variable that returns `{{Click Element}}.closest('[data-jdb-track]')?.dataset.jdbTrack`, a Click (All Elements) trigger where that variable is not undefined, and a GA4 event tag (e.g. `cta_click` with parameter `cta` = the variable). Use a Form Submission trigger on `[data-jdb-track="newsletter"]` for signups. Give new conversion points a `data-jdb-track` name in the same style.
 
@@ -502,7 +543,7 @@ Older posts contain raw HTML from the site's previous CSS framework (`columns`, 
 The visual rules live in the tokens at the top of `public/assets/css/main.css`; the components page shows them.
 - **Two faces, two jobs.** Schibsted Grotesk (`--jdb-font-sans`) sets everything people read: headlines, UI, body. JetBrains Mono (`--jdb-font-mono`) is only for what is literally code: the logotype, code samples, `kbd`. Don't set labels, dates, or buttons in mono.
 - **Headlines carry the page.** Large, heavy, tightly tracked (`--jdb-track-display` / `--jdb-track-heading`). Heading sizes are fluid between a phone size and a desktop size.
-- **Graph paper is the one texture.** It appears behind heroes (`--jdb-grid-line`, `--jdb-grid-size`, under a soft orange wash, `--jdb-hero-wash`), on generated post covers, and behind the closing call to action, which bookends the hero. Don't add other washes or textures.
+- **Graph paper is the one texture.** It appears behind heroes (`--jdb-grid-line`, `--jdb-grid-size`, under a soft orange wash, `--jdb-hero-wash`), on generated post covers, behind the closing call to action, which bookends the hero, and behind the author sign-off at the end of posts. Don't add other washes or textures.
 - **Images: covers, charts, and one photo treatment.** Post cards use `PostCover` art, never raw photos (a photo on a cover goes through `scene: image`, which tones it navy). Photos use the `graded` treatment (`Portrait`, article header images, the 404 clip). Client logos are one color (`Logos`).
 - **Bailey is part of the site.** Josh's dog appears in his portrait, the data viz guide's header, the 404 page clip, and the footer status bar ("supervised by Bailey", linking to `/about/#bailey`). Keep the cameos small and occasional.
 - **Orange is a signal.** The brand orange marks the main action and the current location (the active nav item, the cursor in the logotype and home headline). Don't use it for decoration.

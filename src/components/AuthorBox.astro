@@ -1,20 +1,170 @@
 ---
+/**
+ * The author sign-off at the end of every post: a "Written by" block on the
+ * site's graph paper. One column at every width: photo and name, then the
+ * bio, then quiet text links. The photo is two grid squares, set on the grid.
+ */
 import { author } from '../data/author';
 import Portrait from './Portrait.astro';
+import Icon, { type IconName } from './Icon.astro';
+
+// Professional profiles only (the footer lists them all), in this order.
+// Add a name here, with its icon, to show another profile.
+const iconFor: Record<string, IconName> = {
+  LinkedIn: 'linkedin-in',
+  GitHub: 'github',
+  Bluesky: 'bluesky',
+};
+const order = Object.keys(iconFor);
+const socials = author.aiProfile.profiles
+  .filter((profile) => profile.name in iconFor)
+  .sort((a, b) => order.indexOf(a.name) - order.indexOf(b.name));
 ---
-<div class="jdb-authorcard">
-  {/* The name sits right beside the photo, so the image is decorative. */}
-  <Portrait crop="avatar" shape="circle" alt="" sizes="3.5rem" class="jdb-authorcard__photo" />
-  <div class="jdb-authorcard__body">
-    <div class="jdb-authorcard__name">{author.name}</div>
-    <p>{author.bio}</p>
+<aside class="jdb-author" aria-label="About the author">
+  <div class="jdb-author__head">
+    {/* The name sits right beside the photo, so the image is decorative. */}
+    <Portrait crop="avatar" alt="" sizes="96px" class="jdb-author__photo" />
+    <div>
+      <p class="jdb-author__eyebrow">Written by</p>
+      <p class="jdb-author__name">{author.name}</p>
+      {socials.length > 0 && (
+        <ul class="jdb-author__social" aria-label="Follow Josh">
+          {socials.map((profile) => (
+            <li>
+              <a href={profile.url} aria-label={`Follow me on ${profile.name}`}>
+                <Icon name={iconFor[profile.name]} />
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   </div>
-  <a class="jdb-btn jdb-btn--outline jdb-btn--sm" href={author.cta.href}>{author.cta.text}</a>
-</div>
+
+  <p class="jdb-author__bio">{author.bio}</p>
+
+  <div class="jdb-author__actions">
+    <a class="jdb-btn jdb-btn--primary jdb-btn--arrow jdb-author__cta" href="/contact/" data-jdb-track="author-contact">Work with me</a>
+  </div>
+</aside>
 
 <style>
-  :global(.jdb-authorcard__photo) {
-    width: 3.5rem;
+  /* The padding is half a grid square, so the photo (two squares) lands
+     exactly on the graph paper's lines. */
+  .jdb-author {
+    --pad: calc(var(--jdb-grid-size) / 2);
+    /* A touch stronger than the hero's lines: this panel is small, so the
+       grid needs to read without a large area behind it. */
+    --line: rgb(255 255 255 / 0.07);
+    position: relative;
+    overflow: hidden;
+    padding: var(--pad);
+    background: var(--jdb-navy-900);
+    border: 1px solid var(--jdb-line);
+    border-radius: var(--jdb-r-lg);
+    isolation: isolate;
+  }
+
+  /* Graph paper under a soft orange glow behind the photo, fading out
+     toward the bottom right so the bio reads on a calm surface. */
+  .jdb-author::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      radial-gradient(circle at calc(var(--pad) + var(--jdb-grid-size)) calc(var(--pad) + var(--jdb-grid-size)), var(--jdb-hero-wash), transparent 14rem),
+      linear-gradient(to right, var(--line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--line) 1px, transparent 1px);
+    background-size: 100% 100%, var(--jdb-grid-size) var(--jdb-grid-size), var(--jdb-grid-size) var(--jdb-grid-size);
+    background-position: 0 0, calc(var(--pad) - 1px) 0, 0 calc(var(--pad) - 1px);
+    -webkit-mask-image: radial-gradient(ellipse 120% 140% at 0 0, #000 30%, transparent 85%);
+            mask-image: radial-gradient(ellipse 120% 140% at 0 0, #000 30%, transparent 85%);
+  }
+
+  .jdb-author__head {
+    display: flex;
+    align-items: center;
+    gap: var(--pad);
+  }
+
+  .jdb-author :global(.jdb-author__photo) {
     flex: 0 0 auto;
+    width: calc(var(--jdb-grid-size) * 2);
+    margin: 0;
+  }
+
+  .jdb-author :global(.jdb-author__photo img) {
+    border-radius: var(--jdb-r-md);
+  }
+
+  .jdb-author__eyebrow {
+    margin: 0 0 var(--jdb-s-1);
+    font-size: var(--jdb-fs-xs);
+    color: var(--jdb-fg-muted);
+  }
+
+  .jdb-author__name {
+    margin: 0;
+    font-size: clamp(1.25rem, 1rem + 1vw, var(--jdb-fs-lg));
+    font-weight: var(--jdb-fw-bold);
+    letter-spacing: var(--jdb-track-heading);
+    line-height: 1.15;
+    color: var(--jdb-fg);
+  }
+
+  .jdb-author__bio {
+    max-width: 60ch;
+    margin: var(--pad) 0 0;
+    font-size: var(--jdb-fs-base);
+    color: var(--jdb-fg-dim);
+  }
+
+  .jdb-author__actions {
+    margin-top: var(--pad);
+  }
+
+  /* Full width of the text area, inside the panel's padding. */
+  .jdb-author__cta {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Under the name. The icons sit in 44px tap targets, so pull the row
+     left (and up) by the padding around each icon to line the first one up
+     with the name. */
+  .jdb-author__social {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    margin: calc((1rem - var(--jdb-target)) / 2 + var(--jdb-s-2)) 0 calc((1rem - var(--jdb-target)) / 2) calc((1rem - var(--jdb-target)) / 2);
+    padding: 0;
+    list-style: none;
+  }
+
+  .jdb-author__social li {
+    margin: 0;
+  }
+
+  .jdb-author__social a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--jdb-target);
+    height: var(--jdb-target);
+    color: var(--jdb-fg-dim);
+    border-radius: var(--jdb-r-md);
+    transition: color var(--jdb-t-fast), background-color var(--jdb-t-fast);
+  }
+
+  .jdb-author__social a:hover {
+    color: var(--jdb-fg);
+    background: var(--jdb-navy-800);
+  }
+
+  .jdb-author__social :global(.jdb-svg-icon) {
+    width: 1rem;
+    height: 1rem;
   }
 </style>
