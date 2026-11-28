@@ -31,6 +31,7 @@ import Callout from '../../components/Callout.astro';
 import Tabs from '../../components/Tabs.astro';
 import TabPanel from '../../components/TabPanel.astro';
 import DownloadCard from '../../components/DownloadCard.astro';
+import VideoEmbed from '../../components/VideoEmbed.astro';
 
 export const flows = [
   { from: 'Search', to: 'Blog', flow: 320 },
@@ -108,6 +109,15 @@ This guide covers what a Sankey chart is, when to use one, how to read one step 
     { label: 'Avoid it when', value: 'Flows loop back, there is only one path, or exact values matter most.', tone: 'bad' },
     { label: 'Best alternative', value: 'A <strong>funnel</strong> for a single path, a <strong>table</strong> for exact values.', tone: 'neutral' },
   ]}
+/>
+
+Prefer to watch? The video covers the same ground in about two minutes.
+
+<VideoEmbed
+  youtubeId="OAOGigx32d4"
+  title="Sankey charts, explained"
+  description="What a Sankey chart is, when to use one, how to read it, and the mistakes to avoid, using an example of 1,000 website visitors."
+  uploadDate="2026-11-28"
 />
 
 ## What is a Sankey chart?
