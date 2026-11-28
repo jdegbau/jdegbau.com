@@ -19,7 +19,11 @@ interface Props {
   /** ISO 8601 duration, e.g. PT8M30S. */
   duration?: string;
   chapters?: Chapter[];
-  /** Optional local poster image (e.g. /assets/img/...). Defaults to YouTube's own thumbnail. */
+  /**
+   * Optional local 16:9 image (1280×720) shown before playback, e.g.
+   * /assets/img/video/<slug>.jpg. Defaults to YouTube's thumbnail.
+   * See "Video thumbnails" in src/components/README.md.
+   */
   poster?: string;
   class?: string;
 }

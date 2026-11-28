@@ -453,11 +453,42 @@ Location: `src/components/VideoEmbed.astro`
 Notes:
 - Props: `youtubeId`, `title`, `description`, `uploadDate` (ISO date), `duration?` (ISO 8601, e.g. `PT2M4S`), `chapters?: { start, title }[]` (start in seconds), `poster?` (a local image to show instead of YouTube's thumbnail).
 - Shows the thumbnail until clicked, then loads a `youtube-nocookie.com` iframe in place. There's no outbound link to YouTube; without JavaScript, the player loads inline instead.
-- The thumbnail is YouTube's sharp 16:9 `maxresdefault`, falling back to `hqdefault` when a video doesn't have one. `duration` adds a length badge on the thumbnail; a malformed value fails the build.
+- The thumbnail comes from YouTube unless you pass `poster` (see "Video thumbnails" below). `duration` adds a length badge on the thumbnail; a malformed value fails the build.
 - Chapter buttons start playback at that time. Once the player is running, they jump within it (no reload), and the current chapter is highlighted as the video plays.
 - Connections to YouTube open when a reader hovers or focuses the player, so it starts faster after the click.
 - Tag Manager hooks: `data-jdb-track="video-play"` on the play button and `video-chapter` on chapter buttons.
 - Emits its own VideoObject JSON-LD, with chapters as `Clip` parts.
+
+#### Video thumbnails
+Until a reader clicks play, the embed shows a still image. There are two sources:
+
+**YouTube's thumbnail (the default).** With no `poster`, the embed uses the thumbnail set on the video in YouTube Studio, so changing it there changes it here (allow for caching).
+- It asks for `maxresdefault.jpg` (1280×720, 16:9), the sharp version.
+- YouTube only makes that size when the video, or its custom thumbnail, is at least 1280×720. Otherwise the request returns a 404 whose body is a 120×90 grey placeholder, which browsers still display, so the script checks the loaded width (and listens for errors) and swaps to `hqdefault.jpg` (480×360, always present). That image is 4:3 with black bars, and the frame crops it to 16:9, so it looks softer but fills the frame.
+- The swap needs JavaScript; without it, the player loads inline and no thumbnail is shown anyway.
+
+**Your own image (`poster`).** Use one when YouTube's thumbnail is off brand, low resolution, or carries text meant for YouTube (like "WATCH NOW" or an arrow) that reads oddly in a post.
+
+```mdx
+<VideoEmbed
+  youtubeId="OAOGigx32d4"
+  title="Sankey charts, explained"
+  description="What a Sankey chart is, when to use one, and how to read it."
+  uploadDate="2026-11-28"
+  duration="PT2M4S"
+  poster="/assets/img/video/sankey-charts-explained.jpg"
+/>
+```
+
+Poster rules:
+- **Size:** 16:9, 1280×720 (or 1920×1080). Other shapes are cropped from the center to fill the frame.
+- **Format:** JPEG at about quality 80, or WebP; keep it under ~200 KB. It's lazy-loaded, but it's still the biggest thing in the embed.
+- **Where:** `public/assets/img/video/<video-slug>.jpg`, and pass the path starting at `/assets/`. `npm run check` fails if the file doesn't exist.
+- **Content:** a frame from the video or a branded still in the site's palette. Keep the center clear for the orange play button and the bottom-right corner clear for the length badge. Don't bake in a play button, the duration, or the video title; the embed draws those.
+- **Alt text:** none needed. The image is decorative because the play button is labeled "Play video: <title>" for screen readers.
+- **No fallback:** the YouTube swap only applies to YouTube's thumbnails, so check a poster on the preview before publishing.
+
+Either way, the image also goes into the VideoObject schema as `thumbnailUrl` (a poster as an absolute `https://jdegbau.com/...` URL), with YouTube's `hqdefault` listed second as a backup for search engines.
 
 ### PostSeriesNav
 Purpose: Previous/next links and the numbered list of parts for a multi-part series.
